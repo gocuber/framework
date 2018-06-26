@@ -1,0 +1,39 @@
+{
+    "name": "gocuber/framework",
+    "description": "The Cuber Framework.",
+    "keywords": ["framework", "cuber"],
+    "license": "MIT",
+    "homepage": "http://www.gocuber.com",
+    "support": {
+        "issues": "https://github.com/gocuber/framework/issues",
+        "source": "https://github.com/gocuber/framework"
+    },
+    "authors": [
+        {
+            "name": "Cuber",
+            "email": "cuber@gocuber.com"
+        }
+    ],
+    "require": {
+        "php": "^7.0.0",
+        "erusev/parsedown": "~1.7"
+    },
+    "autoload": {
+        "files": [
+            "src/Cuber/Func/func.php"
+        ],
+        "psr-4": {
+            "Cuber\\": "src/Cuber/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

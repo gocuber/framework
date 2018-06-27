@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Cache_File
+ * File
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Cache;
 
-class Cache_File
+class File
 {
 
 	public static $_is_cache = true;

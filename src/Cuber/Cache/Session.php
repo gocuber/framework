@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Cache_Session
+ * Session
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Cache;
 
-class Cache_Session
+class Session
 {
 
     private static $_instance = null;

@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Util_Email
+ * Mail
  *
- * 邮件发送类
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Support;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-class Util_Email
+class Mail
 {
 
     /**

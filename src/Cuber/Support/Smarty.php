@@ -1,13 +1,13 @@
 <?php
 
 /**
- * SmartyCls
+ * Smarty
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Support;
 
-class SmartyCls
+class Smarty
 {
 
     /**

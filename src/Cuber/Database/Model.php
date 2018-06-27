@@ -3,9 +3,11 @@
 /**
  * Model
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Database;
+
+use Cuber\Database\DB;
 
 class Model extends DB
 {

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Util_Rsa
+ * Rsa
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Support;
 
-class Util_Rsa
+class Rsa
 {
 
     private $_private_key = '';

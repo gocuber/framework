@@ -1,13 +1,15 @@
 <?php
 
 /**
- * Cube
+ * Cuber
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Foundation;
 
-class Cube
+use Cuber\Foundation\Route;
+
+class Application
 {
 
     private $_route = null;
@@ -22,7 +24,7 @@ class Cube
 
     private static $_instance = null;
 
-    public static function G($class = 'Cube')
+    public static function G($class = 'Cuber\Application')
     {
         if(!isset(self::$_instance[$class])){
             self::$_instance[$class] = new $class();
@@ -37,7 +39,7 @@ class Cube
      */
     public static function run()
     {
-        Cube::G()->setAction()->runAction();
+        self::G()->setAction()->runAction();
     }
 
     /**

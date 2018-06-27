@@ -1,13 +1,13 @@
 <?php
 
 /**
- * DB_PDO
+ * PDO
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Database;
 
-class DB_PDO
+class PDO
 {
 
     const RECONN = 3;

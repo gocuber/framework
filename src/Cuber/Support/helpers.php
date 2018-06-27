@@ -1,11 +1,10 @@
 <?php
 
 /**
- * Util_App
+ * helpers
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
 
 class Util_App
 {

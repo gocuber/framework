@@ -1,13 +1,13 @@
 <?php
 
 /**
- * CubeException
+ * Exception
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Support;
 
-class CubeException extends Exception
+class Exception extends \Exception
 {
 
     const ERROR_TYPE_MYSQL   = 'mysql';

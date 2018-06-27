@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Util_AuthCode
+ * AuthCode
  *
- * 验证码生成类
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Support;
 
-class Util_AuthCode
+class AuthCode
 {
 
     /**

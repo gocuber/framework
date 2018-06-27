@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Cache_Memcached
+ * Memcached
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Cache;
 
-class Cache_Memcached
+class Memcached
 {
 
     private static $_instance = null;

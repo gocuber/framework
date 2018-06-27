@@ -3,9 +3,9 @@
 /**
  * Cookie
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Cookie;
 
 class Cookie
 {

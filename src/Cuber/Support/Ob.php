@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Util_Ob
+ * Ob
  *
- * @author Cube <dafei.net@gmail.com>
+ * @author Cuber <dafei.net@gmail.com>
  */
-defined('IN_CUBE') or exit();
+namespace Cuber\Support;
 
-class Util_Ob
+class Ob
 {
 
     /**

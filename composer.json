@@ -20,7 +20,7 @@
     },
     "autoload": {
         "files": [
-            "src/Cuber/Func/func.php"
+            "src/Cuber/Support/helpers.php"
         ],
         "psr-4": {
             "Cuber\\": "src/Cuber/"

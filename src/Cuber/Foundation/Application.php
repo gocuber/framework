@@ -8,6 +8,7 @@
 namespace Cuber\Foundation;
 
 use Cuber\Foundation\Route;
+use Cuber\Support\Exception;
 
 class Application
 {
@@ -24,7 +25,7 @@ class Application
 
     private static $_instance = null;
 
-    public static function G($class = 'Cuber\Application')
+    public static function G($class = 'Cuber\Foundation\Application')
     {
         if(!isset(self::$_instance[$class])){
             self::$_instance[$class] = new $class();

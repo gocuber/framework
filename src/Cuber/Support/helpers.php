@@ -6,38 +6,40 @@
  * @author Cuber <dafei.net@gmail.com>
  */
 
-class Util_App
-{
-
+if (! function_exists('is_cli')) {
     /**
      * 是否CLI运行
      *
      * @return bool
      */
-    public static function isCli()
+    function is_cli()
     {
-        if(defined('IS_CLI')){
+        if (defined('IS_CLI')) {
         	return IS_CLI;
         }
         return ('cli' === php_sapi_name());
     }
+}
 
+if (! function_exists('ret404')) {
     /**
      * header 404
      *
      * @return void
      */
-    public static function ret404()
+    function ret404()
     {
         header('HTTP/1.1 404 Not Found');
     }
+}
 
+if (! function_exists('get_argv')) {
     /**
-     * getArgv
+     * get_argv
      *
      * @return array
      */
-    public static function getArgv()
+    function get_argv()
     {
         $_argv = $GLOBALS['argv'];
         $_argc = $GLOBALS['argc'];
@@ -57,5 +59,36 @@ class Util_App
         }
         return $argvs;
     }
+}
 
+if (! function_exists('s')) {
+    /**
+     * s()
+     *
+     * @param string|array $data
+     * @param bool $exit
+     *
+     * @return void
+     */
+    function s($data = null, $exit = false)
+    {
+        echo '<pre>';
+        print_r($data);
+        echo '</pre>';
+        $exit and exit();
+    }
+}
+
+if (! function_exists('d')) {
+    /**
+     * d()
+     *
+     * @return void
+     */
+    function d()
+    {
+        echo '<pre>';
+        debug_print_backtrace();
+        echo '</pre>';
+    }
 }

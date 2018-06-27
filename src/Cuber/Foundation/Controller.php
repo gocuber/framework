@@ -7,6 +7,8 @@
  */
 namespace Cuber\Foundation;
 
+use Cuber\Foundation\View;
+
 class Controller
 {
 
@@ -20,14 +22,14 @@ class Controller
 
     public function __construct($opt = [])
     {
-        if(!empty($opt) and is_array($opt)){
-            foreach($opt as $key => $value){
+        if (!empty($opt) and is_array($opt)) {
+            foreach ($opt as $key => $value) {
                 $this->$key = $value;
             }
         }
 
         // parse_str(implode('&', $GLOBALS['argv']), $_GET);
-        defined('IS_CLI') and IS_CLI === true and $this->_argv = Util_App::getArgv();
+        defined('IS_CLI') and IS_CLI === true and $this->_argv = get_argv();
     }
 
     protected function display($tpl = '', $data = '')

@@ -7,6 +7,8 @@
  */
 namespace Cuber\Support;
 
+use Cuber\Support\Log;
+
 class Exception extends \Exception
 {
 
@@ -27,10 +29,10 @@ class Exception extends \Exception
      */
     public function log($type = self::ERROR_TYPE_APP, $e = null, $exit = false)
     {
-        if($e instanceof Exception){
+        if ($e instanceof \Exception) {
             $msg   = $e->getMessage();
             $trace = $e->getTrace();
-        }else{
+        } else {
             $msg   = $this->getMessage();
             $trace = $this->getTrace();
         }
@@ -57,9 +59,9 @@ class Exception extends \Exception
 
         if(!(isset($GLOBALS['_G']['error_log']) and false === $GLOBALS['_G']['error_log'])){
             $error_log = isset($GLOBALS['_G']['error_log']) ? $GLOBALS['_G']['error_log'] : '/tmp/error_log/';
-            $cli       = Util_App::isCli() ? '_cli' : '';
+            $cli       = is_cli() ? '_cli' : '';
             $file      = date('Ymd') . '_' . $type . $cli . '_error.log';
-            Util_Log::add($error_log . $file, date('Y-m-d H:i:s') . " ------------------------------------------\n{$msg}\n{$str}\n");
+            Log::add($error_log . $file, date('Y-m-d H:i:s') . " ------------------------------------------\n{$msg}\n{$str}\n");
         }
 
         $exit and exit();

@@ -13,6 +13,8 @@ use Cuber\Support\Exception;
 class Application
 {
 
+    private $_base_path = null;
+
     private $_route = null;
 
     private $_controller = null;
@@ -23,14 +25,11 @@ class Application
 
     private $_closure_param = null;
 
-    private static $_instance = null;
-
-    public static function G($class = 'Cuber\Foundation\Application')
+    public function __construct($base_path = '')
     {
-        if(!isset(self::$_instance[$class])){
-            self::$_instance[$class] = new $class();
-        }
-        return self::$_instance[$class];
+    	$this->_base_path = $base_path;
+    	define('BASE_PATH', $base_path);
+    	define('APP_DIR', BASE_PATH . 'app/');
     }
 
     /**
@@ -38,9 +37,9 @@ class Application
      *
      * @return void
      */
-    public static function run()
+    public function run()
     {
-        self::G()->setAction()->runAction();
+        $this->setAction()->runAction();
     }
 
     /**
@@ -51,6 +50,7 @@ class Application
     private function setAction()
     {
         $ret = Route::getInstance()->hitRoute();
+        s($ret);
 
         isset($ret['route'])         and $this->_route         = $ret['route'];
         isset($ret['controller'])    and $this->_controller    = $ret['controller'];
@@ -75,31 +75,51 @@ class Application
                 $controller = (isset($this->_controller) and '' !== $this->_controller) ? $this->_controller : 'Index';
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
 
-                $file = APP_DIR . 'controllers/' . $controller . '.php';
+                $file = $this->appPath() . 'controllers/' . $controller . '.php';
                 if(!is_file($file) or !include_once($file)){
-                    throw new CubeException("Controller '{$controller}' not found");
+                    throw new Exception("Controller '{$controller}' not found");
                 }
 
-                $c = 'controllers\\' . $controller;
+                $c = 'App\Controllers\\' . $controller;
                 if(is_callable(array($c, $action))){
                     $class = new $c(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
                     $class->$action();
                 }else{
-                    throw new CubeException("Action '{$action}' not found");
+                    throw new Exception("Action '{$action}' not found");
                 }
             }else{
                 Route::getInstance()->runClosureRoute($this->_closure, $this->_closure_param);
             }
 
-        } catch (CubeException $e) {
+        } catch (Exception $e) {
 
-            if(defined('APP_DEBUG') and APP_DEBUG){
+            //if(defined('APP_DEBUG') and APP_DEBUG){
                 $e->log();
-            }else{
-                Util_App::ret404();
-            }
+            //}else{
+            //    Util_App::ret404();
+            //}
 
         }
+    }
+
+    /**
+     * basePath
+     *
+     * @return string
+     */
+    public function basePath()
+    {
+    	return $this->_base_path;
+    }
+
+    /**
+     * appPath
+     *
+     * @return string
+     */
+    public function appPath()
+    {
+    	return $this->_base_path . 'app/';
     }
 
 }

@@ -10,18 +10,10 @@ namespace Cuber\Cache;
 class Mem
 {
 
-    private function __construct(){}
-
-    public static function connect($conf = null)
+    public static function connect($key = 'default')
     {
-        empty($conf) and $conf = 'default';
-
-        if(!is_array($conf)){
-            $conf = (!empty($GLOBALS['_G']['memcache'][$conf]) and is_array($GLOBALS['_G']['memcache'][$conf])) ? $GLOBALS['_G']['memcache'][$conf] : array();
-        }
-
-        $mem = extension_loaded('Memcached') ? 'Cache_Memcached' : 'Cache_Memcache';
-        return $mem::connect($conf);
+        $mem = extension_loaded('Memcached') ? 'Cuber\\Cache\\Memcached' : 'Cuber\\Cache\\Memcache';
+        return $mem::connect($key);
     }
 
 }

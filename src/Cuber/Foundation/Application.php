@@ -28,8 +28,11 @@ class Application
     public function __construct($base_path = '')
     {
     	$this->_base_path = $base_path;
+
     	define('BASE_PATH', $base_path);
     	define('APP_DIR', BASE_PATH . 'app/');
+
+    	defined('IS_CLI') or define('IS_CLI', is_cli());
     }
 
     /**
@@ -50,7 +53,6 @@ class Application
     private function setAction()
     {
         $ret = Route::getInstance()->hitRoute();
-        s($ret);
 
         isset($ret['route'])         and $this->_route         = $ret['route'];
         isset($ret['controller'])    and $this->_controller    = $ret['controller'];
@@ -70,34 +72,38 @@ class Application
     {
         try {
 
-            if(isset($this->_controller)){
+            if (isset($this->_controller)) {
+
                 $route      = (isset($this->_route)      and '' !== $this->_route)      ? $this->_route      : '/';
                 $controller = (isset($this->_controller) and '' !== $this->_controller) ? $this->_controller : 'Index';
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
 
                 $file = $this->appPath() . 'controllers/' . $controller . '.php';
-                if(!is_file($file) or !include_once($file)){
+                if (!is_file($file) or !include_once($file)) {
                     throw new Exception("Controller '{$controller}' not found");
                 }
 
-                $c = 'App\Controllers\\' . $controller;
-                if(is_callable(array($c, $action))){
+                $c = 'App\\Controllers\\' . $controller;
+                if (is_callable(array($c, $action))) {
                     $class = new $c(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
                     $class->$action();
-                }else{
+                } else {
                     throw new Exception("Action '{$action}' not found");
                 }
-            }else{
+
+            } else {
+
                 Route::getInstance()->runClosureRoute($this->_closure, $this->_closure_param);
+
             }
 
         } catch (Exception $e) {
 
-            //if(defined('APP_DEBUG') and APP_DEBUG){
+            if (defined('APP_DEBUG') and APP_DEBUG) {
                 $e->log();
-            //}else{
-            //    Util_App::ret404();
-            //}
+            } else {
+                ret404();
+            }
 
         }
     }

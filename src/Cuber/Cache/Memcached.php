@@ -7,6 +7,9 @@
  */
 namespace Cuber\Cache;
 
+use Cuber\Config\Config;
+use Cuber\Support\Exception;
+
 class Memcached
 {
 
@@ -18,23 +21,20 @@ class Memcached
 
     private function __construct($config = null)
     {
-    	if(isset($config)){
+    	if (isset($config)) {
     		$this->setConfig($config);
     	}
     }
 
-    public static function connect($conf = array())
+    public static function connect($key = 'default')
     {
-        empty($conf) and $conf = 'default';
-
-        if(!is_array($conf)){
-            $conf = (!empty($GLOBALS['_G']['memcache'][$conf]) and is_array($GLOBALS['_G']['memcache'][$conf])) ? $GLOBALS['_G']['memcache'][$conf] : array();
-        }
+        $conf = Config::mem($key);
 
         $key = md5(serialize($conf));
-        if(!isset(self::$_instance[$key])){
+        if (!isset(self::$_instance[$key])) {
             self::$_instance[$key] = new self($conf);
         }
+
         return self::$_instance[$key];
     }
 
@@ -219,10 +219,10 @@ class Memcached
     {
         try {
             if(empty($config) or !is_array($config)){
-                throw new CubeException("memcached config error");
+                throw new Exception("memcached config error");
             }
-        } catch (CubeException $e) {
-            $e->log(CubeException::ERROR_TYPE_MEM);
+        } catch (Exception $e) {
+            $e->log(Exception::ERROR_TYPE_MEM);
         }
 
         if(empty($config)){

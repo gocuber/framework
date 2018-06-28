@@ -7,6 +7,8 @@
  */
 namespace Cuber\Cache;
 
+use Cuber\Config\Config;
+
 class File
 {
 
@@ -21,18 +23,15 @@ class File
 	    $this->_config = $conf;
 	}
 
-	public static function connect($conf = null)
+	public static function connect($key = 'default')
 	{
-	    empty($conf) and $conf = 'default';
-
-	    if(!is_array($conf)){
-	        $conf = (!empty($GLOBALS['_G']['filecache'][$conf]) and is_array($GLOBALS['_G']['filecache'][$conf])) ? $GLOBALS['_G']['filecache'][$conf] : array();
-	    }
+	    $conf = Config::fc($key);
 
 	    $key = md5(serialize($conf));
 	    if(!isset(self::$_instance[$key])){
 	        self::$_instance[$key] = new self($conf);
 	    }
+
 	    return self::$_instance[$key];
 	}
 

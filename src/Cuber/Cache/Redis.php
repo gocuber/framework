@@ -7,6 +7,8 @@
  */
 namespace Cuber\Cache;
 
+use Cuber\Config\Config;
+
 class Redis
 {
 
@@ -18,7 +20,7 @@ class Redis
 
     private function __construct($config = null)
     {
-    	if(isset($config)){
+    	if (isset($config)) {
     		$this->setConfig($config);
     	}
     }
@@ -28,13 +30,9 @@ class Redis
      *
      * @return Cache_Redis
      */
-    public static function connect($conf = null, $mode = 'master')
+    public static function connect($key = 'default', $mode = 'master')
     {
-        empty($conf) and $conf = 'default';
-
-        if(!is_array($conf)){
-            $conf = (!empty($GLOBALS['_G']['redis'][$conf]) and is_array($GLOBALS['_G']['redis'][$conf])) ? $GLOBALS['_G']['redis'][$conf] : array();
-        }
+        $conf = Config::redis($key);
 
         $key = md5($conf['host'] . '_' . $conf['port']);
         if('slave' == $mode){
@@ -55,9 +53,9 @@ class Redis
      *
      * @return Cache_Redis
      */
-    public static function master($conf = null)
+    public static function master($key = 'default')
     {
-        return self::connect($conf, 'master');
+        return self::connect($key, 'master');
     }
 
     /**
@@ -65,9 +63,9 @@ class Redis
      *
      * @return Cache_Redis
      */
-    public static function slave($conf = null)
+    public static function slave($key = 'default')
     {
-        return self::connect($conf, 'slave');
+        return self::connect($key, 'slave');
     }
 
     public function __call($name = null, $arguments = null)

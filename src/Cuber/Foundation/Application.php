@@ -9,6 +9,7 @@ namespace Cuber\Foundation;
 
 use Cuber\Foundation\Route;
 use Cuber\Support\Exception;
+use Cuber\Foundation\AliasLoader;
 
 class Application
 {
@@ -29,10 +30,7 @@ class Application
     {
     	$this->_base_path = $base_path;
 
-    	define('BASE_PATH', $base_path);
-    	define('APP_DIR', BASE_PATH . 'app/');
-
-    	defined('IS_CLI') or define('IS_CLI', is_cli());
+    	$this->init();
     }
 
     /**
@@ -52,7 +50,10 @@ class Application
      */
     private function setAction()
     {
-        $ret = Route::getInstance()->hitRoute();
+
+        Router::getInstance()->load();
+
+        $ret = Router::getInstance()->hitRoute();
 
         isset($ret['route'])         and $this->_route         = $ret['route'];
         isset($ret['controller'])    and $this->_controller    = $ret['controller'];
@@ -78,7 +79,7 @@ class Application
                 $controller = (isset($this->_controller) and '' !== $this->_controller) ? $this->_controller : 'Index';
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
 
-                $file = $this->appPath() . 'controllers/' . $controller . '.php';
+                $file = APP_DIR . 'controllers/' . $controller . '.php';
                 if (!is_file($file) or !include_once($file)) {
                     throw new Exception("Controller '{$controller}' not found");
                 }
@@ -93,7 +94,7 @@ class Application
 
             } else {
 
-                Route::getInstance()->runClosureRoute($this->_closure, $this->_closure_param);
+                Router::getInstance()->runClosureRoute($this->_closure, $this->_closure_param);
 
             }
 
@@ -113,19 +114,24 @@ class Application
      *
      * @return string
      */
-    public function basePath()
+    private function basePath()
     {
     	return $this->_base_path;
     }
 
     /**
-     * appPath
+     * Init
      *
-     * @return string
+     * @return void
      */
-    public function appPath()
+    private function init()
     {
-    	return $this->_base_path . 'app/';
+        define('BASE_PATH', $this->_base_path);
+        define('APP_DIR', BASE_PATH . 'app/');
+
+        defined('IS_CLI') or define('IS_CLI', is_cli());
+
+        AliasLoader::getInstance()->init()->register();
     }
 
 }

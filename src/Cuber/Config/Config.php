@@ -31,19 +31,20 @@ class Config
      *
      * @param string $type
      * @param string $key
+     * @param string|array $default
      *
      * @return array
      */
-    public static function get($type = 'db', $key = 'default')
+    private static function get($type = 'db', $key = 'default', $default = [])
     {
     	self::set();
 
     	if (!isset(self::$hash[$type])) {
-    		return [];
+    		return $default;
     	}
 
     	if (isset($key)) {
-            return isset(self::$hash[$type][$key]) ? self::$hash[$type][$key] : [];
+            return isset(self::$hash[$type][$key]) ? self::$hash[$type][$key] : $default;
     	} else {
     		return self::$hash[$type];
     	}
@@ -95,6 +96,18 @@ class Config
     public static function fc($key = 'default')
     {
     	return self::get('filecache', $key);
+    }
+
+    /**
+     * Get Alias Config
+     *
+     * @param string $key
+     *
+     * @return array
+     */
+    public static function alias()
+    {
+    	return self::get('alias', null, []);
     }
 
 }

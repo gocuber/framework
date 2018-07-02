@@ -1,13 +1,13 @@
 <?php
 
 /**
- * QueryBuilder
+ * Query
  *
  * @author Cuber <dafei.net@gmail.com>
  */
 namespace Cuber\Database;
 
-class QueryBuilder
+class Query
 {
 
     private $_cond = null;
@@ -28,16 +28,16 @@ class QueryBuilder
      */
     private function autoCond($cond = null, $sign = 'and')
     {
-        if(empty($cond)){
+        if (empty($cond)) {
             return null;
         }
 
-        if(is_array($cond)){
-            if(!(isset($cond[0]) and in_array($cond[0], array('and','or')))){
-                $cond = array_merge(array($sign), $cond);
+        if (is_array($cond)) {
+            if (!(isset($cond[0]) and in_array($cond[0], ['and', 'or']))) {
+                $cond = array_merge([$sign], $cond);
             }
-        }else{
-            $cond = array($sign, $cond);
+        } else {
+            $cond = [$sign, $cond];
         }
 
         return $cond;
@@ -53,7 +53,7 @@ class QueryBuilder
      */
     private function mergeCond($cond = null, $sign = 'and')
     {
-        if(empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], array('and','or'))){
+        if(empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and','or'])){
             return false;
         }
 
@@ -74,9 +74,9 @@ class QueryBuilder
         }else{
             if($sign == $sub_sign){
                 unset($cond[0]);
-                $this->_cond = array_merge(array($sign,$this->_cond), $cond);
+                $this->_cond = array_merge([$sign, $this->_cond], $cond);
             }else{
-                $this->_cond = array($sign,$this->_cond,$cond);
+                $this->_cond = [$sign, $this->_cond, $cond];
             }
         }
 
@@ -141,7 +141,7 @@ class QueryBuilder
      */
     private function buildCond($cond = null)
     {
-        if(empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], array('and','or'))){
+        if (empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and', 'or'])) {
             return '';
         }
 
@@ -149,22 +149,22 @@ class QueryBuilder
         unset($cond[0]);
 
         $sql = '';
-        foreach($cond as $key => $value){
-            if(isset($value[0]) and in_array($value[0], array('and','or'))){
+        foreach ($cond as $key => $value) {
+            if (isset($value[0]) and in_array($value[0], ['and', 'or'])) {
                 $sql .= ' ' . $sign . ' (' . $this->buildCond($value) . ')';
-            }else{
-                if(is_int($key)){
-                    if(is_array($value)){
-                        if(!isset($value[0])){
-                            foreach($value as $_k => $_v){break 1;}
+            } else {
+                if (is_int($key)) {
+                    if (is_array($value)) {
+                        if (!isset($value[0])) {
+                            foreach ($value as $_k => $_v) { break 1; }
                             $sql .= ' ' . $sign . ' ' . $this->buildCondHash($_k, $_v);
-                        }else{
+                        } else {
                             $sql .= ' ' . $sign . ' ' . $this->buildCondArray($value);
                         }
-                    }else{
+                    } else {
                         $sql .= ' ' . $sign . ' ' . $this->buildCondStr($value);
                     }
-                }else{
+                } else {
                     $sql .= ' ' . $sign . ' ' . $this->buildCondHash($key, $value);
                 }
             }
@@ -255,11 +255,11 @@ class QueryBuilder
             return '';
         }
 
-        if(count($value)==4 and in_array($value[1], array('between','not between'))){
-            return $this->buildCondBetween($value[0], array($value[2], $value[3]), $value[1]);
-        }elseif(count($value)==3 and in_array($value[1], array('between','not between'))){
+        if(count($value)==4 and in_array($value[1], ['between','not between'])){
+            return $this->buildCondBetween($value[0], [$value[2], $value[3]], $value[1]);
+        }elseif(count($value)==3 and in_array($value[1], ['between','not between'])){
             return $this->buildCondBetween($value[0], $value[2], $value[1]);
-        }elseif(count($value)==3 and in_array($value[1], array('in','not in'))){
+        }elseif(count($value)==3 and in_array($value[1], ['in','not in'])){
             return $this->buildCondIn($value[0], $value[2], $value[1]);
         }elseif(count($value)==3){
             return $value[0] . ' ' . $value[1] . ' ' . $this->setParam($value[2]); // > < <> like ['name','like','%key%'] ['name','like','key%']

@@ -1,13 +1,17 @@
 <?php
 
 /**
- * PDO
+ * Connect
  *
  * @author Cuber <dafei.net@gmail.com>
  */
 namespace Cuber\Database;
 
-class PDO
+use PDO;
+use PDOException;
+use Cuber\Support\Exception;
+
+class Connect
 {
 
     const RECONN = 3;
@@ -28,17 +32,18 @@ class PDO
 
     private function __construct($config = null)
     {
-    	if(isset($config)){
+    	if (isset($config)) {
     		$this->setConfig($config);
     	}
     }
 
-    public static function getInstance($config = array())
+    public static function getInstance($config = [])
     {
         $key = md5(serialize($config));
-        if(!isset(self::$_instance[$key])){
+        if (!isset(self::$_instance[$key])) {
             self::$_instance[$key] = new self($config);
         }
+
         return self::$_instance[$key];
     }
 
@@ -73,10 +78,10 @@ class PDO
         } catch (PDOException $e) {
 
             if($this->inTransaction()){
-                throw new CubeException('exec() ' . $sql . $e->getMessage());
+                throw new Exception('exec() ' . $sql . $e->getMessage());
             }
 
-            (new CubeException())->log(CubeException::ERROR_TYPE_MYSQL, $e);
+            (new Exception())->log(Exception::ERROR_TYPE_MYSQL, $e);
 
             return false;
         }
@@ -187,10 +192,10 @@ class PDO
             }
 
             if($this->inTransaction()){
-                throw new CubeException('query() ' . $sql . $e->getMessage());
+                throw new Exception('query() ' . $sql . $e->getMessage());
             }
 
-            (new CubeException())->log(CubeException::ERROR_TYPE_MYSQL, $e);
+            (new Exception())->log(Exception::ERROR_TYPE_MYSQL, $e);
         }
     }
 
@@ -340,9 +345,9 @@ class PDO
             $closure();
             $this->commit();
             return true;
-        } catch (CubeException $e) {
+        } catch (Exception $e) {
             $this->rollBack();
-            $e->log(CubeException::ERROR_TYPE_MYSQL);
+            $e->log(Exception::ERROR_TYPE_MYSQL);
             return false;
         }
     }
@@ -379,7 +384,7 @@ class PDO
         	return $this->getMaster();
         }
         if(!isset($this->_slave)){
-    	   $this->_slave = $this->connect($this->getConfig('slave'));
+    	   $this->_slave = $this->conn($this->getConfig('slave'));
         }
     	return $this->_slave;
     }
@@ -392,7 +397,7 @@ class PDO
     public function getMaster()
     {
         if(!isset($this->_master)){
-    	   $this->_master = $this->connect($this->getConfig('master'));
+    	   $this->_master = $this->conn($this->getConfig('master'));
         }
     	return $this->_master;
     }
@@ -403,7 +408,7 @@ class PDO
      * @param array $conf
      * @return string
      */
-    private function getDsn($conf = array())
+    private function getDsn($conf = [])
     {
         extract($conf);
         if(empty($host) or empty($database)){
@@ -418,21 +423,21 @@ class PDO
     }
 
     /**
-     * connect
+     * conn
      *
      * @param array $conf
      * @return PDO
      */
-    private function connect($conf = array())
+    private function conn($conf = [])
     {
         $dsn = $this->getDsn($conf);
         extract($conf);
 
         try {
             // PDO::ATTR_PERSISTENT => true,
-            return new PDO($dsn, $username, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_INIT_COMMAND => "set names utf8"));
+            return new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_INIT_COMMAND => "set names utf8"]);
         } catch (PDOException $e) {
-            (new CubeException())->log(CubeException::ERROR_TYPE_MYSQL, $e, true);
+            (new Exception())->log(Exception::ERROR_TYPE_MYSQL, $e, true);
         }
     }
 
@@ -442,14 +447,14 @@ class PDO
      * @param array $config
      * @return $this
      */
-    public function setConfig($config = array())
+    public function setConfig($config = [])
     {
         try {
             if(!isset($config) or !is_array($config)){
-                throw new CubeException("database config error");
+                throw new Exception("database config error");
             }
-        } catch (CubeException $e) {
-            $e->log(CubeException::ERROR_TYPE_MYSQL);
+        } catch (Exception $e) {
+            $e->log(Exception::ERROR_TYPE_MYSQL);
         }
 
         $this->_config = $config;
@@ -464,11 +469,11 @@ class PDO
     public function getConfig($mode = null)
     {
         $conf = $this->_config;
-        if(empty($mode) or !in_array($mode, array('master', 'slave'))){
+        if (empty($mode) or !in_array($mode, ['master', 'slave'])) {
         	return $conf;
         }
 
-        if(!isset($this->_conf[$mode])){
+        if (!isset($this->_conf[$mode])) {
             if('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])){
                 if(isset($conf['slave'][0]) and is_array($conf['slave'][0])){
                     $skey = mt_rand(0, count($conf['slave']) - 1);
@@ -503,13 +508,14 @@ class PDO
      */
     private function getType($data = null)
     {
-        static $type_map = array(
+        static $type_map = [
             'boolean'  => PDO::PARAM_BOOL,
             'integer'  => PDO::PARAM_INT,
             'string'   => PDO::PARAM_STR,
             'resource' => PDO::PARAM_LOB,
             'NULL'     => PDO::PARAM_NULL,
-        );
+        ];
+
         $type = gettype($data);
 
         return isset($type_map[$type]) ? $type_map[$type] : PDO::PARAM_STR;

@@ -7,12 +7,15 @@
  */
 namespace Cuber\Database;
 
+use Cuber\Database\Query;
+use Cuber\Database\Connect;
+
 class DB
 {
 
     private $_pdo = null;
 
-    private $_query_builder = null;
+    private $_query = null;
 
     protected $_key = 'default';
 
@@ -115,9 +118,9 @@ class DB
     public function hash($key = '', $value = '')
     {
         $field = ('*' == $value or $key == $value) ? $value : "{$key},{$value}";
-        $this->getQueryBuilder()->field($field);
+        $this->getQuery()->field($field);
 
-        $sql  = $this->getQueryBuilder()->getSql();
+        $sql  = $this->getQuery()->getSql();
 
         $is   = ('*' == $value or count(explode(',', $value)) > 1) ? 1 : 0;
         $hash = array();
@@ -138,8 +141,8 @@ class DB
      */
     public function get($field = null)
     {
-    	$this->getQueryBuilder()->field($field);
-    	$sql = $this->getQueryBuilder()->getSql();
+    	$this->getQuery()->field($field);
+    	$sql = $this->getQuery()->getSql();
         return $this->getPdo()->get($sql['sql'], $sql['param']);
     }
 
@@ -151,8 +154,8 @@ class DB
      */
     public function line($field = null)
     {
-    	$this->getQueryBuilder()->field($field);
-    	$sql = $this->getQueryBuilder()->getSql();
+    	$this->getQuery()->field($field);
+    	$sql = $this->getQuery()->getSql();
         return $this->getPdo()->line($sql['sql'], $sql['param']);
     }
 
@@ -164,8 +167,8 @@ class DB
      */
     public function val($field = null)
     {
-    	$this->getQueryBuilder()->field($field);
-    	$sql = $this->getQueryBuilder()->getSql();
+    	$this->getQuery()->field($field);
+    	$sql = $this->getQuery()->getSql();
         return $this->getPdo()->val($sql['sql'], $sql['param']);
     }
 
@@ -178,7 +181,7 @@ class DB
      */
     public function where($where = null)
     {
-        $this->getQueryBuilder()->where($where);
+        $this->getQuery()->where($where);
         return $this;
     }
 
@@ -190,7 +193,7 @@ class DB
      */
     public function andWhere($where = null)
     {
-        $this->getQueryBuilder()->andWhere($where);
+        $this->getQuery()->andWhere($where);
         return $this;
     }
 
@@ -202,7 +205,7 @@ class DB
      */
     public function orWhere($where = null)
     {
-        $this->getQueryBuilder()->orWhere($where);
+        $this->getQuery()->orWhere($where);
         return $this;
     }
 
@@ -214,7 +217,7 @@ class DB
      */
     public function orderBy($orderby = null)
     {
-        $this->getQueryBuilder()->orderBy($orderby);
+        $this->getQuery()->orderBy($orderby);
         return $this;
     }
 
@@ -226,7 +229,7 @@ class DB
      */
     public function groupBy($groupby = null)
     {
-        $this->getQueryBuilder()->groupBy($groupby);
+        $this->getQuery()->groupBy($groupby);
         return $this;
     }
 
@@ -238,7 +241,7 @@ class DB
      */
     public function having($having = null)
     {
-        $this->getQueryBuilder()->having($having);
+        $this->getQuery()->having($having);
         return $this;
     }
 
@@ -250,7 +253,7 @@ class DB
      */
     public function offset($offset = 0)
     {
-        $this->getQueryBuilder()->offset($offset);
+        $this->getQuery()->offset($offset);
         return $this;
     }
 
@@ -262,7 +265,7 @@ class DB
      */
     public function limit($limit = 0)
     {
-        $this->getQueryBuilder()->limit($limit);
+        $this->getQuery()->limit($limit);
         return $this;
     }
 
@@ -276,7 +279,7 @@ class DB
      */
     public function page($currpage = 1, $pagesize = 1)
     {
-        $this->getQueryBuilder()->page($currpage, $pagesize);
+        $this->getQuery()->page($currpage, $pagesize);
         return $this;
     }
 
@@ -290,7 +293,7 @@ class DB
      */
     public function innerJoin($table = null, $on = null)
     {
-        $this->getQueryBuilder()->join('inner join', $table, $on);
+        $this->getQuery()->join('inner join', $table, $on);
         return $this;
     }
 
@@ -304,7 +307,7 @@ class DB
      */
     public function leftJoin($table = null, $on = null)
     {
-        $this->getQueryBuilder()->join('left join', $table, $on);
+        $this->getQuery()->join('left join', $table, $on);
         return $this;
     }
 
@@ -318,7 +321,7 @@ class DB
      */
     public function rightJoin($table = null, $on = null)
     {
-        $this->getQueryBuilder()->join('right join', $table, $on);
+        $this->getQuery()->join('right join', $table, $on);
         return $this;
     }
 
@@ -342,7 +345,7 @@ class DB
     public function query($sql = null, $param = null)
     {
         if(empty($sql)){
-            $_sql  = $this->getQueryBuilder()->getSql();
+            $_sql  = $this->getQuery()->getSql();
             $sql   = $_sql['sql'];
             $param = $_sql['param'];
         }
@@ -468,7 +471,7 @@ class DB
             }
 
             $sql  = "update `" . $this->getName() . "` set $field";
-            $_sql = $this->getQueryBuilder()->getSql();
+            $_sql = $this->getQuery()->getSql();
 
 	        !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
 	        !empty($_sql['orderby']) and $sql .= " order by " . $_sql['orderby'];
@@ -496,7 +499,7 @@ class DB
     {
         if(empty($sql)){
             $sql  = "delete from `" . $this->getName() . "`";
-            $_sql = $this->getQueryBuilder()->getSql();
+            $_sql = $this->getQuery()->getSql();
 
 	        !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
 	        !empty($_sql['orderby']) and $sql .= " order by " . $_sql['orderby'];
@@ -664,7 +667,7 @@ class DB
      */
     public function field($field = null)
     {
-        $this->getQueryBuilder()->field($field);
+        $this->getQuery()->field($field);
         return $this;
     }
 
@@ -686,7 +689,7 @@ class DB
     public function name($name = '')
     {
         $this->_name = $name;
-        $this->getQueryBuilder()->from($name);
+        $this->getQuery()->from($name);
         return $this;
     }
 
@@ -743,17 +746,17 @@ class DB
     }
 
     /**
-     * getQueryBuilder
+     * getQuery
      *
-     * @return DB_QueryBuilder
+     * @return Query
      */
-    protected function getQueryBuilder()
+    protected function getQuery()
     {
-        if(!isset($this->_query_builder)){
-            $this->_query_builder = new DB_QueryBuilder();
-            !empty($this->_name) and $this->_query_builder->name($this->_name);
+        if(!isset($this->_query)){
+            $this->_query = new Query();
+            !empty($this->_name) and $this->_query->name($this->_name);
         }
-        return $this->_query_builder;
+        return $this->_query;
     }
 
     /**
@@ -791,12 +794,12 @@ class DB
     /**
      * getPdo
      *
-     * @return DB_PDO
+     * @return PDO
      */
     public function getPdo()
     {
         if(!isset($this->_pdo)){
-            $this->_pdo = DB_PDO::getInstance($this->getConfig());
+            $this->_pdo = Connect::getInstance($this->getConfig());
         }
         return $this->_pdo;
     }

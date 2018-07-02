@@ -20,7 +20,10 @@ class Controller
 
     protected $_argv = [];
 
-    public function __construct($opt = [])
+    public function __construct()
+    {}
+
+    public function _init($opt = [])
     {
         if (!empty($opt) and is_array($opt)) {
             foreach ($opt as $key => $value) {

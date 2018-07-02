@@ -86,8 +86,9 @@ class Application
 
                 $c = 'App\\Controllers\\' . $controller;
                 if (is_callable(array($c, $action))) {
-                    $class = new $c(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
-                    $class->$action();
+                    $ctl = new $c();
+                    $ctl->_init(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
+                    $ctl->$action();
                 } else {
                     throw new Exception("Action '{$action}' not found");
                 }

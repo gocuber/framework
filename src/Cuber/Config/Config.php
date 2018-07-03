@@ -35,7 +35,7 @@ class Config
      *
      * @return array
      */
-    private static function get($type = 'db', $key = 'default', $default = [])
+    private static function get($type = 'db', $key = null, $default = [])
     {
     	self::set();
 

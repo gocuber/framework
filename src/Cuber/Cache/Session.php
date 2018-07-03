@@ -7,6 +7,10 @@
  */
 namespace Cuber\Cache;
 
+use Cuber\Cookie\Cookie;
+use Cuber\Config\Config;
+use Cuber\Support\Exception;
+
 class Session
 {
 
@@ -31,9 +35,9 @@ class Session
     	$this->setSessionId($id);
 
     	if('file' == self::$_cache_type){
-    	    $this->_cache = Cache_File::connect('session');
+    	    $this->_cache = Cuber\Cache\File::connect('session');
     	}else{
-    	    $this->_cache = Cache_Mem::connect();
+    	    $this->_cache = Cuber\Cache\Mem::connect();
     	}
 
     	$this->_session = $this->_cache->get($this->_cache_prefix . $this->_session_id);

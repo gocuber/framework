@@ -15,6 +15,7 @@ class Exception extends \Exception
     const ERROR_TYPE_MYSQL   = 'mysql';
     const ERROR_TYPE_REDIS   = 'redis';
     const ERROR_TYPE_MEM     = 'memcache';
+    const ERROR_TYPE_FC      = 'filecache';
     const ERROR_TYPE_ES      = 'elasticsearch';
     const ERROR_TYPE_SYSTEM  = 'system';
     const ERROR_TYPE_APP     = 'app';

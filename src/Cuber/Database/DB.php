@@ -9,6 +9,7 @@ namespace Cuber\Database;
 
 use Cuber\Database\Query;
 use Cuber\Database\Connect;
+use Cuber\Config\Config;
 
 class DB
 {
@@ -721,6 +722,7 @@ class DB
     public function setKey($key = null)
     {
         isset($key) and $this->_key = $key;
+
         return $this;
     }
 
@@ -731,8 +733,7 @@ class DB
      */
     public function getConfig()
     {
-        $key = isset($this->_key) ? $this->_key : 'default';
-        return isset($GLOBALS['_G']['db'][$key]) ? $GLOBALS['_G']['db'][$key] : array();
+        return Config::db($this->_key);
     }
 
     /**

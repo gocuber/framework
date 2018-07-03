@@ -84,7 +84,7 @@ class View
     public static function display($_tpl = null, $_data = null, $_dir = null)
     {
         if(!isset($_dir)){
-            $_dir = Module::getViewDir();
+            $_dir = APP_DIR . 'views/';
         }
 
         if(!empty($_data) and is_array($_data)){

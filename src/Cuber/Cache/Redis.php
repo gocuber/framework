@@ -8,6 +8,7 @@
 namespace Cuber\Cache;
 
 use Cuber\Config\Config;
+use Cuber\Support\Exception;
 
 class Redis
 {
@@ -71,15 +72,19 @@ class Redis
     public function __call($name = null, $arguments = null)
     {
         try {
+
             $conn = $this->conn();
 
-            if(is_callable(array($conn, $name))){
-                return call_user_func_array(array($conn, $name), $arguments);
-            }else{
-                throw new CubeException($name . 'error');
+            if (is_callable([$conn, $name])) {
+                return call_user_func_array([$conn, $name], $arguments);
+            } else {
+                throw new Exception($name . 'error');
             }
-        } catch (CubeException $e) {
+
+        } catch (Exception $e) {
+
             $e->log(CubeException::ERROR_TYPE_REDIS);
+
         }
     }
 
@@ -115,10 +120,10 @@ class Redis
     {
         try {
             if(empty($config) or !is_array($config)){
-                throw new CubeException("redis config error");
+                throw new Exception("redis config error");
             }
-        } catch (CubeException $e) {
-            $e->log(CubeException::ERROR_TYPE_REDIS);
+        } catch (Exception $e) {
+            $e->log(Exception::ERROR_TYPE_REDIS);
         }
 
         if(empty($config)){

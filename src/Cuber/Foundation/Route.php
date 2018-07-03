@@ -129,9 +129,11 @@ class Route
     public function getPattern()
     {
         $pattern = ['/'=>'\/'];
+
         foreach ($this->_pattern as $key=>$value) {
             $pattern['{' . $key . '}'] = '(' . $value . ')';
         }
+
         return $pattern;
     }
 

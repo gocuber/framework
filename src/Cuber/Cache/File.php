@@ -8,27 +8,27 @@
 namespace Cuber\Cache;
 
 use Cuber\Config\Config;
+use Cuber\Support\Exception;
 
 class File
 {
 
-	public static $_is_cache = true;
 	private static $_instance = null;
 	private $_config = null;
 
-	private function __construct($conf = null)
+	private function __construct($config = null)
 	{
-	    !isset($conf['is_subdir']) and $conf['is_subdir'] = 1;
-	    !isset($conf['dir'])       and $conf['dir']       = '/tmp/filecache/default/';
-	    $this->_config = $conf;
-	}
+    	if (isset($config)) {
+    		$this->setConfig($config);
+    	}
+    }
 
 	public static function connect($key = 'default')
 	{
 	    $conf = Config::fc($key);
 
 	    $key = md5(serialize($conf));
-	    if(!isset(self::$_instance[$key])){
+	    if (!isset(self::$_instance[$key])) {
 	        self::$_instance[$key] = new self($conf);
 	    }
 
@@ -44,7 +44,7 @@ class File
 	 */
 	public function get($key = '', $default = null)
 	{
-		if(empty($key) or !self::$_is_cache){
+		if (empty($key)) {
 		    return $default;
 		}
 
@@ -69,11 +69,12 @@ class File
      * @param string $key
      * @param string $value
      * @param int $time
+     *
      * @return bool
      */
     public function set($key = '', $value = '', $time = 0)
 	{
-		if(empty($key) or !self::$_is_cache){
+		if (empty($key)) {
 			return false;
 		}
 
@@ -209,5 +210,43 @@ class File
         //@chmod($dir,0777);
 		return true;
 	}
+
+    /**
+     * setConfig
+     *
+     * @param array $config
+     * @return bool
+     */
+    private function setConfig($config = null)
+    {
+        try {
+
+            if (empty($config) or !is_array($config)) {
+                throw new Exception("file config error");
+            }
+
+        } catch (Exception $e) {
+
+            $e->log(Exception::ERROR_TYPE_FC);
+
+        }
+
+        if (empty($config)) {
+            return false;
+        }
+
+        $this->_config = $config;
+        return true;
+    }
+
+    /**
+     * getConfig
+     *
+     * @return array
+     */
+    private function getConfig()
+    {
+        return $this->_config;
+    }
 
 }

@@ -49,7 +49,7 @@ class Session
      */
     public static function get($name = null)
     {
-        Session::start();
+        self::start();
         $value = isset($_SESSION[$name]) ? $_SESSION[$name] : null;
         return $value;
     }
@@ -63,7 +63,7 @@ class Session
      */
     public static function set($name = null, $value = null)
     {
-        Session::start();
+        self::start();
         $_SESSION[$name] = $value;
         return true;
     }
@@ -76,7 +76,7 @@ class Session
      */
     public static function del($name = null)
     {
-        Session::start();
+        self::start();
         unset($_SESSION[$name]);
         return true;
     }
@@ -88,7 +88,7 @@ class Session
      */
     public static function destroy()
     {
-        Session::start();
+        self::start();
         unset($_SESSION);
         session_unset();
         session_destroy();

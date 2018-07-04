@@ -134,4 +134,14 @@ class Config
     	return self::get('module_domain', $key, '');
     }
 
+    /**
+     * Get rsa Config
+     *
+     * @return array
+     */
+    public static function rsa()
+    {
+        return self::get('rsa', null, []);
+    }
+
 }

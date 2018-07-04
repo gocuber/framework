@@ -56,13 +56,7 @@ class Router
                 }
 
                 if (is_string($line['rule'])) {
-
-                    $line['rule'] = strtr($line['rule'], $_param);
-
-                    $_r = explode('?', $line['rule']);
-                    isset($_r[1]) and $this->setParam($_r[1]); // 设置GET
-
-                    return array_merge(['route'=>$route], $this->makeControllerByRule($_r[0]));
+                    return array_merge(['route'=>$route], $this->makeControllerByRule(strtr($line['rule'], $_param)));
                 }else{
                     return ['route'=>$route, 'closure'=>$line['rule'], 'closure_param'=>$closure_param];
                 }
@@ -106,8 +100,7 @@ class Router
 
         }
 
-        $ret = call_user_func_array($closure, $call_value);
-        return (false === $ret) ? false : true;
+        return call_user_func_array($closure, $call_value);
     }
 
     /**
@@ -200,9 +193,12 @@ class Router
      * @param string $rule
      * @return array
      */
-    private function makeControllerByRule($rule = null)
+    public function makeControllerByRule($rule = null)
     {
-        $r = explode('@', trim($rule, '\\'));
+        $rule = explode('?', $rule);
+        isset($rule[1]) and $this->setParam($rule[1]); // 设置GET
+
+        $r = explode('@', trim($rule[0], '\\'));
 		$action = isset($r[1]) ? $r[1] : '';
 
         return ['controller'=>trim($r[0], '\\'), 'action'=>$action];

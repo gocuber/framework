@@ -55,7 +55,16 @@ class Application
 
         $ret = Router::getInstance()->hitRoute();
 
-        isset($ret['route'])         and $this->_route         = $ret['route'];
+        isset($ret['route']) and $this->_route = $ret['route'];
+
+        if (isset($ret['closure'])) {
+            $ret = Router::getInstance()->runClosureRoute($ret['closure'], $ret['closure_param']);
+
+            if (isset($ret) and false !== $ret and is_string($ret)) {
+                $ret = Router::getInstance()->makeControllerByRule($ret);
+            }
+        }
+
         isset($ret['controller'])    and $this->_controller    = $ret['controller'];
         isset($ret['action'])        and $this->_action        = $ret['action'];
         isset($ret['closure'])       and $this->_closure       = $ret['closure'];
@@ -92,10 +101,6 @@ class Application
                 } else {
                     throw new Exception("Action '{$action}' not found");
                 }
-
-            } else {
-
-                Router::getInstance()->runClosureRoute($this->_closure, $this->_closure_param);
 
             }
 

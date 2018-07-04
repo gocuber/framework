@@ -7,6 +7,8 @@
  */
 namespace Cuber\Support;
 
+use Cuber\Config\Config;
+
 class Rsa
 {
 
@@ -25,7 +27,7 @@ class Rsa
     public static function getInstance($key = array())
     {
         if(empty($key)){
-            $key = isset($GLOBALS['_G']['rsa']) ? $GLOBALS['_G']['rsa'] : array();
+            $key = Config::rsa();
         }
 
         $_key = md5(serialize($key));

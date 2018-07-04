@@ -35,6 +35,8 @@ class DB
 
     public static function model($model = null)
     {
+        $model = 'App\Models\\' . $model;
+
         return new $model();
     }
 

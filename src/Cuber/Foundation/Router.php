@@ -55,9 +55,12 @@ class Router
                     }
                 }
 
-                if(is_string($line['rule'])){
+                if (is_string($line['rule'])) {
+
+                    $line['rule'] = strtr($line['rule'], $_param);
+
                     $_r = explode('?', $line['rule']);
-                    isset($_r[1]) and $this->setParam(strtr($_r[1], $_param)); // 设置GET
+                    isset($_r[1]) and $this->setParam($_r[1]); // 设置GET
 
                     return array_merge(['route'=>$route], $this->makeControllerByRule($_r[0]));
                 }else{

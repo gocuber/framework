@@ -7,66 +7,41 @@
  */
 namespace Cuber\Support;
 
+use Cuber\Config\Config;
+
 class Url
 {
 
     /**
      * 取url
      *
-     * @see getUrl()
-     * @return str $url
-     */
-    public static function get($module = null)
-    {
-        return self::getUrl($module);
-    }
-
-    /**
-     * 取url
+     * @param str $module 模块
      *
-     * @param str $module 模块 默认当前访问模块
      * @return str $url
      */
     public static function getUrl($module = null)
     {
-        if(!isset($module)){
-            $module = Module::getCurr();
-        }
 
         $http     = self::isHttps() ? 'https://' : 'http://';
-        $domain   = self::getDomain();
         $sitepath = self::getSitePath();
+        $domain   = self::getDomain();
 
-        // 如果此模块设置了独立域名
-        if(isset($GLOBALS['_G']['module_domain'][$module])){
-        	return $http . $GLOBALS['_G']['module_domain'][$module] . $sitepath . '/';
-        }
+        if (isset($module)) {
 
-        // 如果访问的默认模块
-        if(Module::getDefault() == $module){
+            $module_domain = Config::moduleDomain($module);
+
+            if (empty($module_domain)) {
+                return $http . $domain . $sitepath . '/' . $module . '/';
+            } else {
+                return $http . $module_domain . '/';
+            }
+
+        } else {
+
             return $http . $domain . $sitepath . '/';
+
         }
-        return $http . $domain . $sitepath . '/' . $module . '/';
-    }
 
-    /**
-     * 取当前模块url
-     *
-     * @return str $url
-     */
-    public static function getCurrUrl()
-    {
-        return self::getUrl(Module::getCurr());
-    }
-
-    /**
-     * 取默认模块url 网站主站url
-     *
-     * @return str $url
-     */
-    public static function getDefaultUrl()
-    {
-        return self::getUrl(Module::getDefault());
     }
 
     /**
@@ -76,10 +51,12 @@ class Url
      */
     public static function getResUrl()
     {
-        if(self::isResDomain()){
-            return 'http://'.self::getResDomain().'/res/';
-        }else{
-            return 'http://'.self::getResDomain().self::getSitePath().'/res/';
+        $domain = Config::domain('res');
+
+        if (!empty($domain)) {
+            return 'http://' . $domain . '/res/';
+        } else {
+            return 'http://' . self::getDomain() . self::getSitePath() . '/res/';
         }
     }
 
@@ -90,10 +67,12 @@ class Url
      */
     public static function getImgUrl()
     {
-        if(self::isImgDomain()){
-            return 'http://'.self::getImgDomain().'/img/';
-        }else{
-            return 'http://'.self::getImgDomain().self::getSitePath().'/img/';
+        $domain = Config::domain('img');
+
+        if (!empty($domain)) {
+            return 'http://' . $domain . '/img/';
+        } else {
+            return 'http://' . self::getDomain() . self::getSitePath() . '/img/';
         }
     }
 
@@ -104,14 +83,12 @@ class Url
      */
     private static function getDomain()
     {
-        $domain = 'localhost';
-        if(isset($GLOBALS['_G']['domain'])){
-            $domain = $GLOBALS['_G']['domain'];
-        }elseif(defined('DOMAIN')){
-            $domain = DOMAIN;
-        }elseif(isset($_SERVER['HTTP_HOST'])){
+        $domain = Config::domain();
+
+        if (empty($domain) and isset($_SERVER['HTTP_HOST'])) {
             $domain = $_SERVER['HTTP_HOST'];
         }
+
         return $domain;
     }
 
@@ -122,14 +99,12 @@ class Url
      */
     private static function getResDomain()
     {
-        $domain = 'localhost';
-        if(isset($GLOBALS['_G']['res_domain'])){
-            $domain = $GLOBALS['_G']['res_domain'];
-        }elseif(defined('RES_DOMAIN')){
-            $domain = RES_DOMAIN;
-        }elseif(isset($_SERVER['HTTP_HOST'])){
-            $domain = $_SERVER['HTTP_HOST'];
+        $domain = Config::domain('res');
+
+        if (empty($domain)) {
+            return self::getDomain();
         }
+
         return $domain;
     }
 
@@ -140,14 +115,12 @@ class Url
      */
     private static function getImgDomain()
     {
-        $domain = 'localhost';
-        if(isset($GLOBALS['_G']['img_domain'])){
-            $domain = $GLOBALS['_G']['img_domain'];
-        }elseif(defined('IMG_DOMAIN')){
-            $domain = IMG_DOMAIN;
-        }elseif(isset($_SERVER['HTTP_HOST'])){
-            $domain = $_SERVER['HTTP_HOST'];
+        $domain = Config::domain('img');
+
+        if (empty($domain)) {
+            return self::getDomain();
         }
+
         return $domain;
     }
 
@@ -161,36 +134,6 @@ class Url
         $_site = dirname($_SERVER['SCRIPT_NAME']);
         $_site = (strlen($_site)>1) ? $_site : '';
         return $_site;
-    }
-
-    /**
-     * isDomain
-     *
-     * @return boolean
-     */
-    public static function isDomain()
-    {
-        return isset($GLOBALS['_G']['domain']) or defined('DOMAIN');
-    }
-
-    /**
-     * isResDomain
-     *
-     * @return boolean
-     */
-    public static function isResDomain()
-    {
-        return isset($GLOBALS['_G']['res_domain']) or defined('RES_DOMAIN');
-    }
-
-    /**
-     * isImgDomain
-     *
-     * @return boolean
-     */
-    public static function isImgDomain()
-    {
-        return isset($GLOBALS['_G']['img_domain']) or defined('IMG_DOMAIN');
     }
 
     /**
@@ -210,17 +153,17 @@ class Url
     /**
      * 取cookie域
      *
-     * @return str $domain
+     * @return str|null
      */
     public static function getCookieDomain()
     {
-        if(isset($GLOBALS['_G']['cookie_domain'])){
-            return $GLOBALS['_G']['cookie_domain'];
+        $domain = Config::domain('cookie');
+
+        if (empty($domain)) {
+            return null;
         }
-        if(defined('COOKIE_DOMAIN')){
-            return COOKIE_DOMAIN;
-        }
-        return null;
+
+        return $domain;
     }
 
 }

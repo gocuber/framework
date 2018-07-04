@@ -101,13 +101,37 @@ class Config
     /**
      * Get Alias Config
      *
-     * @param string $key
-     *
      * @return array
      */
     public static function alias()
     {
     	return self::get('alias', null, []);
+    }
+
+    /**
+     * Get Domain Config
+     *
+     * @param string $key
+     *
+     * @return str
+     */
+    public static function domain($key = null)
+    {
+        $key = isset($key) ? $key . '_domain' : 'domain';
+
+    	return self::get($key, null, '');
+    }
+
+    /**
+     * Get moduleDomain Config
+     *
+     * @param string $key
+     *
+     * @return str
+     */
+    public static function moduleDomain($key = '')
+    {
+    	return self::get('module_domain', $key, '');
     }
 
 }

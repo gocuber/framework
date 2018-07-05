@@ -93,6 +93,36 @@ if (! function_exists('d')) {
     }
 }
 
+if (! function_exists('array_get')) {
+    /**
+     * array_get
+     *
+     * @return value
+     */
+    function array_get($array = [], $key = null, $default = null)
+    {
+        if (empty($array) or !is_array($array)) {
+            return $default;
+        }
+
+        if (!isset($key)) {
+            return $default;
+        }
+
+        $key = explode('.', $key);
+
+        foreach ($key as $k) {
+            if (isset($array[$k])) {
+                $array = $array[$k];
+            } else {
+            	return $default;
+            }
+        }
+
+        return $array;
+    }
+}
+
 if (! function_exists('model')) {
     /**
      * model

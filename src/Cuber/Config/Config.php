@@ -29,25 +29,16 @@ class Config
     /**
      * Get Config
      *
-     * @param string $type
      * @param string $key
-     * @param string|array $default
+     * @param type   $default
      *
-     * @return array
+     * @return conf
      */
-    private static function get($type = 'db', $key = null, $default = null)
+    public static function get($key = null, $default = null)
     {
     	self::set();
 
-    	if (!isset(self::$hash[$type])) {
-    		return $default;
-    	}
-
-    	if (isset($key)) {
-            return isset(self::$hash[$type][$key]) ? self::$hash[$type][$key] : $default;
-    	} else {
-    		return self::$hash[$type];
-    	}
+    	return array_get(self::$hash, $key, $default);
     }
 
     /**
@@ -59,7 +50,9 @@ class Config
      */
     public static function db($key = 'default')
     {
-    	return self::get('db', $key, []);
+        $key = isset($key) ? 'db.' . $key : 'db';
+
+    	return self::get($key, []);
     }
 
     /**
@@ -71,7 +64,9 @@ class Config
      */
     public static function mem($key = 'default')
     {
-    	return self::get('memcache', $key, []);
+        $key = isset($key) ? 'memcache.' . $key : 'memcache';
+
+    	return self::get($key, []);
     }
 
     /**
@@ -83,7 +78,9 @@ class Config
      */
     public static function redis($key = 'default')
     {
-    	return self::get('redis', $key, []);
+        $key = isset($key) ? 'redis.' . $key : 'redis';
+
+    	return self::get($key, []);
     }
 
     /**
@@ -95,7 +92,9 @@ class Config
      */
     public static function fc($key = 'default')
     {
-    	return self::get('filecache', $key, []);
+        $key = isset($key) ? 'filecache.' . $key : 'filecache';
+
+    	return self::get($key, []);
     }
 
     /**
@@ -105,7 +104,7 @@ class Config
      */
     public static function alias()
     {
-    	return self::get('alias', null, []);
+    	return self::get('alias', []);
     }
 
     /**
@@ -119,7 +118,7 @@ class Config
     {
         $key = isset($key) ? $key . '_domain' : 'domain';
 
-    	return self::get($key, null, '');
+    	return self::get($key);
     }
 
     /**
@@ -129,19 +128,11 @@ class Config
      *
      * @return str
      */
-    public static function moduleDomain($key = '')
+    public static function moduleDomain($key = null)
     {
-    	return self::get('module_domain', $key, '');
-    }
+        $key = isset($key) ? 'module_domain.' . $key : 'module_domain';
 
-    /**
-     * Get rsa Config
-     *
-     * @return array
-     */
-    public static function rsa()
-    {
-        return self::get('rsa', null, []);
+    	return self::get($key);
     }
 
     /**
@@ -151,7 +142,7 @@ class Config
      */
     public static function timezone()
     {
-        return self::get('timezone', null, 'PRC');
+        return self::get('timezone', 'PRC');
     }
 
     /**
@@ -161,7 +152,7 @@ class Config
      */
     public static function debug()
     {
-        return self::get('app_debug', null, false);
+        return self::get('app_debug', false);
     }
 
     /**
@@ -171,20 +162,7 @@ class Config
      */
     public static function charset()
     {
-        return self::get('charset', null, 'utf-8');
-    }
-
-    /**
-     * Get Conf
-     *
-     * @param string $key
-     * @param string $default
-     *
-     * @return conf
-     */
-    public static function conf($key = '', $default = null)
-    {
-    	return self::get($key, null, $default);
+        return self::get('charset', 'utf-8');
     }
 
 }

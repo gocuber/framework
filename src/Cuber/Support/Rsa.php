@@ -27,7 +27,7 @@ class Rsa
     public static function getInstance($key = array())
     {
         if(empty($key)){
-            $key = Config::rsa();
+            $key = Config::get('rsa');
         }
 
         $_key = md5(serialize($key));

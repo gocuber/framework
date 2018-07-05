@@ -92,3 +92,15 @@ if (! function_exists('d')) {
         echo '</pre>';
     }
 }
+
+if (! function_exists('model')) {
+    /**
+     * model
+     *
+     * @return new Model()
+     */
+    function model($model = null)
+    {
+        return Cuber\Database\DB::model($model);
+    }
+}

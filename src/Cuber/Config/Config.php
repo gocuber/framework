@@ -35,7 +35,7 @@ class Config
      *
      * @return array
      */
-    private static function get($type = 'db', $key = null, $default = [])
+    private static function get($type = 'db', $key = null, $default = null)
     {
     	self::set();
 
@@ -59,7 +59,7 @@ class Config
      */
     public static function db($key = 'default')
     {
-    	return self::get('db', $key);
+    	return self::get('db', $key, []);
     }
 
     /**
@@ -71,7 +71,7 @@ class Config
      */
     public static function mem($key = 'default')
     {
-    	return self::get('memcache', $key);
+    	return self::get('memcache', $key, []);
     }
 
     /**
@@ -83,7 +83,7 @@ class Config
      */
     public static function redis($key = 'default')
     {
-    	return self::get('redis', $key);
+    	return self::get('redis', $key, []);
     }
 
     /**
@@ -95,7 +95,7 @@ class Config
      */
     public static function fc($key = 'default')
     {
-    	return self::get('filecache', $key);
+    	return self::get('filecache', $key, []);
     }
 
     /**
@@ -142,6 +142,49 @@ class Config
     public static function rsa()
     {
         return self::get('rsa', null, []);
+    }
+
+    /**
+     * Get timezone Config
+     *
+     * @return str
+     */
+    public static function timezone()
+    {
+        return self::get('timezone', null, 'PRC');
+    }
+
+    /**
+     * Get debug Config
+     *
+     * @return bool
+     */
+    public static function debug()
+    {
+        return self::get('app_debug', null, false);
+    }
+
+    /**
+     * Get charset Config
+     *
+     * @return str
+     */
+    public static function charset()
+    {
+        return self::get('charset', null, 'utf-8');
+    }
+
+    /**
+     * Get Conf
+     *
+     * @param string $key
+     * @param string $default
+     *
+     * @return conf
+     */
+    public static function conf($key = '', $default = null)
+    {
+    	return self::get($key, null, $default);
     }
 
 }

@@ -8,8 +8,9 @@
 namespace Cuber\Foundation;
 
 use Cuber\Foundation\Route;
-use Cuber\Support\Exception;
 use Cuber\Foundation\AliasLoader;
+use Cuber\Support\Exception;
+use Cuber\Config\Config;
 
 class Application
 {
@@ -134,9 +135,24 @@ class Application
     {
         define('BASE_PATH', $this->_base_path);
         define('APP_DIR', BASE_PATH . 'app/');
-
         defined('IS_CLI') or define('IS_CLI', is_cli());
 
+        if (Config::debug()) {
+
+            defined('APP_DEBUG') or define('APP_DEBUG', true);
+            ini_set('display_errors', 'on');
+            error_reporting(-1);
+
+        } else {
+
+            defined('APP_DEBUG') or define('APP_DEBUG', false);
+            ini_set('display_errors', 'off');
+            error_reporting(0);
+
+        }
+
+        date_default_timezone_set(Config::timezone());
+        header("Content-type: text/html; charset=" . Config::charset());
         AliasLoader::getInstance()->init()->register();
     }
 

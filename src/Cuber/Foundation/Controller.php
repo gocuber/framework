@@ -49,29 +49,29 @@ class Controller
         View::display($tpl, $data);
     }
 
-    protected function _get($key = null)
+    protected function _get($key = null, $default = null)
     {
-        if(isset($key)){
-            return isset($_GET[$key]) ? $_GET[$key] : null;
-        }else{
-            return $_GET;
+        if (isset($key)) {
+        	return array_get($_GET, $key, $default);
+        } else {
+        	return $_GET;
         }
     }
 
-    protected function _post($key = null)
+    protected function _post($key = null, $default = null)
     {
-        if(isset($key)){
-        	return isset($_POST[$key]) ? $_POST[$key] : null;
-        }else{
+        if (isset($key)) {
+        	return array_get($_POST, $key, $default);
+        } else {
         	return $_POST;
         }
     }
 
-    protected function _request($key = null)
+    protected function _request($key = null, $default = null)
     {
-        if(isset($key)){
-        	return isset($_REQUEST[$key]) ? $_REQUEST[$key] : null;
-        }else{
+        if (isset($key)) {
+        	return array_get($_REQUEST, $key, $default);
+        } else {
         	return $_REQUEST;
         }
     }

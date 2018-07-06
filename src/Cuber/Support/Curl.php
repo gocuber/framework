@@ -76,7 +76,7 @@ class Curl
             $header = [];
             foreach ($tmp as $value) {
                 $t = explode(':', strtr($value, ["\r"=>'']));
-                $header[$t[0]] = $t[1];
+                $header[$t[0]] = array_get($t, 1, '');
             }
             unset($tmp);
         }

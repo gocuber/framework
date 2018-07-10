@@ -35,7 +35,7 @@ class DB
 
     public static function model($model = null)
     {
-        $model = 'App\Models\\' . $model;
+        $model = Config::get('model_namespace', 'App\\Models\\') . $model;
 
         return new $model();
     }

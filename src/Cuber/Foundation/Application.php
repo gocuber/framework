@@ -94,7 +94,7 @@ class Application
                     throw new Exception("Controller '{$controller}' not found");
                 }
 
-                $c = 'App\\Controllers\\' . $controller;
+                $c = Config::get('controller_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable(array($c, $action))) {
                     $ctl = new $c();
                     $ctl->_init(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);

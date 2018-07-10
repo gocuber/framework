@@ -152,7 +152,7 @@ class Config
      */
     public static function debug()
     {
-        return self::get('app_debug', false);
+        return self::get('debug', false);
     }
 
     /**

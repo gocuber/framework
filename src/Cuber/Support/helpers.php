@@ -134,3 +134,28 @@ if (! function_exists('model')) {
         return Cuber\Database\DB::model($model);
     }
 }
+
+if (! function_exists('mk_dir')) {
+    /**
+     * 创建目录
+     *
+     * @param string $dir
+     *
+     * @return bool
+     */
+    function mk_dir($dir = null)
+    {
+        if (empty($dir)) {
+            return false;
+        }
+
+        if (!is_writable($dir)) {
+            if (!@mkdir($dir, 0777, true)) {
+                return false;
+            }
+        }
+
+        //@chmod($dir, 0777);
+        return true;
+    }
+}

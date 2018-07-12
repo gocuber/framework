@@ -49,11 +49,11 @@ class File
 		}
 
 		$file = $this->getFile($key);
-		if(!is_file($file)){
+		if (!is_file($file)) {
 		    return $default;
 		}
 
-		if(false === ($data = file_get_contents($file))){
+		if (false === ($data = file_get_contents($file))) {
 			return $default;
 		}
 
@@ -79,17 +79,17 @@ class File
 		}
 
 		$file = $this->getFile($key);
-		if(!$this->isMkdir(dirname($file))){
+		if (!mk_dir(dirname($file))) {
 			return false;
 		}
 
-		$data = array();
+		$data = [];
 		$data['time'] = (0 == $time) ? 0 : time() + $time;
 		$data['data'] = $value;
 		$data = serialize($data);
-		if(function_exists('file_put_contents')){
+		if (function_exists('file_put_contents')) {
 			file_put_contents($file, $data);
-		}else{
+		} else {
 			$handle = fopen($file, 'wb');
 			fwrite($handle, $data);
 			fclose($handle);
@@ -105,12 +105,12 @@ class File
      */
     public function del($key = '')
 	{
-		if(empty($key)){
+		if (empty($key)) {
 			return false;
 		}
 
 		$file = $this->getFile($key);
-		if(is_file($file)){
+		if (is_file($file)) {
 		    return @unlink($file);
 		}
 		return true;
@@ -122,14 +122,14 @@ class File
 	 * @param array $keys
 	 * @return array
 	 */
-	public function getMulti($keys = array(), $default = null)
+	public function getMulti($keys = [], $default = null)
 	{
-	    if(empty($keys) or !is_array($keys)){
+	    if (empty($keys) or !is_array($keys)) {
 	        return false;
 	    }
 
-	    $data = array();
-	    foreach($keys as $key){
+	    $data = [];
+	    foreach ($keys as $key) {
 	        $data[$key] = $this->get($key, $default);
 	    }
 	    return $data;
@@ -142,13 +142,13 @@ class File
 	 * @param int $time
 	 * @return bool
 	 */
-	public function setMulti($items = array(), $time = 3600)
+	public function setMulti($items = [], $time = 3600)
 	{
-	    if(empty($items) or !is_array($items)){
+	    if (empty($items) or !is_array($items)) {
 	        return false;
 	    }
 
-	    foreach($items as $key=>$value){
+	    foreach ($items as $key=>$value) {
 	        $this->set($key, $value, $time);
 	    }
 	    return true;
@@ -160,13 +160,13 @@ class File
 	 * @param array $keys
 	 * @return array
 	 */
-	public function delMulti($keys = array())
+	public function delMulti($keys = [])
 	{
-	    if(empty($keys) or !is_array($keys)){
+	    if (empty($keys) or !is_array($keys)) {
 	        return false;
 	    }
 
-	    foreach($keys as $key){
+	    foreach ($keys as $key) {
 	        $this->del($key);
 	    }
 	    return true;
@@ -180,7 +180,7 @@ class File
 	 */
 	public function getFile($key = false)
 	{
-		if(!isset($key)){
+		if (!isset($key)) {
 			return false;
 		}
 
@@ -189,26 +189,6 @@ class File
 		$subdir = $this->_config['is_subdir'] ? substr($md5,0,2).'/'.substr($md5,2,2).'/'.substr($md5,4,2).'/' : '';
 		$file   = $dir . $subdir . $key;
 		return $file;
-	}
-
-	/**
-	 * 创建目录
-	 *
-	 * @param string $dir
-	 * @return bool
-	 */
-	private function isMkdir($dir = null)
-	{
-		if(empty($dir)){
-			return false;
-		}
-		if(!is_writable($dir)){
-			if(!@mkdir($dir,0777,true)){
-				return false;
-			}
-		}
-        //@chmod($dir,0777);
-		return true;
 	}
 
     /**
@@ -222,7 +202,7 @@ class File
         try {
 
             if (empty($config) or !is_array($config)) {
-                throw new Exception("file config error");
+                throw new Exception('file config error');
             }
 
         } catch (Exception $e) {

@@ -36,9 +36,9 @@ class Config
      */
     public static function get($key = null, $default = null)
     {
-    	self::set();
+        self::set();
 
-    	return array_get(self::$hash, $key, $default);
+        return array_get(self::$hash, $key, $default);
     }
 
     /**
@@ -52,7 +52,7 @@ class Config
     {
         $key = isset($key) ? 'db.' . $key : 'db';
 
-    	return self::get($key, []);
+        return self::get($key, []);
     }
 
     /**
@@ -66,7 +66,7 @@ class Config
     {
         $key = isset($key) ? 'memcache.' . $key : 'memcache';
 
-    	return self::get($key, []);
+        return self::get($key, []);
     }
 
     /**
@@ -80,7 +80,7 @@ class Config
     {
         $key = isset($key) ? 'redis.' . $key : 'redis';
 
-    	return self::get($key, []);
+        return self::get($key, []);
     }
 
     /**
@@ -94,7 +94,7 @@ class Config
     {
         $key = isset($key) ? 'filecache.' . $key : 'filecache';
 
-    	return self::get($key, []);
+        return self::get($key, []);
     }
 
     /**
@@ -104,7 +104,7 @@ class Config
      */
     public static function alias()
     {
-    	return self::get('alias', []);
+        return self::get('alias', []);
     }
 
     /**
@@ -118,7 +118,7 @@ class Config
     {
         $key = isset($key) ? $key . '_domain' : 'domain';
 
-    	return self::get($key);
+        return self::get($key);
     }
 
     /**
@@ -132,7 +132,7 @@ class Config
     {
         $key = isset($key) ? 'module_domain.' . $key : 'module_domain';
 
-    	return self::get($key);
+        return self::get($key);
     }
 
     /**

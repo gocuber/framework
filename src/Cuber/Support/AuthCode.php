@@ -75,7 +75,7 @@ class AuthCode
             header('Content-type: image/gif');
             imagegif($image);
         } elseif (function_exists('imagewbmp')) {
-        	header('Content-type: image/vnd.wap.wbmp');
+            header('Content-type: image/vnd.wap.wbmp');
             imagewbmp($image);
         }
 
@@ -90,7 +90,7 @@ class AuthCode
      */
     private static function key()
     {
-    	return 'RyYkOr11MrQll1100OOOO00OOO00O0O0OO1';
+        return 'RyYkOr11MrQll1100OOOO00OOO00O0O0OO1';
     }
 
     /**

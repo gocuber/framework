@@ -32,9 +32,9 @@ class Connect
 
     private function __construct($config = null)
     {
-    	if (isset($config)) {
-    		$this->setConfig($config);
-    	}
+        if (isset($config)) {
+            $this->setConfig($config);
+        }
     }
 
     public static function getInstance($config = [])
@@ -110,7 +110,7 @@ class Connect
     private function bindParams($statement = null, $param = null)
     {
         if(empty($statement)){
-        	return false;
+            return false;
         }
 
         if(!empty($param) and is_array($param)){
@@ -133,7 +133,7 @@ class Connect
     private function execute($statement = null, $param = null)
     {
         if(empty($statement)){
-        	return false;
+            return false;
         }
 
         if(isset($param)){
@@ -208,10 +208,10 @@ class Connect
     public function rowCount($statement = null)
     {
         if(empty($statement)){
-        	return false;
+            return false;
         }
 
-    	return $statement->rowCount();
+        return $statement->rowCount();
     }
 
     /**
@@ -284,7 +284,7 @@ class Connect
      */
     public function lastId()
     {
-    	return $this->getMaster()->lastInsertId();
+        return $this->getMaster()->lastInsertId();
     }
 
     /**
@@ -381,12 +381,12 @@ class Connect
     public function getSlave()
     {
         if(empty($this->_config['slave'])){
-        	return $this->getMaster();
+            return $this->getMaster();
         }
         if(!isset($this->_slave)){
-    	   $this->_slave = $this->conn($this->getConfig('slave'));
+           $this->_slave = $this->conn($this->getConfig('slave'));
         }
-    	return $this->_slave;
+        return $this->_slave;
     }
 
     /**
@@ -397,9 +397,9 @@ class Connect
     public function getMaster()
     {
         if(!isset($this->_master)){
-    	   $this->_master = $this->conn($this->getConfig('master'));
+           $this->_master = $this->conn($this->getConfig('master'));
         }
-    	return $this->_master;
+        return $this->_master;
     }
 
     /**
@@ -412,7 +412,7 @@ class Connect
     {
         extract($conf);
         if(empty($host) or empty($database)){
-        	return false;
+            return false;
         }
 
         $dsn   = isset($driver) ? $driver : 'mysql';
@@ -470,7 +470,7 @@ class Connect
     {
         $conf = $this->_config;
         if (empty($mode) or !in_array($mode, ['master', 'slave'])) {
-        	return $conf;
+            return $conf;
         }
 
         if (!isset($this->_conf[$mode])) {
@@ -497,7 +497,7 @@ class Connect
      */
     public function debug($debug = true)
     {
-    	self::$_debug = $debug;
+        self::$_debug = $debug;
     }
 
     /**

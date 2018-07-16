@@ -32,22 +32,22 @@ class Session
 
     private function __construct($id = null)
     {
-    	$this->setSessionId($id);
+        $this->setSessionId($id);
 
-    	if('file' == self::$_cache_type){
-    	    $this->_cache = Cuber\Cache\File::connect('session');
-    	}else{
-    	    $this->_cache = Cuber\Cache\Mem::connect();
-    	}
+        if('file' == self::$_cache_type){
+            $this->_cache = Cuber\Cache\File::connect('session');
+        }else{
+            $this->_cache = Cuber\Cache\Mem::connect();
+        }
 
-    	$this->_session = $this->_cache->get($this->_cache_prefix . $this->_session_id);
+        $this->_session = $this->_cache->get($this->_cache_prefix . $this->_session_id);
     }
 
     public static function getInstance($id = null)
     {
         $key = md5($id);
         if(!isset(self::$_instance[$key])){
-        	self::$_instance[$key] = new self($id);
+            self::$_instance[$key] = new self($id);
         }
         return self::$_instance[$key];
     }
@@ -62,7 +62,7 @@ class Session
     public function set($key = null, $value = null)
     {
         if(!isset($key) or !isset($value)){
-        	return false;
+            return false;
         }
 
         $this->_session[$key] = $value;
@@ -81,7 +81,7 @@ class Session
         if(isset($key)){
             return isset($this->_session[$key]) ? $this->_session[$key] : null;
         }else{
-        	return $this->_session;
+            return $this->_session;
         }
     }
 
@@ -94,9 +94,9 @@ class Session
     public function del($key = null)
     {
         if(isset($this->_session[$key])){
-        	unset($this->_session[$key]);
+            unset($this->_session[$key]);
         }else{
-        	unset($this->_session);
+            unset($this->_session);
         }
 
         $this->_is_save = true;
@@ -110,7 +110,7 @@ class Session
      */
     public function getSessionId()
     {
-    	return $this->_session_id;
+        return $this->_session_id;
     }
 
     /**

@@ -21,9 +21,9 @@ class Redis
 
     private function __construct($config = null)
     {
-    	if (isset($config)) {
-    		$this->setConfig($config);
-    	}
+        if (isset($config)) {
+            $this->setConfig($config);
+        }
     }
 
     /**
@@ -37,7 +37,7 @@ class Redis
 
         $key = md5($conf['host'] . '_' . $conf['port']);
         if('slave' == $mode){
-        	$key .= '_slave';
+            $key .= '_slave';
         }
         if(!isset(self::$_instance[$key])){
             if('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])){

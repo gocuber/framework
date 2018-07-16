@@ -56,7 +56,7 @@ class Route
     public static function group($group = [], $rule = null)
     {
         if (!isset($group['domain'])) {
-        	return false;
+            return false;
         }
 
         $r = self::getInstance();
@@ -89,7 +89,7 @@ class Route
     private function set($route = '', $rule = null, $pattern = null)
     {
         if (!isset($route)) {
-        	return false;
+            return false;
         }
 
         $this->_route[$this->_domain][$route] = ['rule'=>$rule, 'pattern'=>$pattern];
@@ -114,11 +114,11 @@ class Route
     public function addPattern($pattern = [])
     {
         if (empty($pattern) or !is_array($pattern)) {
-        	return false;
+            return false;
         }
 
-    	$this->_pattern = array_merge($this->_pattern, $pattern);
-    	return true;
+        $this->_pattern = array_merge($this->_pattern, $pattern);
+        return true;
     }
 
     /**

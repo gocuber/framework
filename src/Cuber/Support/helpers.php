@@ -15,7 +15,7 @@ if (! function_exists('is_cli')) {
     function is_cli()
     {
         if (defined('IS_CLI')) {
-        	return IS_CLI;
+            return IS_CLI;
         }
         return ('cli' === php_sapi_name());
     }
@@ -115,7 +115,7 @@ if (! function_exists('array_get')) {
             if (isset($array[$k])) {
                 $array = $array[$k];
             } else {
-            	return $default;
+                return $default;
             }
         }
 

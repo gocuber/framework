@@ -64,7 +64,7 @@ class DB
     public function max($field = null)
     {
         if(!isset($field)){
-        	return false;
+            return false;
         }
         return $this->val("max($field)");
     }
@@ -78,7 +78,7 @@ class DB
     public function min($field = null)
     {
         if(!isset($field)){
-        	return false;
+            return false;
         }
         return $this->val("min($field)");
     }
@@ -92,7 +92,7 @@ class DB
     public function avg($field = null)
     {
         if(!isset($field)){
-        	return false;
+            return false;
         }
         return $this->val("avg($field)");
     }
@@ -106,7 +106,7 @@ class DB
     public function sum($field = null)
     {
         if(!isset($field)){
-        	return false;
+            return false;
         }
         return $this->val("sum($field)");
     }
@@ -144,8 +144,8 @@ class DB
      */
     public function get($field = null)
     {
-    	$this->getQuery()->field($field);
-    	$sql = $this->getQuery()->getSql();
+        $this->getQuery()->field($field);
+        $sql = $this->getQuery()->getSql();
         return $this->getPdo()->get($sql['sql'], $sql['param']);
     }
 
@@ -157,8 +157,8 @@ class DB
      */
     public function line($field = null)
     {
-    	$this->getQuery()->field($field);
-    	$sql = $this->getQuery()->getSql();
+        $this->getQuery()->field($field);
+        $sql = $this->getQuery()->getSql();
         return $this->getPdo()->line($sql['sql'], $sql['param']);
     }
 
@@ -170,8 +170,8 @@ class DB
      */
     public function val($field = null)
     {
-    	$this->getQuery()->field($field);
-    	$sql = $this->getQuery()->getSql();
+        $this->getQuery()->field($field);
+        $sql = $this->getQuery()->getSql();
         return $this->getPdo()->val($sql['sql'], $sql['param']);
     }
 
@@ -403,9 +403,9 @@ class DB
      */
     public function insert($sql = array(), $param = null)
     {
-    	if(empty($sql) and !is_array($sql)){
-    		return false;
-    	}
+        if(empty($sql) and !is_array($sql)){
+            return false;
+        }
 
         if(is_array($sql)){
 
@@ -416,15 +416,15 @@ class DB
             $cols = $values = '';
             if(!empty($data) and is_array($data)){
                 $index = 1;
-	            foreach($data as $key => $value){
-	                $cols   .= "`" . trim($key) . "`,";
+                foreach($data as $key => $value){
+                    $cols   .= "`" . trim($key) . "`,";
                     $values .= ":pi$index,";
                     $param[":pi$index"] = trim($value);
                     $index++;
-	            }
-	            $cols   = rtrim($cols, ',');
-	            $values = rtrim($values, ',');
-	            $sql   .= " ({$cols}) values ({$values})";
+                }
+                $cols   = rtrim($cols, ',');
+                $values = rtrim($values, ',');
+                $sql   .= " ({$cols}) values ({$values})";
             }else{
                 $sql .= " () values ()";
             }
@@ -458,7 +458,7 @@ class DB
             $data  = $this->prepareData($sql);
             $param = null;
             if(empty($data) or !is_array($data)){
-            	return false;
+                return false;
             }
 
             $field = '';
@@ -476,10 +476,10 @@ class DB
             $sql  = "update `" . $this->getName() . "` set $field";
             $_sql = $this->getQuery()->getSql();
 
-	        !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
-	        !empty($_sql['orderby']) and $sql .= " order by " . $_sql['orderby'];
-	        !empty($_sql['limit'])   and $sql .= " limit " . $_sql['limit'];
-	        !empty($_sql['param'])   and $param = array_merge($param, $_sql['param']);
+            !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
+            !empty($_sql['orderby']) and $sql .= " order by " . $_sql['orderby'];
+            !empty($_sql['limit'])   and $sql .= " limit " . $_sql['limit'];
+            !empty($_sql['param'])   and $param = array_merge($param, $_sql['param']);
         }
 
         $query = $this->getPdo()->query($sql, $param);
@@ -504,11 +504,11 @@ class DB
             $sql  = "delete from `" . $this->getName() . "`";
             $_sql = $this->getQuery()->getSql();
 
-	        !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
-	        !empty($_sql['orderby']) and $sql .= " order by " . $_sql['orderby'];
-	        !empty($_sql['limit'])   and $sql .= " limit " . $_sql['limit'];
+            !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
+            !empty($_sql['orderby']) and $sql .= " order by " . $_sql['orderby'];
+            !empty($_sql['limit'])   and $sql .= " limit " . $_sql['limit'];
 
-	        $param = $_sql['param'];
+            $param = $_sql['param'];
         }
 
         $query = $this->getPdo()->query($sql, $param);
@@ -791,7 +791,7 @@ class DB
      */
     public function getSlave()
     {
-    	return $this->getPdo()->getSlave();
+        return $this->getPdo()->getSlave();
     }
 
     /**

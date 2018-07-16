@@ -52,27 +52,27 @@ class Controller
     protected function _get($key = null, $default = null)
     {
         if (isset($key)) {
-        	return array_get($_GET, $key, $default);
+            return array_get($_GET, $key, $default);
         } else {
-        	return $_GET;
+            return $_GET;
         }
     }
 
     protected function _post($key = null, $default = null)
     {
         if (isset($key)) {
-        	return array_get($_POST, $key, $default);
+            return array_get($_POST, $key, $default);
         } else {
-        	return $_POST;
+            return $_POST;
         }
     }
 
     protected function _request($key = null, $default = null)
     {
         if (isset($key)) {
-        	return array_get($_REQUEST, $key, $default);
+            return array_get($_REQUEST, $key, $default);
         } else {
-        	return $_REQUEST;
+            return $_REQUEST;
         }
     }
 

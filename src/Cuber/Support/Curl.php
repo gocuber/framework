@@ -51,7 +51,7 @@ class Curl
     public static function request($type = 'get', $url = '', $data = [], $opt = [])
     {
         if (empty($type) or !in_array($type, ['get', 'post']) or empty($url)) {
-        	return ['code'=>-1, 'msg'=>'error', 'data'=>[]];
+            return ['code'=>-1, 'msg'=>'error', 'data'=>[]];
         }
 
         if ('get' == $type and !empty($data) and is_array($data)) {

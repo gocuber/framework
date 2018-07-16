@@ -32,7 +32,7 @@ class AliasLoader
      */
     public function init()
     {
-    	$this->_alias = Config::alias();
+        $this->_alias = Config::alias();
 
         return $this;
     }

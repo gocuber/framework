@@ -143,10 +143,10 @@ class Url
      */
     public static function isHttps()
     {
-    	return (
-    	    (defined('IS_HTTPS') and IS_HTTPS == true) or
-    	    (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') or
-    	    (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+        return (
+            (defined('IS_HTTPS') and IS_HTTPS == true) or
+            (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') or
+            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
         );
     }
 

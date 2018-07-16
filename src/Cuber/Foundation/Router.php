@@ -77,7 +77,7 @@ class Router
     public function runClosureRoute($closure, $param = null)
     {
         if(!isset($closure) or is_string($closure) or !is_callable($closure)){
-        	return false;
+            return false;
         }
 
         $param      = isset($param) ? $param : [];
@@ -149,7 +149,7 @@ class Router
     private function regular($rule = '', $pattern = [])
     {
         if (!isset($rule) or '' === $rule) {
-        	return '';
+            return '';
         }
 
         $_pattern = Route::getInstance()->getPattern();
@@ -177,11 +177,11 @@ class Router
         unset($r[count($r)-1]);
 
         $controller = '';
-		if(!empty($r)){
-			foreach($r as $_r){
-				$controller .= ucfirst(strtolower($_r)) . '\\';
-			}
-		}
+        if(!empty($r)){
+            foreach($r as $_r){
+                $controller .= ucfirst(strtolower($_r)) . '\\';
+            }
+        }
         $controller = rtrim($controller, '\\');
 
         return ['route'=>$route, 'controller'=>$controller, 'action'=>$action];
@@ -199,7 +199,7 @@ class Router
         isset($rule[1]) and $this->setParam($rule[1]); // 设置GET
 
         $r = explode('@', trim($rule[0], '\\'));
-		$action = isset($r[1]) ? $r[1] : '';
+        $action = isset($r[1]) ? $r[1] : '';
 
         return ['controller'=>trim($r[0], '\\'), 'action'=>$action];
     }

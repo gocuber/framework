@@ -29,9 +29,9 @@ class Application
 
     public function __construct($base_path = '')
     {
-    	$this->_base_path = $base_path;
+        $this->_base_path = $base_path;
 
-    	$this->init();
+        $this->init();
     }
 
     /**
@@ -123,7 +123,7 @@ class Application
      */
     private function basePath()
     {
-    	return $this->_base_path;
+        return $this->_base_path;
     }
 
     /**

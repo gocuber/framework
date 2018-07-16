@@ -21,9 +21,9 @@ class Memcached
 
     private function __construct($config = null)
     {
-    	if (isset($config)) {
-    		$this->setConfig($config);
-    	}
+        if (isset($config)) {
+            $this->setConfig($config);
+        }
     }
 
     public static function connect($key = 'default')

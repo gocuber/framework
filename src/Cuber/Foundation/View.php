@@ -34,7 +34,7 @@ class View
     public static function assign($key = null, $value = null)
     {
         if(!isset($key)){
-        	return null;
+            return null;
         }
 
         if(is_scalar($key)){

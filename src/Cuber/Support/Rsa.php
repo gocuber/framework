@@ -139,7 +139,7 @@ class Rsa
      */
     private function publicKey()
     {
-    	return openssl_pkey_get_public($this->_public_key);
+        return openssl_pkey_get_public($this->_public_key);
     }
 
     /**
@@ -159,7 +159,7 @@ class Rsa
      */
     public function getPublicKey()
     {
-    	return strtr($this->_public_key, array('-----BEGIN PUBLIC KEY-----'=>'','-----END PUBLIC KEY-----'=>'',"\n"=>'',"\r"=>''));
+        return strtr($this->_public_key, array('-----BEGIN PUBLIC KEY-----'=>'','-----END PUBLIC KEY-----'=>'',"\n"=>'',"\r"=>''));
     }
 
     /**

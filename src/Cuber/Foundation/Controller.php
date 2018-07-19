@@ -20,14 +20,11 @@ class Controller
 
     protected $_argv = [];
 
-    public function __construct()
-    {}
-
-    public function _init($opt = [])
+    public function __construct($opt = [])
     {
-        if (!empty($opt) and is_array($opt)) {
-            foreach ($opt as $key => $value) {
-                $this->$key = $value;
+        foreach (['_route', '_controller', '_action', '_argv'] as $key) {
+            if (isset($opt[$key])) {
+                $this->$key = $opt[$key];
             }
         }
 
@@ -35,9 +32,17 @@ class Controller
         defined('IS_CLI') and IS_CLI === true and $this->_argv = get_argv();
     }
 
-    protected function display($tpl = '', $data = '')
+    /**
+     * display
+     *
+     * @param string $tpl
+     * @param array $data
+     *
+     * @return void
+     */
+    protected function display($tpl = '', $data = [])
     {
-        if(!isset($tpl) or ''===$tpl){
+        if (!isset($tpl) or ''===$tpl) {
             $tpl = strtr(strtolower($this->_controller . '/' . $this->_action), ['\\'=>'/']);
         }
 

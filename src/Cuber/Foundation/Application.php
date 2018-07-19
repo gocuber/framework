@@ -7,7 +7,7 @@
  */
 namespace Cuber\Foundation;
 
-use Cuber\Foundation\Route;
+use Cuber\Foundation\Router;
 use Cuber\Foundation\AliasLoader;
 use Cuber\Support\Exception;
 use Cuber\Config\Config;
@@ -96,8 +96,7 @@ class Application
 
                 $c = Config::get('controller_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable(array($c, $action))) {
-                    $ctl = new $c();
-                    $ctl->_init(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
+                    $ctl = new $c(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
                     $ctl->$action();
                 } else {
                     throw new Exception("Action '{$action}' not found");

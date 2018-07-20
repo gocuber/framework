@@ -27,6 +27,28 @@ class Config
     }
 
     /**
+     * add
+     *
+     * @param array $data
+     *
+     * @return bool
+     */
+    public static function add($data = [])
+    {
+        if (empty($data) or !is_array($data)) {
+            return false;
+        }
+
+        self::set();
+
+        foreach ($data as $key=>$value) {
+            self::$hash[$key] = $value;
+        }
+
+        return true;
+    }
+
+    /**
      * Get Config
      *
      * @param string $key
@@ -163,6 +185,16 @@ class Config
     public static function charset()
     {
         return self::get('charset', 'utf-8');
+    }
+
+    /**
+     * Get ini Config
+     *
+     * @return str
+     */
+    public static function ini($key = '', $default = null)
+    {
+        return self::get('ini.' . $key, $default);
     }
 
 }

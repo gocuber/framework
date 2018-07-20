@@ -152,6 +152,13 @@ class Application
 
         date_default_timezone_set(Config::timezone());
         header("Content-type: text/html; charset=" . Config::charset());
+
+        $config = BASE_PATH . 'config/config.ini';
+        if (is_file($config)) {
+            $conf = parse_ini_file($config, true);
+            Config::add(['ini'=>$conf]);
+        }
+
         AliasLoader::getInstance()->init()->register();
     }
 

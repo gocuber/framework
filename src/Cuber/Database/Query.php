@@ -481,6 +481,9 @@ class Query
         $currpage = round($currpage, 0);
         $pagesize = round($pagesize, 0);
 
+        ($currpage < 1) and $currpage = 1;
+        ($pagesize < 0) and $pagesize = 0;
+
         $this->_sql['offset'] = ($currpage-1)*$pagesize;
         $this->_sql['limit']  = $pagesize;
 

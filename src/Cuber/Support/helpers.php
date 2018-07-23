@@ -123,6 +123,23 @@ if (! function_exists('array_get')) {
     }
 }
 
+if (! function_exists('env')) {
+    /**
+     * getenv
+     *
+     * @param string $key
+     * @param mixed $default
+     *
+     * @return mixed
+     */
+    function env($key, $default = null)
+    {
+        $value = getenv($key);
+
+        return ($value === false) ? $default : $value;
+    }
+}
+
 if (! function_exists('model')) {
     /**
      * model

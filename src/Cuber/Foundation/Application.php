@@ -136,6 +136,16 @@ class Application
         define('APP_DIR', BASE_PATH . 'app/');
         defined('IS_CLI') or define('IS_CLI', is_cli());
 
+        $config = BASE_PATH . 'config/config.ini';
+        if (is_file($config)) {
+            $conf = parse_ini_file($config, false);
+            if (!empty($conf) and is_array($conf)) {
+                foreach ($conf as $key=>$value) {
+                    \putenv("{$key}={$value}");
+                }
+            }
+        }
+
         if (Config::debug()) {
 
             defined('APP_DEBUG') or define('APP_DEBUG', true);
@@ -152,12 +162,6 @@ class Application
 
         date_default_timezone_set(Config::timezone());
         header("Content-type: text/html; charset=" . Config::charset());
-
-        $config = BASE_PATH . 'config/config.ini';
-        if (is_file($config)) {
-            $conf = parse_ini_file($config, true);
-            Config::add(['ini'=>$conf]);
-        }
 
         AliasLoader::getInstance()->init()->register();
     }

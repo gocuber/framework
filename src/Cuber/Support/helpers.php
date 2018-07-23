@@ -97,6 +97,10 @@ if (! function_exists('array_get')) {
     /**
      * array_get
      *
+     * @param array $array
+     * @param str $key
+     * @param mixed $default
+     *
      * @return value
      */
     function array_get($array = [], $key = null, $default = null)
@@ -154,7 +158,7 @@ if (! function_exists('model')) {
 
 if (! function_exists('mk_dir')) {
     /**
-     * 创建目录
+     * 创建可写目录
      *
      * @param string $dir
      *
@@ -167,12 +171,14 @@ if (! function_exists('mk_dir')) {
         }
 
         if (!is_writable($dir)) {
-            if (!@mkdir($dir, 0777, true)) {
-                return false;
+            if (!is_dir($dir)) {
+                if (!@mkdir($dir, 0777, true)) {
+                    return false;
+                }
             }
+            return @chmod($dir, 0777);
         }
 
-        //@chmod($dir, 0777);
         return true;
     }
 }
@@ -202,5 +208,35 @@ if (! function_exists('get_client_ip')) {
         }
 
         return $ip;
+    }
+}
+
+if (! function_exists('iconv_array')) {
+    /**
+     * 编码转换
+     *
+     * @param str $in_charset
+     * @param str $out_charset
+     * @param array|str $array
+     *
+     * @return array|str
+     */
+    function iconv_array($in_charset, $out_charset, $array)
+    {
+        if ('//IGNORE' != substr($out_charset,-8) and '//TRANSLIT' != substr($out_charset,-10)) {
+            $out_charset .= '//IGNORE';
+        }
+
+        if (is_array($array)) {
+            foreach ($array as $key=>$value) {
+                unset($array[$key]);
+                $key = iconv($in_charset, $out_charset, $key);
+                $array[$key] = iconv_array($in_charset, $out_charset, $value);
+            }
+        } elseif (!empty($array) and is_string($array)) {
+            $array = iconv($in_charset, $out_charset, $array);
+        }
+
+        return $array;
     }
 }

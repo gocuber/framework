@@ -16,6 +16,11 @@ class AliasLoader
 
     private $_alias = null;
 
+    public function __construct()
+    {
+        $this->init();
+    }
+
     public static function getInstance()
     {
         if (!isset(self::$_instance)) {
@@ -26,15 +31,13 @@ class AliasLoader
     }
 
     /**
-     * Init
+     * init
      *
-     * @return $this
+     * @return void
      */
-    public function init()
+    private function init()
     {
         $this->_alias = Config::alias();
-
-        return $this;
     }
 
     /**

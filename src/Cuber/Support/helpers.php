@@ -223,7 +223,7 @@ if (! function_exists('iconv_array')) {
      */
     function iconv_array($in_charset, $out_charset, $array)
     {
-        if ('//IGNORE' != substr($out_charset,-8) and '//TRANSLIT' != substr($out_charset,-10)) {
+        if ('//IGNORE' != substr($out_charset, -8) and '//TRANSLIT' != substr($out_charset, -10)) {
             $out_charset .= '//IGNORE';
         }
 

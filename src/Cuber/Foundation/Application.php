@@ -163,7 +163,8 @@ class Application
         date_default_timezone_set(Config::timezone());
         header("Content-type: text/html; charset=" . Config::charset());
 
-        AliasLoader::getInstance()->init()->register();
+        // AliasLoader::getInstance()->register();
+        (new AliasLoader())->register();
     }
 
 }

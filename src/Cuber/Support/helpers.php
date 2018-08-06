@@ -93,6 +93,21 @@ if (! function_exists('d')) {
     }
 }
 
+if (! function_exists('debug')) {
+    /**
+     * debug
+     *
+     * @return void
+     */
+    function debug()
+    {
+        if (isset($_GET['debug']) and func_get_arg(0) == $_GET['debug']) {
+            s(func_get_args());
+        }
+        isset($_GET['_exit']) and exit();
+    }
+}
+
 if (! function_exists('array_get')) {
     /**
      * array_get

@@ -175,30 +175,51 @@ class File
     /**
      * getHitMissData
      *
+     * @param array $keys ['key', 'key']
+     * @param str $pre
+     *
+     * @return ['hit'=>['key'=>'value'], 'miss'=>['key','key']]
+     */
+    public function getHitMissData($keys = [], $pre = '')
+    {
+        if (empty($keys)) {
+            return [];
+        }
+
+        $mkeys = [];
+        foreach ($keys as $key) {
+            $mkeys[$key] = $pre . $key;
+        }
+
+        return $this->getHitMissHash($mkeys);
+    }
+
+    /**
+     * getHitMissHash
+     *
      * @param array $keys ['id'=>'key', 'id'=>'key']
      *
      * @return ['hit'=>['id'=>'value'], 'miss'=>['id','id']]
      */
-    public function getHitMissData($keys = [])
+    public function getHitMissHash($keys = [])
     {
         if (empty($keys)) {
             return [];
         }
 
         $data = $this->getMulti($keys);
+        $flip = array_flip($keys);
 
-        $keys_flip = array_flip($keys);
-        $miss      = [];
-        $hit       = [];
+        $hit = $miss = [];
         foreach ($data as $key=>$value) {
             if (isset($value)) {
-                $hit[$keys_flip[$key]] = $value;
+                $hit[$flip[$key]] = $value;
             } else {
-                $miss[] = $keys_flip[$key];
+                $miss[] = $flip[$key];
             }
         }
 
-        unset($data, $keys_flip);
+        unset($data, $flip);
         return ['hit'=>$hit, 'miss'=>$miss];
     }
 

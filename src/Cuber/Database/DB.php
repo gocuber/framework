@@ -118,7 +118,7 @@ class DB
      * @param string $value
      * @return array $array
      */
-    public function hash($key = '', $value = '')
+    public function hash($key = '', $value = '*')
     {
         $field = ('*' == $value or $key == $value) ? $value : "{$key},{$value}";
         $this->getQuery()->field($field);

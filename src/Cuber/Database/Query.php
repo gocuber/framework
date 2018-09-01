@@ -452,7 +452,7 @@ class Query
      */
     public function offset($offset = 0)
     {
-        $this->_sql['offset'] = round($offset, 0);
+        $this->_sql['offset'] = (int)$offset;
         return true;
     }
 
@@ -464,27 +464,24 @@ class Query
      */
     public function limit($limit = 0)
     {
-        $this->_sql['limit'] = round($limit, 0);
+        $this->_sql['limit'] = (int)$limit;
         return true;
     }
 
     /**
      * page
      *
-     * @param number $currpage
-     * @param number $pagesize
+     * @param int $currpage
+     * @param int $pagesize
      *
      * @return bool
      */
     public function page($currpage = 1, $pagesize = 1)
     {
-        $currpage = round($currpage, 0);
-        $pagesize = round($pagesize, 0);
+        $currpage = (int)$currpage < 1 ? 1 : (int)$currpage;
+        $pagesize = (int)$pagesize < 0 ? 0 : (int)$pagesize;
 
-        ($currpage < 1) and $currpage = 1;
-        ($pagesize < 0) and $pagesize = 0;
-
-        $this->_sql['offset'] = ($currpage-1)*$pagesize;
+        $this->_sql['offset'] = ($currpage - 1) * $pagesize;
         $this->_sql['limit']  = $pagesize;
 
         return true;

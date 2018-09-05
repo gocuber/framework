@@ -19,6 +19,8 @@ class Application
 
     private $_route = null;
 
+    private $_module = 'default';
+
     private $_controller = null;
 
     private $_action = null;
@@ -52,7 +54,7 @@ class Application
     private function setAction()
     {
 
-        Router::getInstance()->load();
+        Router::getInstance()->load(Config::get('module.' . $this->_module . '.route', 'app'));
 
         $ret = Router::getInstance()->hitRoute();
 
@@ -89,12 +91,12 @@ class Application
                 $controller = (isset($this->_controller) and '' !== $this->_controller) ? $this->_controller : 'Index';
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
 
-                $file = APP_DIR . 'controllers/' . $controller . '.php';
+                $file = APP_DIR . 'controllers/' . Config::get('module.' . $this->_module . '.controller', '') . $controller . '.php';
                 if (!is_file($file) or !include_once($file)) {
                     throw new Exception("Controller '{$controller}' not found");
                 }
 
-                $c = Config::get('controller_namespace', 'App\\Controllers\\') . $controller;
+                $c = Config::get('module.' . $this->_module . '.namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable(array($c, $action))) {
                     $ctl = new $c(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
                     $ctl->$action();
@@ -165,6 +167,18 @@ class Application
 
         // AliasLoader::getInstance()->register();
         (new AliasLoader())->register();
+    }
+
+    /**
+     * setModule
+     *
+     * @return $this
+     */
+    public function setModule($module = 'default')
+    {
+        $this->_module = $module;
+
+        return $this;
     }
 
 }

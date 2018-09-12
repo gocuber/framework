@@ -201,7 +201,7 @@ class Router
         $r = explode('@', trim($rule[0], '\\'));
         $action = isset($r[1]) ? $r[1] : '';
 
-        return ['controller'=>trim($r[0], '\\'), 'action'=>$action];
+        return ['controller'=>trim($r[0], '\\'), 'action'=>trim($action, '/')];
     }
 
     /**

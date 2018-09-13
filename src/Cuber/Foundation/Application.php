@@ -91,7 +91,7 @@ class Application
                 $controller = (isset($this->_controller) and '' !== $this->_controller) ? $this->_controller : 'Index';
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
 
-                $file = APP_DIR . 'controllers/' . Config::get('module.' . $this->_module . '.controller', '') . $controller . '.php';
+                $file = APP_DIR . 'Controllers/' . Config::get('module.' . $this->_module . '.controller', '') . $controller . '.php';
                 if (!is_file($file) or !include_once($file)) {
                     throw new Exception("Controller '{$controller}' not found");
                 }

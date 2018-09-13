@@ -99,7 +99,7 @@ class Redis
             $config = $this->getConfig();
 
             $key  = md5($config['host'] . '_' . $config['port']);
-            $conn = new Redis();
+            $conn = new \Redis();
             $conn->pconnect($config['host'], $config['port'], 2, $key);
             if(isset($config['auth'])){
                 $conn->auth($config['auth']);

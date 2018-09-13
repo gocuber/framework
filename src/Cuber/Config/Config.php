@@ -130,9 +130,11 @@ class Config
      */
     public static function moduleDomain($key = null)
     {
-        $key = isset($key) ? 'module_domain.' . $key : 'module_domain';
+        if (!isset($key)) {
+            return self::get('domain');
+        }
 
-        return self::get($key);
+        return self::get('module.' . $key . '.domain');
     }
 
     /**

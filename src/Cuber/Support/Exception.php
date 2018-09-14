@@ -56,7 +56,7 @@ class Exception extends \Exception
             }
         }
 
-        if (defined('APP_DEBUG') and APP_DEBUG) {
+        if (Config::debug()) {
             echo '<pre>' . $msg . "\n" . $str . '</pre>';
         }
 

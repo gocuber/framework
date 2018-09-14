@@ -107,13 +107,10 @@ class Application
             }
 
         } catch (Exception $e) {
-
-            if (defined('APP_DEBUG') and APP_DEBUG) {
-                $e->log();
-            } else {
+            $e->log();
+            if (!Config::debug()) {
                 ret404();
             }
-
         }
     }
 
@@ -149,17 +146,11 @@ class Application
         }
 
         if (Config::debug()) {
-
-            defined('APP_DEBUG') or define('APP_DEBUG', true);
             ini_set('display_errors', 'on');
             error_reporting(-1);
-
         } else {
-
-            defined('APP_DEBUG') or define('APP_DEBUG', false);
             ini_set('display_errors', 'off');
             error_reporting(0);
-
         }
 
         date_default_timezone_set(Config::timezone());

@@ -282,7 +282,7 @@ class Router
      */
     public function getRouter()
     {
-        if (defined('IS_CLI') and IS_CLI) {
+        if (is_cli()) {
             return $this->getRouterByCli();
         }
 

@@ -133,7 +133,6 @@ class Application
     {
         define('BASE_PATH', $this->_base_path);
         define('APP_DIR', BASE_PATH . 'app/');
-        defined('IS_CLI') or define('IS_CLI', is_cli());
 
         $config = BASE_PATH . 'config/config.ini';
         if (is_file($config)) {

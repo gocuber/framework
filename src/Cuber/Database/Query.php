@@ -53,7 +53,7 @@ class Query
      */
     private function mergeCond($cond = null, $sign = 'and')
     {
-        if (empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and','or'], true)) {
+        if (empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and', 'or'], true)) {
             return false;
         }
 
@@ -257,9 +257,9 @@ class Query
 
         if (count($value) == 4 and in_array($value[1], ['between', 'not between'], true)) {
             return $this->buildCondBetween($value[0], [$value[2], $value[3]], $value[1]);
-        } elseif (count($value) == 3 and in_array($value[1], ['between','not between'], true)) {
+        } elseif (count($value) == 3 and in_array($value[1], ['between', 'not between'], true)) {
             return $this->buildCondBetween($value[0], $value[2], $value[1]);
-        } elseif (count($value) == 3 and in_array($value[1], ['in','not in'], true)) {
+        } elseif (count($value) == 3 and in_array($value[1], ['in', 'not in'], true)) {
             return $this->buildCondIn($value[0], $value[2], $value[1]);
         } elseif (count($value) == 3) {
             return $value[0] . ' ' . $value[1] . ' ' . $this->setParam($value[2]); // > < <> like ['name','like','%key%'] ['name','like','key%']

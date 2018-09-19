@@ -150,7 +150,7 @@ class Query
 
         $sql = '';
         foreach ($cond as $key => $value) {
-            if (isset($value[0]) and in_array($value[0], ['and', 'or'])) {
+            if (isset($value[0]) and in_array($value[0], ['and', 'or'], true)) {
                 $sql .= ' ' . $sign . ' (' . $this->buildCond($value) . ')';
             } else {
                 if (is_int($key)) {
@@ -185,7 +185,7 @@ class Query
     private function buildCondIn($key = null, $value = null, $sign = 'in')
     {
         if(empty($value) or !is_array($value)){
-            return '';
+            return '0';
         }
 
         $in = '';
@@ -304,12 +304,12 @@ class Query
 
         $sql = "select " . (isset($field) ? $field : '*') . " from " . (empty($from) ? $this->_name : $from);
 
-        !empty($join)    and $sql .= " $join";
-        !empty($where)   and $sql .= " where $where";
-        !empty($groupby) and $sql .= " group by $groupby";
-        !empty($having)  and $sql .= " having $having";
-        !empty($orderby) and $sql .= " order by $orderby";
-        !empty($limit)   and $sql .= " limit " . (empty($offset) ? $limit : ($offset . ',' . $limit));
+        isset($join)    and $sql .= " $join";
+        isset($where)   and $sql .= " where $where";
+        isset($groupby) and $sql .= " group by $groupby";
+        isset($having)  and $sql .= " having $having";
+        isset($orderby) and $sql .= " order by $orderby";
+        isset($limit)   and $sql .= " limit " . (empty($offset) ? $limit : ($offset . ',' . $limit));
 
         $this->_sql['sql'] = $sql;
         isset($this->_sql['param']) or $this->_sql['param'] = null;

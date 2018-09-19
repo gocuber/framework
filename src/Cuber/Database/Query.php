@@ -33,7 +33,7 @@ class Query
         }
 
         if (is_array($cond)) {
-            if (!(isset($cond[0]) and in_array($cond[0], ['and', 'or']))) {
+            if (!(isset($cond[0]) and in_array($cond[0], ['and', 'or'], true))) {
                 $cond = array_merge([$sign], $cond);
             }
         } else {
@@ -53,29 +53,29 @@ class Query
      */
     private function mergeCond($cond = null, $sign = 'and')
     {
-        if(empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and','or'])){
+        if (empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and','or'], true)) {
             return false;
         }
 
-        if(empty($this->_cond)){
+        if (empty($this->_cond)) {
             $this->_cond = $cond;
         }
 
         $_sign    = $this->_cond[0];
         $sub_sign = $cond[0];
 
-        if($sign == $_sign){
-            if($sign == $sub_sign){
+        if ($sign == $_sign) {
+            if ($sign == $sub_sign) {
                 unset($cond[0]);
                 $this->_cond = array_merge($this->_cond, $cond);
-            }else{
+            } else {
                 $this->_cond[] = $cond;
             }
-        }else{
-            if($sign == $sub_sign){
+        } else {
+            if ($sign == $sub_sign) {
                 unset($cond[0]);
                 $this->_cond = array_merge([$sign, $this->_cond], $cond);
-            }else{
+            } else {
                 $this->_cond = [$sign, $this->_cond, $cond];
             }
         }
@@ -92,7 +92,7 @@ class Query
      */
     public function where($cond = null)
     {
-        if(empty($cond)){
+        if (empty($cond)) {
             return false;
         }
 
@@ -109,7 +109,7 @@ class Query
      */
     public function andWhere($cond = null)
     {
-        if(empty($cond)){
+        if (empty($cond)) {
             return false;
         }
 
@@ -125,7 +125,7 @@ class Query
      */
     public function orWhere($cond = null)
     {
-        if(empty($cond)){
+        if (empty($cond)) {
             return $this;
         }
 
@@ -141,7 +141,7 @@ class Query
      */
     private function buildCond($cond = null)
     {
-        if (empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and', 'or'])) {
+        if (empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and', 'or'], true)) {
             return '';
         }
 
@@ -184,12 +184,12 @@ class Query
      */
     private function buildCondIn($key = null, $value = null, $sign = 'in')
     {
-        if(empty($value) or !is_array($value)){
+        if (empty($value) or !is_array($value)) {
             return '0';
         }
 
         $in = '';
-        foreach($value as $k=>$v){
+        foreach ($value as $k=>$v) {
             $in .= $this->setParam($v) . ',';
         }
         $in = rtrim($in, ',');
@@ -206,7 +206,7 @@ class Query
      */
     private function buildCondHash($key = null, $value = null)
     {
-        if(is_array($value)){
+        if (is_array($value)) {
             return $this->buildCondIn($key, $value);
         }
         return "$key=" . $this->setParam($value);
@@ -235,7 +235,7 @@ class Query
      */
     private function buildCondBetween($key = null, $value = null, $sign = 'between')
     {
-        if(!is_array($value) or !isset($value[0]) or !isset($value[1])){
+        if (!is_array($value) or !isset($value[0]) or !isset($value[1])) {
             return '';
         }
 
@@ -251,23 +251,23 @@ class Query
      */
     private function buildCondArray($value = null)
     {
-        if(empty($value) or !is_array($value)){
+        if (empty($value) or !is_array($value)) {
             return '';
         }
 
-        if(count($value)==4 and in_array($value[1], ['between','not between'])){
+        if (count($value) == 4 and in_array($value[1], ['between', 'not between'], true)) {
             return $this->buildCondBetween($value[0], [$value[2], $value[3]], $value[1]);
-        }elseif(count($value)==3 and in_array($value[1], ['between','not between'])){
+        } elseif (count($value) == 3 and in_array($value[1], ['between','not between'], true)) {
             return $this->buildCondBetween($value[0], $value[2], $value[1]);
-        }elseif(count($value)==3 and in_array($value[1], ['in','not in'])){
+        } elseif (count($value) == 3 and in_array($value[1], ['in','not in'], true)) {
             return $this->buildCondIn($value[0], $value[2], $value[1]);
-        }elseif(count($value)==3){
+        } elseif (count($value) == 3) {
             return $value[0] . ' ' . $value[1] . ' ' . $this->setParam($value[2]); // > < <> like ['name','like','%key%'] ['name','like','key%']
-        }elseif(count($value)==2 and is_array($value[1])){
+        } elseif (count($value) == 2 and is_array($value[1])) {
             return $this->buildCondIn($value[0], $value[1]);
-        }elseif(count($value)==2){
+        } elseif (count($value) == 2) {
             return $value[0] . '=' . $this->setParam($value[1]);
-        }else{
+        } else {
             return '';
         }
     }
@@ -281,9 +281,9 @@ class Query
      */
     private function setParam($param = '')
     {
-        if(isset($this->_index)){
+        if (isset($this->_index)) {
             $this->_index++;
-        }else{
+        } else {
             $this->_index = 1;
         }
 
@@ -330,7 +330,7 @@ class Query
      */
     public function field($field = null)
     {
-        if(empty($field)){
+        if (empty($field)) {
             return false;
         }
 
@@ -347,7 +347,7 @@ class Query
      */
     public function from($name = null)
     {
-        if(empty($name)){
+        if (empty($name)) {
             return false;
         }
 
@@ -366,13 +366,13 @@ class Query
      */
     public function join($type = null, $table = null, $on = null)
     {
-        if(empty($type) or empty($table) or empty($on)){
+        if (empty($type) or empty($table) or empty($on)) {
             return false;
         }
 
-        if(isset($this->_sql['join'])){
+        if (isset($this->_sql['join'])) {
             $this->_sql['join'] .= '' . $type . $table . ' on ' . $on;
-        }else{
+        } else {
             $this->_sql['join'] = $type . $table . ' on ' . $on;
         }
 
@@ -388,7 +388,7 @@ class Query
      */
     public function groupBy($cond = null)
     {
-        if(empty($cond)){
+        if (empty($cond)) {
             return false;
         }
 
@@ -405,7 +405,7 @@ class Query
      */
     public function having($cond = null)
     {
-        if(empty($cond)){
+        if (empty($cond)) {
             return false;
         }
 
@@ -422,22 +422,22 @@ class Query
      */
     public function orderBy($cond = null)
     {
-        if(empty($cond)){
+        if (empty($cond)) {
             return false;
         }
 
-        if(is_array($cond)){
+        if (is_array($cond)) {
             $by = '';
-            foreach($cond as $key=>$value){
-                if(is_int($key)){
+            foreach ($cond as $key=>$value) {
+                if (is_int($key)) {
                     $by .= $value . ',';
-                }else{
+                } else {
                     $value = ('desc'==$value) ? 'desc' : 'asc';
                     $by .= "$key {$value},";
                 }
             }
             $this->_sql['orderby'] = trim($by, ',');
-        }else{
+        } else {
             $this->_sql['orderby'] = $cond;
         }
 

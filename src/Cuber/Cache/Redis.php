@@ -71,7 +71,15 @@ class Redis
 
     public function __call($name = null, $arguments = null)
     {
+
         try {
+            $method = new ReflectionMethod($this->conn(), $name);
+            return $method->invokeArgs($this->conn(), $arguments);
+        } catch (Exception $e) {
+            $e->log(CubeException::ERROR_TYPE_REDIS);
+        }
+
+        /* try {
 
             $conn = $this->conn();
 
@@ -85,7 +93,7 @@ class Redis
 
             $e->log(CubeException::ERROR_TYPE_REDIS);
 
-        }
+        } */
     }
 
     /**

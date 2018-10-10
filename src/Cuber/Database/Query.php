@@ -305,7 +305,7 @@ class Query
         $sql = "select " . (isset($field) ? $field : '*') . " from " . (empty($from) ? $this->_name : $from);
 
         isset($join)    and $sql .= " $join";
-        isset($where)   and $sql .= " where $where";
+        isset($where) and '' !== $where and $sql .= " where $where";
         isset($groupby) and $sql .= " group by $groupby";
         isset($having)  and $sql .= " having $having";
         isset($orderby) and $sql .= " order by $orderby";

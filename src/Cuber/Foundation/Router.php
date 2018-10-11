@@ -8,6 +8,7 @@
 namespace Cuber\Foundation;
 
 use Cuber\Foundation\Route;
+use Cuber\Config\Config;
 
 class Router
 {
@@ -35,11 +36,9 @@ class Router
 
         // 是否命中路由规则
         foreach ($rules as $rule => $line) {
-
             $_rule = $this->regular($rule, $line['pattern']);
 
-            if(preg_match('/^' . $_rule . '$/i', $route, $mat) or (')' == substr($_rule, -1) and preg_match('/^' . $_rule . '$/i', $route . '/', $mat))){
-
+            if (preg_match('/^' . $_rule . '$/i', $route, $mat) or (')' == substr($_rule, -1) and preg_match('/^' . $_rule . '$/i', $route . '/', $mat))) {
                 // $mat_param = ['{name}', '{id}']
                 preg_match_all('/{[a-z]+}/', $rule, $mat_param, PREG_PATTERN_ORDER);
                 isset($mat_param) and isset($mat_param[0]) and $mat_param = $mat_param[0];
@@ -47,8 +46,8 @@ class Router
                 // $_param = ['{name}'=>'code', '{id}'=>10086]
                 // $closure_param = ['name'=>'code', 'id'=>10086]
                 $_param = $closure_param = [];
-                foreach($mat as $key => $value){
-                    if($key > 0){
+                foreach ($mat as $key => $value) {
+                    if ($key > 0) {
                         $k = isset($mat_param[$key-1]) ? $mat_param[$key-1] : $key;
                         $_param[$k] = $value;
                         $closure_param[ substr($k, 1, -1) ] = $value;
@@ -57,12 +56,10 @@ class Router
 
                 if (is_string($line['rule'])) {
                     return array_merge(['route'=>$route], $this->makeControllerByRule(strtr($line['rule'], $_param)));
-                }else{
+                } else {
                     return ['route'=>$route, 'closure'=>$line['rule'], 'closure_param'=>$closure_param];
                 }
-
             }
-
         }
         return $this->makeControllerByRoute($route);
     }
@@ -76,7 +73,7 @@ class Router
      */
     public function runClosureRoute($closure, $param = null)
     {
-        if(!isset($closure) or is_string($closure) or !is_callable($closure)){
+        if (!isset($closure) or is_string($closure) or !is_callable($closure)) {
             return false;
         }
 
@@ -84,20 +81,18 @@ class Router
         $call_value = []; // 闭包参数值
         $reflect    = new \ReflectionFunction($closure);
 
-        foreach($reflect->getParameters() as $_param){
-
+        foreach ($reflect->getParameters() as $_param) {
             $name = $_param->getName();
 
-            if(isset($param[$name]) and ''!==$param[$name]){
+            if (isset($param[$name]) and ''!==$param[$name]) {
                 $call_value[] = $param[$name];
-            }else{
-                if($_param->isOptional()){
+            } else {
+                if ($_param->isOptional()) {
                     $call_value[] = $_param->getDefaultValue();
-                }else{
+                } else {
                     $call_value[] = null;
                 }
             }
-
         }
 
         return call_user_func_array($closure, $call_value);
@@ -120,7 +115,6 @@ class Router
 
         // 是否命中子域名组
         foreach ($routes as $domain => $rule) {
-
             if ('*' == $domain) {
                 continue 1;
             }
@@ -129,7 +123,6 @@ class Router
             if (preg_match('/^' . $domain . '$/i', $host)) {
                 return $rule;
             }
-
         }
 
         if (isset($routes['*'])) {
@@ -177,8 +170,8 @@ class Router
         unset($r[count($r)-1]);
 
         $controller = '';
-        if(!empty($r)){
-            foreach($r as $_r){
+        if (!empty($r)) {
+            foreach ($r as $_r) {
                 $controller .= ucfirst(strtolower($_r)) . '\\';
             }
         }
@@ -212,12 +205,12 @@ class Router
      */
     private function setParam($param = '')
     {
-        if(empty($param)){
+        if (empty($param)) {
             return true;
         }
 
         $get = explode('&', $param);
-        foreach($get as $_g){
+        foreach ($get as $_g) {
             $_g = explode('=', $_g);
             $_GET[$_g[0]] = isset($_g[1]) ? $_g[1] : '';
         }
@@ -241,7 +234,8 @@ class Router
      */
     private function getRouterByGet()
     {
-        $name = isset($GLOBALS['_G']['route_get']) ? $GLOBALS['_G']['route_get'] : 'r';
+        $name = Config::get('route_get', 'r');
+
         return isset($_GET[$name]) ? trim($_GET[$name], '/') : '';
     }
 
@@ -265,9 +259,9 @@ class Router
         $request_uri = $_SERVER['REQUEST_URI'];
         $script_name = $_SERVER['SCRIPT_NAME'];
 
-        if(substr($request_uri, 0, strlen($script_name)) == $script_name){
+        if (substr($request_uri, 0, strlen($script_name)) == $script_name) {
             $route = substr($request_uri, strlen($script_name));
-        }else{
+        } else {
             $route = substr($request_uri, strlen(dirname($script_name)));
         }
 
@@ -286,14 +280,14 @@ class Router
             return $this->getRouterByCli();
         }
 
-        $url_model = isset($GLOBALS['_G']['url_model']) ? $GLOBALS['_G']['url_model'] : 1;
-        if(2 == $url_model){
+        $url_model = Config::get('url_model', 1);
+        if (2 == $url_model) {
             $_route = $this->getRouterByPathInfo();
-        }elseif(3 == $url_model){
+        } elseif (3 == $url_model) {
             $_route = $this->getRouterByGet();
-        }elseif(4 == $url_model){
-            $_route = isset($GLOBALS['_G']['route_func']) ? call_user_func($GLOBALS['_G']['route_func']) : get_route();
-        }else{
+        } elseif (4 == $url_model) {
+            $_route = isset(Config::get('route_func')) ? call_user_func(Config::get('route_func')) : \get_route();
+        } else {
             $_route = $this->getRouterByRequestUri();
         }
         return $_route;

@@ -255,3 +255,15 @@ if (! function_exists('iconv_array')) {
         return $array;
     }
 }
+
+if (! function_exists('get_route')) {
+    /**
+     * 获取路由
+     *
+     * @return string
+     */
+    function get_route()
+    {
+        return isset($_GET['r']) ? $_GET['r'] : '';
+    }
+}

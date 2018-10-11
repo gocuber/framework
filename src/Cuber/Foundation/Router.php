@@ -286,7 +286,7 @@ class Router
         } elseif (3 == $url_model) {
             $_route = $this->getRouterByGet();
         } elseif (4 == $url_model) {
-            $_route = isset(Config::get('route_func')) ? call_user_func(Config::get('route_func')) : \get_route();
+            $_route = Config::get('route_func') ? call_user_func(Config::get('route_func')) : \get_route();
         } else {
             $_route = $this->getRouterByRequestUri();
         }

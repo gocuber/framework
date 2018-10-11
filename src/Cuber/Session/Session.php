@@ -19,10 +19,11 @@ class Session
      */
     public static function start()
     {
-        if(!isset(self::$_is_start)){
-            self::$_is_start = true;
+        if (!isset(self::$_is_start)) {
             session_start();
+            self::$_is_start = true;
         }
+
         return true;
     }
 
@@ -34,9 +35,9 @@ class Session
      */
     public static function id($id = null)
     {
-        if(isset($id)){
+        if (isset($id)) {
             return session_id($id);
-        }else{
+        } else {
             return session_id();
         }
     }
@@ -50,8 +51,11 @@ class Session
     public static function get($name = null)
     {
         self::start();
-        $value = isset($_SESSION[$name]) ? $_SESSION[$name] : null;
-        return $value;
+        if (isset($name)) {
+            return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
+        } else {
+            return $_SESSION;
+        }
     }
 
     /**
@@ -77,7 +81,11 @@ class Session
     public static function del($name = null)
     {
         self::start();
-        unset($_SESSION[$name]);
+        if (isset($name)) {
+            unset($_SESSION[$name]);
+        } else {
+            unset($_SESSION);
+        }
         return true;
     }
 

@@ -17,6 +17,7 @@ if (! function_exists('is_cli')) {
         if (defined('IS_CLI')) {
             return IS_CLI;
         }
+
         return ('cli' === php_sapi_name());
     }
 }
@@ -44,14 +45,14 @@ if (! function_exists('get_argv')) {
         $_argv = $GLOBALS['argv'];
         $_argc = $GLOBALS['argc'];
         $argvs = [];
-        for($i = 2; $i < $_argc; $i++){
+        for ($i = 2; $i < $_argc; $i++) {
             $key = $_argv[$i];
-            if('-' != substr($key, 0, 1)){
+            if ('-' != substr($key, 0, 1)) {
                 continue 1;
             }
             $i++;
             $value = $_argv[$i];
-            if('-' == substr($value, 0, 1)){
+            if ('-' == substr($value, 0, 1)) {
                 $i--;
                 continue 1;
             }
@@ -104,6 +105,7 @@ if (! function_exists('debug')) {
         if (isset($_GET['debug']) and func_get_arg(0) == $_GET['debug']) {
             s(func_get_args());
         }
+
         isset($_GET['_exit']) and exit();
     }
 }
@@ -113,7 +115,7 @@ if (! function_exists('array_get')) {
      * array_get
      *
      * @param array $array
-     * @param str $key
+     * @param string $key
      * @param mixed $default
      *
      * @return value
@@ -230,11 +232,11 @@ if (! function_exists('iconv_array')) {
     /**
      * 编码转换
      *
-     * @param str $in_charset
-     * @param str $out_charset
-     * @param array|str $array
+     * @param string $in_charset
+     * @param string $out_charset
+     * @param array|string $array
      *
-     * @return array|str
+     * @return array|string
      */
     function iconv_array($in_charset, $out_charset, $array)
     {
@@ -248,11 +250,34 @@ if (! function_exists('iconv_array')) {
                 $key = iconv($in_charset, $out_charset, $key);
                 $array[$key] = iconv_array($in_charset, $out_charset, $value);
             }
-        } elseif (!empty($array) and is_string($array)) {
+        } elseif (isset($array) and is_string($array)) {
             $array = iconv($in_charset, $out_charset, $array);
         }
 
         return $array;
+    }
+}
+
+if (! function_exists('to_string')) {
+    /**
+     * 将数组数字值转为字符串值
+     *
+     * @param array|string $data
+     *
+     * @return array|string
+     */
+    function to_string($data)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data[$key] = to_string($value);
+            }
+        } elseif (is_object($data)) {
+        } else {
+            $data = strval($data);
+        }
+
+        return $data;
     }
 }
 

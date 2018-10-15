@@ -42,7 +42,7 @@ class Controller
      */
     protected function display($tpl = '', $data = [])
     {
-        if (!isset($tpl) or ''===$tpl) {
+        if (!isset($tpl) or '' === $tpl) {
             $tpl = strtr(strtolower($this->_controller . '/' . $this->_action), ['\\'=>'/']);
         }
 

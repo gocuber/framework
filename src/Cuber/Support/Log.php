@@ -51,7 +51,7 @@ class Log
             return false;
         }
 
-        if (!mk_dir(dirname($file))) {
+        if (!\mk_dir(dirname($file))) {
             return false;
         }
 

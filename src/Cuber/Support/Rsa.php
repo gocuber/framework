@@ -12,69 +12,32 @@ use Cuber\Config\Config;
 class Rsa
 {
 
-    private $_private_key = '';
-
-    private $_public_key = '';
-
     private static $_instance = null;
+
+    private $public_key = '';
+
+    private $private_key = '';
+
+    private $public_id = '';
+
+    private $private_id = '';
 
     private function __construct($key = null)
     {
-        isset($key['public']) and $this->_public_key = $key['public'];
-        isset($key['private']) and $this->_private_key = $key['private'];
+        $rsa_dir = Config::get('rsa_dir');
+        $this->public_key  = file_get_contents($rsa_dir . $key . '.public');
+        $this->private_key = file_get_contents($rsa_dir . $key . '.private');
+        $this->public_id   = openssl_pkey_get_public($this->public_key);
+        $this->private_id  = openssl_pkey_get_private($this->private_key);
     }
 
-    public static function getInstance($key = array())
+    public static function getInstance($key = null)
     {
-        if(empty($key)){
-            $key = Config::get('rsa');
+        if (!isset(self::$_instance[$key])) {
+            self::$_instance[$key] = new self($key);
         }
 
-        $_key = md5(serialize($key));
-        if(!isset(self::$_instance[$_key])){
-            self::$_instance[$_key] = new self($key);
-        }
-        return self::$_instance[$_key];
-    }
-
-    /**
-     * 加密
-     *
-     * @param string $data
-     * @param string $key   private私匙 public公匙
-     *
-     * @return string
-     */
-    public function encrypt($data = null, $key = 'public')
-    {
-        return ('private'==$key) ? $this->privateEncrypt($data) : $this->publicEncrypt($data);
-    }
-
-    /**
-     * 解密
-     *
-     * @param string $data
-     * @param string $key   private私匙 public公匙
-     *
-     * @return string
-     */
-    public function decrypt($data = null, $key = 'private', $js = false)
-    {
-        return ('public'==$key) ? $this->publicDecrypt($data) : $this->privateDecrypt($data, $js);
-    }
-
-    /**
-     * 私匙加密
-     *
-     * @param string $data
-     *
-     * @return string
-     */
-    private function privateEncrypt($data = null)
-    {
-        openssl_private_encrypt($data, $encrypted, $this->privateKey());
-        $encrypted = base64_encode($encrypted);
-        return $encrypted;
+        return self::$_instance[$key];
     }
 
     /**
@@ -84,29 +47,23 @@ class Rsa
      *
      * @return string
      */
-    private function publicEncrypt($data = null)
+    public function publicEncrypt($data = null)
     {
-        openssl_public_encrypt($data, $encrypted, $this->publicKey());
-        $encrypted = base64_encode($encrypted);
-        return $encrypted;
+        openssl_public_encrypt($data, $encrypt, $this->public_id);
+        return base64_encode($encrypt);
     }
 
     /**
-     * 私匙解密
+     * 私匙加密
      *
      * @param string $data
      *
      * @return string
      */
-    private function privateDecrypt($data = null, $js = false)
+    public function privateEncrypt($data = null)
     {
-        $padding = $js ? OPENSSL_NO_PADDING : OPENSSL_PKCS1_PADDING;
-        $js and $data = base64_encode(@pack("H*",trim($data)));
-        if(openssl_private_decrypt(base64_decode($data), $decrypted, $this->privateKey(), $padding)){
-            $decrypted = $js ? rtrim(strrev($decrypted), "/0") : "".$decrypted;
-            return rtrim($decrypted);
-        }
-        return '';
+        openssl_private_encrypt($data, $encrypt, $this->private_id);
+        return base64_encode($encrypt);
     }
 
     /**
@@ -116,50 +73,43 @@ class Rsa
      *
      * @return string
      */
-    private function publicDecrypt($data = null)
+    public function publicDecrypt($data = null)
     {
-        openssl_public_decrypt(base64_decode($data), $decrypted, $this->publicKey());
-        return $decrypted;
+        openssl_public_decrypt(base64_decode($data), $decrypt, $this->public_id);
+        return $decrypt;
     }
 
     /**
-     * privateKey
+     * 私匙解密
      *
-     * @return resource
+     * @param string $data
+     *
+     * @return string
      */
-    private function privateKey()
+    public function privateDecrypt($data = null)
     {
-        return openssl_pkey_get_private($this->_private_key);
+        openssl_private_decrypt(base64_decode($data), $decrypt, $this->private_id);
+        return $decrypt;
     }
 
     /**
      * publicKey
      *
-     * @return resource
+     * @return string
      */
-    private function publicKey()
+    public function publicKey()
     {
-        return openssl_pkey_get_public($this->_public_key);
+        return $this->public_key;
     }
 
     /**
-     * getPrivateKey
+     * privateKey
      *
      * @return string
      */
-    public function getPrivateKey()
+    public function privateKey()
     {
-        return $this->_private_key;
-    }
-
-    /**
-     * getPublicKey
-     *
-     * @return string
-     */
-    public function getPublicKey()
-    {
-        return strtr($this->_public_key, array('-----BEGIN PUBLIC KEY-----'=>'','-----END PUBLIC KEY-----'=>'',"\n"=>'',"\r"=>''));
+        return $this->private_key;
     }
 
     /**
@@ -167,12 +117,12 @@ class Rsa
      *
      * @return array
      */
-    public function createKey()
+    public static function createKey()
     {
-        $res = openssl_pkey_new();
+        $res = openssl_pkey_new(['private_key_bits' => 1024]);
         openssl_pkey_export($res, $private);
         $public = openssl_pkey_get_details($res);
-        return array('public'=>$public['key'], 'private'=>$private);
+        return ['public'=>$public['key'], 'private'=>$private];
     }
 
 }

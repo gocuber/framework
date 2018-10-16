@@ -41,9 +41,7 @@ class Module
      * @return string
      */
     public static function getModuleDir($module = null)
-    {
-        return APP_DIR;
-    }
+    {}
 
     /**
      * 取模块控制器目录

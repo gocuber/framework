@@ -7,8 +7,6 @@
  */
 namespace Cuber\Foundation;
 
-use Cuber\Foundation\View;
-
 class Controller
 {
 
@@ -28,8 +26,7 @@ class Controller
             }
         }
 
-        // parse_str(implode('&', $GLOBALS['argv']), $_GET);
-        defined('IS_CLI') and IS_CLI === true and $this->_argv = get_argv();
+        \is_cli() and $this->_argv = \get_argv();
     }
 
     /**

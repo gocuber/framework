@@ -128,11 +128,25 @@ class Rsa
     /**
      * key
      *
-     * @return array
+     * @return string
      */
     public static function key($key)
     {
         return md5(md5('rsa_key' . Config::get('rsa_code') . $key));
+    }
+
+    /**
+     * getKey
+     *
+     * @return array
+     */
+    public static function getKey()
+    {
+        $key     = self::key(mt_rand(1, Config::get('rsa_num')));
+        $public  = self::getInstance($key)->publicKey();
+        $private = self::getInstance($key)->privateKey();
+
+        return ['key'=>$key, 'public'=>$public, 'private'=>$private];
     }
 
 }

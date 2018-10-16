@@ -91,13 +91,8 @@ class Application
                 $controller = (isset($this->_controller) and '' !== $this->_controller) ? $this->_controller : 'Index';
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
 
-                $file = APP_DIR . 'Controllers/' . Config::get('module.' . $this->_module . '.controller', '') . $controller . '.php';
-                if (!is_file($file) or !include_once($file)) {
-                    throw new Exception("Controller '{$controller}' not found");
-                }
-
                 $c = Config::get('module.' . $this->_module . '.namespace', 'App\\Controllers\\') . $controller;
-                if (is_callable(array($c, $action))) {
+                if (is_callable([$c, $action])) {
                     $ctl = new $c(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
                     $ctl->$action();
                 } else {
@@ -109,7 +104,7 @@ class Application
         } catch (Exception $e) {
             $e->log();
             if (!Config::debug()) {
-                ret404();
+                \ret404();
             }
         }
     }
@@ -132,7 +127,6 @@ class Application
     private function init()
     {
         define('BASE_PATH', $this->_base_path);
-        define('APP_DIR', BASE_PATH . 'app/');
 
         $config = BASE_PATH . 'config/config.ini';
         if (is_file($config)) {
@@ -155,7 +149,6 @@ class Application
         date_default_timezone_set(Config::timezone());
         header("Content-type: text/html; charset=" . Config::charset());
 
-        // AliasLoader::getInstance()->register();
         (new AliasLoader())->register();
     }
 

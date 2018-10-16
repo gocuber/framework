@@ -79,7 +79,7 @@ class File
         }
 
         $file = $this->getFile($key);
-        if (!mk_dir(dirname($file))) {
+        if (!\mk_dir(dirname($file))) {
             return false;
         }
 

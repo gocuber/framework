@@ -125,4 +125,14 @@ class Rsa
         return ['public'=>$public['key'], 'private'=>$private];
     }
 
+    /**
+     * key
+     *
+     * @return array
+     */
+    public static function key($key)
+    {
+        return md5(md5('rsa_key' . Config::get('rsa_code') . $key));
+    }
+
 }

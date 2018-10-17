@@ -42,22 +42,6 @@ class View
     }
 
     /**
-     * setPrivateData
-     *
-     * @param array $data
-     *
-     * @return void
-     */
-    private static function setPrivateData($data = null)
-    {
-        if (!empty($data) and is_array($data)) {
-            self::$_private_data = $data;
-        }
-
-        return null;
-    }
-
-    /**
      * display
      *
      * @param string $_tpl
@@ -71,14 +55,11 @@ class View
             self::assign($_data);
         }
 
-        if (!empty(self::$_public_data) and is_array(self::$_public_data)) {
-            foreach (self::$_public_data as $key => $value) {
-                $$key = $value;
-            }
-        }
-        if (!empty(self::$_private_data) and is_array(self::$_private_data)) {
-            foreach (self::$_private_data as $key => $value) {
-                $$key = $value;
+        foreach ([self::$_public_data, self::$_private_data] as $_item) {
+            if (!empty($_item) and is_array($_item)) {
+                foreach ($_item as $_key => $_value) {
+                    $$_key = $_value;
+                }
             }
         }
 
@@ -95,7 +76,9 @@ class View
      */
     public static function load($tpl = null, $data = null)
     {
-        self::setPrivateData($data);
+        if (!empty($data) and is_array($data)) {
+            self::$_private_data = $data;
+        }
 
         return self::display($tpl, null);
     }

@@ -103,18 +103,14 @@ class Redis
      */
     private function conn()
     {
-        if(!isset($this->_conn) or '+PONG'!==$this->_conn->ping()){
-            $config = $this->getConfig();
-
+        $config = $this->getConfig();
+        if (!isset($this->_conn) or '+PONG'!==$this->_conn->ping()) {
             $key  = md5($config['host'] . '_' . $config['port']);
-            $conn = new \Redis();
-            $conn->pconnect($config['host'], $config['port'], 2, $key);
-            if(isset($config['auth'])){
-                $conn->auth($config['auth']);
-            }
-
-            $this->_conn = $conn;
+            $this->_conn = new \Redis();
+            $this->_conn->pconnect($config['host'], $config['port'], 2, $key);
+            isset($config['auth']) and $this->_conn->auth($config['auth']);
         }
+        isset($config['database']) and $this->_conn->select($config['database']);
         return $this->_conn;
     }
 

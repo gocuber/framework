@@ -1,23 +1,24 @@
 <?php
 
 /**
- * VerificationCode
+ * VerifyCode
  *
  * @author Cuber <dafei.net@gmail.com>
  */
 namespace Cuber\Support;
 
-class VerificationCode
+use Cuber\Cache\Session;
+
+class VerifyCode
 {
 
     /**
      * 字母+数字的验证码生成
      *
-     * @return img
+     * @return image
      */
     public static function showCode()
     {
-
         //1.创建黑色画布
         $image = imagecreatetruecolor(100, 30);
 
@@ -84,7 +85,7 @@ class VerificationCode
     }
 
     /**
-     * key
+     * session_key
      *
      * @return string
      */
@@ -101,7 +102,7 @@ class VerificationCode
      */
     public static function setCode($code = '')
     {
-        return Session::set(self::key(), $code);
+        return Session::getInstance()->set(self::key(), $code);
     }
 
     /**
@@ -111,7 +112,7 @@ class VerificationCode
      */
     public static function getCode()
     {
-        return Session::get(self::key());
+        return Session::getInstance()->get(self::key());
     }
 
 }

@@ -37,7 +37,7 @@ class Cookie
     public static function set($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
     {
         $name = self::buildKey($name);
-        !isset($domain) and $domain = Config::get('cookie_domain');
+        !isset($domain) and $domain = Config::get('cookie.domain');
         setcookie($name, $value, time() + $time, $path, $domain);
         $_COOKIE[$name] = $value;
         return true;
@@ -56,7 +56,7 @@ class Cookie
     public static function setraw($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
     {
         $name = self::buildKey($name);
-        !isset($domain) and $domain = Config::get('cookie_domain');
+        !isset($domain) and $domain = Config::get('cookie.domain');
         setrawcookie($name, $value, time() + $time, $path, $domain);
         return true;
     }
@@ -83,7 +83,7 @@ class Cookie
      */
     private static function buildKey($key = null)
     {
-        return Config::get('cookie_prefix', '') . $key;
+        return Config::get('cookie.prefix', '') . $key;
     }
 
 }

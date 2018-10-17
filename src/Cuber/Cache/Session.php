@@ -8,13 +8,12 @@
 namespace Cuber\Cache;
 
 use Cuber\Cookie\Cookie;
+use Cuber\Config\Config;
 
 class Session
 {
 
     private static $_instance = null;
-
-    private $_cookie_key = 'CUBERSESSID0OO00OOO0OO00O00O0O00OO00O';
 
     private $_session_id = null;
 
@@ -22,18 +21,23 @@ class Session
 
     private $_is_save = false;
 
-    private $_cache_prefix = 'CACHESESSION_';
-
     private $_cache = null;
 
     private function __construct($id = null)
     {
         $this->setSessionId($id);
 
-        $this->_cache = Redis::connect('session');
+        $driver = Config::get('session.driver');
+        $key    = Config::get('session.connect');
+        if ('memcache' == $driver) {
+            $this->_cache = Mem::connect($key);
+        } elseif ('redis' == $driver) {
+            $this->_cache = Redis::connect($key);
+        } else {
+            $this->_cache = File::connect($key);
+        }
 
-        $session = $this->_cache->get($this->_cache_prefix . $this->_session_id);
-
+        $session = $this->_cache->get(Config::get('session.prefix', '') . $this->_session_id);
         $this->_session = $session ? unserialize($session) : [];
     }
 
@@ -121,10 +125,11 @@ class Session
             return true;
         }
 
-        $id = Cookie::get($this->_cookie_key);
+        $cookie = Config::get('session.cookie', 'CUBERSESSID0OO00OOO0OO00O00O0O00OO00O');
+        $id = Cookie::get($cookie);
         if (empty($id)) {
             $id = self::id();
-            Cookie::set($this->_cookie_key, $id, 86400);
+            Cookie::set($cookie, $id, 86400);
         }
         $this->_session_id = $id;
         return true;
@@ -142,7 +147,13 @@ class Session
             return true;
         }
 
-        $this->_cache->set($this->_cache_prefix . $this->_session_id, serialize($this->_session));
+        $driver = Config::get('session.driver');
+        if ('memcache' == $driver) {
+            $this->_cache->set(Config::get('session.prefix', '') . $this->_session_id, serialize($this->_session), Config::get('session.time', 86400));
+        } else {
+            $this->_cache->set(Config::get('session.prefix', '') . $this->_session_id, serialize($this->_session));
+        }
+
         $this->_is_save = false;
         return true;
     }

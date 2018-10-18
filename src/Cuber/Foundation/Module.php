@@ -7,58 +7,36 @@
  */
 namespace Cuber\Foundation;
 
+use Cuber\Config\Config;
+
 class Module
 {
 
     /**
-     * 取全部模块
-     *
-     * @return array
-     */
-    public static function getList()
-    {}
-
-    /**
-     * 取默认模块
+     * 取当前模块
      *
      * @return string
      */
-    public static function getDefault()
-    {}
+    public static function get()
+    {
+        $module_name = 'default';
 
-    /**
-     * 取当前访问的模块
-     *
-     * @return string
-     */
-    public static function getCurr()
-    {}
+        if (\is_cli()) {
+            $module_name = 'cron';
+        } else {
+            $module_conf = Config::get('module');
+            if (!empty($module_conf) and is_array($module_conf)) {
+                $domain = $_SERVER['HTTP_HOST'];
+                foreach ($module_conf as $module=>$conf) {
+                    if (isset($conf['domain']) and $domain == $conf['domain']) {
+                        $module_name = $module;
+                        break 1;
+                    }
+                }
+            }
+        }
 
-    /**
-     * 取模块目录
-     *
-     * @param string $module
-     * @return string
-     */
-    public static function getModuleDir($module = null)
-    {}
-
-    /**
-     * 取模块控制器目录
-     *
-     * @param string $module
-     * @return string
-     */
-    public static function getControllerDir($module = null)
-    {}
-
-    /**
-     * 取模块视图目录
-     *
-     * @param string $module
-     * @return string
-     */
-    public static function getViewDir($module = null)
-    {}
+        return $module_name;
+    }
 
 }

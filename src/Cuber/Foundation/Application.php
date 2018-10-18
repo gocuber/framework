@@ -7,8 +7,6 @@
  */
 namespace Cuber\Foundation;
 
-use Cuber\Foundation\Router;
-use Cuber\Foundation\AliasLoader;
 use Cuber\Support\Exception;
 use Cuber\Config\Config;
 
@@ -53,23 +51,10 @@ class Application
      */
     private function setModule()
     {
-        if (\is_cli()) {
-            $this->_module = 'cron';
-        } else {
-            $module_conf = Config::get('module');
-            if (!empty($module_conf) and is_array($module_conf)) {
-                $domain = $_SERVER['HTTP_HOST'];
-                foreach ($module_conf as $module=>$conf) {
-                    if (isset($conf['domain']) and $domain == $conf['domain']) {
-                        $this->_module = $module;
-                        break 1;
-                    }
-                }
-            }
-        }
-
-        if (Config::get('module.' . $this->_module . '.namespace') and '' !== Config::get('module.' . $this->_module . '.namespace')) {
-            Config::set('controllers_namespace', Config::get('module.' . $this->_module . '.namespace'));
+        $this->_module = Module::get();
+        $namespace = Config::get('module.' . $this->_module . '.namespace', '');
+        if ('' !== $namespace) {
+            Config::set('controllers_namespace', $namespace);
         }
         return $this;
     }

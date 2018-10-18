@@ -19,11 +19,29 @@ class Config
      *
      * @return void
      */
-    private static function set()
+    private static function init()
     {
         if (!isset(self::$hash)) {
             self::$hash = include BASE_PATH . 'config/app.php';
         }
+    }
+
+    /**
+     * set
+     *
+     * @param string $key
+     * @param string|array $value
+     *
+     * @return void
+     */
+    public static function set($key = null, $value = null)
+    {
+        if (!isset($key) or '' === $key) {
+            return ;
+        }
+
+        self::init();
+        self::$hash[$key] = $value;
     }
 
     /**
@@ -36,7 +54,7 @@ class Config
      */
     public static function get($key = null, $default = null)
     {
-        self::set();
+        self::init();
 
         return array_get(self::$hash, $key, $default);
     }

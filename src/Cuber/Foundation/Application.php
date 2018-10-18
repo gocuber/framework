@@ -43,7 +43,35 @@ class Application
      */
     public function run()
     {
-        $this->setAction()->runAction();
+        $this->setModule()->setAction()->runAction();
+    }
+
+    /**
+     * setModule
+     *
+     * @return $this
+     */
+    private function setModule()
+    {
+        if (\is_cli()) {
+            $this->_module = 'cron';
+        } else {
+            $module_conf = Config::get('module');
+            if (!empty($module_conf) and is_array($module_conf)) {
+                $domain = $_SERVER['HTTP_HOST'];
+                foreach ($module_conf as $module=>$conf) {
+                    if (isset($conf['domain']) and $domain == $conf['domain']) {
+                        $this->_module = $module;
+                        break 1;
+                    }
+                }
+            }
+        }
+
+        if (Config::get('module.' . $this->_module . '.namespace') and '' !== Config::get('module.' . $this->_module . '.namespace')) {
+            Config::set('controllers_namespace', Config::get('module.' . $this->_module . '.namespace'));
+        }
+        return $this;
     }
 
     /**
@@ -53,7 +81,7 @@ class Application
      */
     private function setAction()
     {
-        Router::getInstance()->load();
+        Router::getInstance()->load(Config::get('module.' . $this->_module . '.route', 'app'));
 
         $ret = Router::getInstance()->hitRoute();
 
@@ -149,18 +177,6 @@ class Application
         header("Content-type: text/html; charset=" . Config::charset());
 
         (new AliasLoader())->register();
-    }
-
-    /**
-     * setModule
-     *
-     * @return $this
-     */
-    public function setModule($module = 'default')
-    {
-        $this->_module = $module;
-
-        return $this;
     }
 
 }

@@ -53,8 +53,7 @@ class Application
      */
     private function setAction()
     {
-
-        Router::getInstance()->load(Config::get('module.' . $this->_module . '.route', 'app'));
+        Router::getInstance()->load();
 
         $ret = Router::getInstance()->hitRoute();
 
@@ -91,7 +90,7 @@ class Application
                 $controller = (isset($this->_controller) and '' !== $this->_controller) ? $this->_controller : 'Index';
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
 
-                $c = Config::get('module.' . $this->_module . '.namespace', 'App\\Controllers\\') . $controller;
+                $c = Config::get('controllers_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable([$c, $action])) {
                     $ctl = new $c(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
                     $ctl->$action();

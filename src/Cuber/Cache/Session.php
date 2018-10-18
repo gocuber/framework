@@ -107,7 +107,7 @@ class Session
      *
      * @return string
      */
-    public function id()
+    public static function id()
     {
         return md5(uniqid(mt_rand(), true));
     }

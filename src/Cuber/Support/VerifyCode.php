@@ -15,9 +15,10 @@ class VerifyCode
     /**
      * 字母+数字的验证码生成
      *
+     * @param string $key
      * @return image
      */
-    public static function showCode()
+    public static function showCode($key = '')
     {
         //1.创建黑色画布
         $image = imagecreatetruecolor(100, 30);
@@ -50,7 +51,8 @@ class VerifyCode
             // 填充内容到画布中
             imagestring($image, $fontsize, $x, $y, $fontcontent, $fontcolor);
         }
-        self::setCode($captcha);
+
+        self::setCode($key, $captcha);
 
         //4.3 设置背景干扰元素
         for ($i = 0; $i < 200; $i++) {
@@ -85,34 +87,26 @@ class VerifyCode
     }
 
     /**
-     * session_key
-     *
-     * @return string
-     */
-    private static function key()
-    {
-        return 'RyYkOr11MrQll1100OOOO00OOO00O0O0OO1';
-    }
-
-    /**
      * setCode
      *
+     * @param string $key
      * @param string $code
      * @return bool
      */
-    public static function setCode($code = '')
+    private static function setCode($key = '', $code = '')
     {
-        return Session::getInstance()->set(self::key(), $code);
+        return Session::getInstance()->set('VerifyCode_RYkOr1MrQll100OOO00O00O0O0_' . $key, $code);
     }
 
     /**
      * getCode
      *
+     * @param string $key
      * @return string
      */
-    public static function getCode()
+    public static function getCode($key = '')
     {
-        return Session::getInstance()->get(self::key());
+        return Session::getInstance()->get('VerifyCode_RYkOr1MrQll100OOO00O00O0O0_' . $key);
     }
 
 }

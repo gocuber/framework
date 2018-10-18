@@ -7,8 +7,8 @@
  */
 namespace Cuber\Foundation;
 
-use Cuber\Support\Exception;
 use Cuber\Config\Config;
+use Cuber\Support\Exception;
 
 class Application
 {
@@ -17,7 +17,7 @@ class Application
 
     private $_route = null;
 
-    private $_module = 'default';
+    private $_module = null;
 
     private $_controller = null;
 
@@ -56,6 +56,7 @@ class Application
         if ('' !== $namespace) {
             Config::set('controllers_namespace', $namespace);
         }
+
         return $this;
     }
 
@@ -67,10 +68,7 @@ class Application
     private function setAction()
     {
         Router::getInstance()->load(Config::get('module.' . $this->_module . '.route', 'app'));
-
         $ret = Router::getInstance()->hitRoute();
-
-        isset($ret['route']) and $this->_route = $ret['route'];
 
         if (isset($ret['closure'])) {
             $ret = Router::getInstance()->runClosureRoute($ret['closure'], $ret['closure_param']);
@@ -98,26 +96,22 @@ class Application
         try {
 
             if (isset($this->_controller)) {
-
-                $route      = (isset($this->_route)      and '' !== $this->_route)      ? $this->_route      : '/';
                 $controller = (isset($this->_controller) and '' !== $this->_controller) ? $this->_controller : 'Index';
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
-
                 $c = Config::get('controllers_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable([$c, $action])) {
-                    $ctl = new $c(['_route'=>$route, '_controller'=>$controller, '_action'=>$action]);
+                    $ctl = new $c(['_controller'=>$controller, '_action'=>$action]);
                     $ctl->$action();
                 } else {
                     throw new Exception("Action '{$action}' not found");
                 }
-
             }
 
         } catch (Exception $e) {
+
             $e->log();
-            if (!Config::debug()) {
-                \ret404();
-            }
+            Config::debug() or \ret404();
+
         }
     }
 
@@ -139,16 +133,7 @@ class Application
     private function init()
     {
         define('BASE_PATH', $this->_base_path);
-
-        $config = BASE_PATH . 'config/config.ini';
-        if (is_file($config)) {
-            $conf = parse_ini_file($config, false);
-            if (!empty($conf) and is_array($conf)) {
-                foreach ($conf as $key=>$value) {
-                    \putenv("{$key}={$value}");
-                }
-            }
-        }
+        \put_env();
 
         if (Config::debug()) {
             ini_set('display_errors', 'on');

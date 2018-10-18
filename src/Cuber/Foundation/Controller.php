@@ -54,7 +54,7 @@ class Controller
     protected function _get($key = null, $default = null)
     {
         if (isset($key)) {
-            return array_get($_GET, $key, $default);
+            return \array_get($_GET, $key, $default);
         } else {
             return $_GET;
         }
@@ -63,7 +63,7 @@ class Controller
     protected function _post($key = null, $default = null)
     {
         if (isset($key)) {
-            return array_get($_POST, $key, $default);
+            return \array_get($_POST, $key, $default);
         } else {
             return $_POST;
         }
@@ -72,9 +72,18 @@ class Controller
     protected function _request($key = null, $default = null)
     {
         if (isset($key)) {
-            return array_get($_REQUEST, $key, $default);
+            return \array_get($_REQUEST, $key, $default);
         } else {
             return $_REQUEST;
+        }
+    }
+
+    protected function _argv($key = null, $default = null)
+    {
+        if (isset($key)) {
+            return \array_get($this->_argv, $key, $default);
+        } else {
+            return $this->_argv;
         }
     }
 

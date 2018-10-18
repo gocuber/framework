@@ -144,6 +144,26 @@ if (! function_exists('array_get')) {
     }
 }
 
+if (! function_exists('put_env')) {
+    /**
+     * put_env
+     *
+     * @return void
+     */
+    function put_env()
+    {
+        $config = BASE_PATH . 'config/config.ini';
+        if (is_file($config)) {
+            $conf = parse_ini_file($config, false);
+            if (!empty($conf) and is_array($conf)) {
+                foreach ($conf as $key=>$value) {
+                    putenv("{$key}={$value}");
+                }
+            }
+        }
+    }
+}
+
 if (! function_exists('env')) {
     /**
      * getenv

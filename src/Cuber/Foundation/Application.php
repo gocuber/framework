@@ -108,8 +108,7 @@ class Application
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
                 $c = Config::get('controllers_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable([$c, $action])) {
-                    $ctl = new $c(['_controller'=>$controller, '_action'=>$action]);
-                    $ctl->$action();
+                    (new $c(['_controller'=>$controller, '_action'=>$action]))->$action();
                 } else {
                     throw new Exception("Action '{$action}' not found");
                 }

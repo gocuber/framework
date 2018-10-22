@@ -1,2 +1,12 @@
-# Cuber - ¸üºÃ¡¢¸ü¿ì¡¢¸üÇ¿µÄPHP¿ª·¢¿ò¼Ü
-¡ª¡ª The Cuber PHP Framework
+# Cuber - æ›´å¥½ã€æ›´å¿«ã€æ›´å¼ºçš„PHPå¼€å‘æ¡†æ¶
+â€”â€” The Cuber PHP Framework
+
+
+## Cuber
+
+[https://www.gocuber.com](https://www.gocuber.com)
+
+## å¼€å‘æ–‡æ¡£
+
+[https://github.com/gocuber/guide/blob/master/README.md](https://github.com/gocuber/guide/blob/master/README.md)
+

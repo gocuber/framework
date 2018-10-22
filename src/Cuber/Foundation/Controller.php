@@ -10,8 +10,6 @@ namespace Cuber\Foundation;
 class Controller
 {
 
-    protected $_route = '';
-
     protected $_controller = '';
 
     protected $_action = '';
@@ -20,7 +18,7 @@ class Controller
 
     public function __construct($opt = [])
     {
-        foreach (['_route', '_controller', '_action', '_argv'] as $key) {
+        foreach (['_controller', '_action'] as $key) {
             if (isset($opt[$key])) {
                 $this->$key = $opt[$key];
             }
@@ -43,7 +41,6 @@ class Controller
             $tpl = strtr(strtolower($this->_controller . '/' . $this->_action), ['\\'=>'/']);
         }
 
-        $data['_route']      = $this->_route;
         $data['_controller'] = $this->_controller;
         $data['_action']     = $this->_action;
         $data['_argv']       = $this->_argv;

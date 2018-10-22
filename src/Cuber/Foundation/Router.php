@@ -13,21 +13,10 @@ use Cuber\Config\Config;
 class Router
 {
 
-    private static $_instance = null;
-
-    public static function getInstance()
-    {
-        if (!isset(self::$_instance)) {
-            self::$_instance = new self();
-        }
-
-        return self::$_instance;
-    }
-
     /**
      * 命中路由规则
      *
-     * @return ['route'=>$route, 'controller'=>$controller, 'action'=>$action, 'closure'=>closure, 'closure_param'=>[]]
+     * @return ['controller'=>$controller, 'action'=>$action, 'closure'=>closure, 'closure_param'=>[]]
      */
     public function hitRoute()
     {
@@ -55,9 +44,9 @@ class Router
                 }
 
                 if (is_string($line['rule'])) {
-                    return array_merge(['route'=>$route], $this->makeControllerByRule(strtr($line['rule'], $_param)));
+                    return $this->makeControllerByRule(strtr($line['rule'], $_param));
                 } else {
-                    return ['route'=>$route, 'closure'=>$line['rule'], 'closure_param'=>$closure_param];
+                    return ['closure'=>$line['rule'], 'closure_param'=>$closure_param];
                 }
             }
         }

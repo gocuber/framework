@@ -15,8 +15,6 @@ class Application
 
     private $_base_path = null;
 
-    private $_route = null;
-
     private $_module = null;
 
     private $_controller = null;
@@ -75,16 +73,18 @@ class Application
      */
     private function setAction()
     {
-        Router::getInstance()->load(Config::get('module.' . $this->_module . '.route', 'app'));
-        $ret = Router::getInstance()->hitRoute();
+        $router = new Router();
+        $router->load(Config::get('module.' . $this->_module . '.route', 'app'));
+        $ret = $router->hitRoute();
 
         if (isset($ret['closure'])) {
-            $ret = Router::getInstance()->runClosureRoute($ret['closure'], $ret['closure_param']);
+            $ret = $router->runClosureRoute($ret['closure'], $ret['closure_param']);
 
             if (isset($ret) and false !== $ret and is_string($ret)) {
-                $ret = Router::getInstance()->makeControllerByRule($ret);
+                $ret = $router->makeControllerByRule($ret);
             }
         }
+        unset($router);
 
         isset($ret['controller'])    and $this->_controller    = $ret['controller'];
         isset($ret['action'])        and $this->_action        = $ret['action'];

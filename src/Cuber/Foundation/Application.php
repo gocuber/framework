@@ -52,9 +52,17 @@ class Application
     private function setModule()
     {
         $this->_module = Module::get();
-        $namespace = Config::get('module.' . $this->_module . '.namespace', '');
+
+        // controllers namespace prefix
+        $namespace = Config::get('module.' . $this->_module . '.controllers', '');
         if ('' !== $namespace) {
             Config::set('controllers_namespace', $namespace);
+        }
+
+        // views dir
+        $views = Config::get('module.' . $this->_module . '.views', '');
+        if ('' !== $views) {
+            Config::set('views', $views);
         }
 
         return $this;

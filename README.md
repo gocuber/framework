@@ -1,9 +1,6 @@
 # Cuber - 更好、更快、更强的PHP开发框架
 —— The Cuber PHP Framework
 
-
-## Cuber
-
 [https://www.gocuber.com](https://www.gocuber.com)
 
 ## 开发文档

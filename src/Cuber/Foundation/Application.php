@@ -27,7 +27,7 @@ class Application
 
     public function __construct($base_path = '')
     {
-        $this->_base_path = $base_path;
+        $this->_base_path = rtrim($base_path, '/') . '/';
 
         $this->init();
     }

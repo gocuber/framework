@@ -110,6 +110,18 @@ if (! function_exists('debug')) {
     }
 }
 
+if (! function_exists('app')) {
+    /**
+     * app
+     *
+     * @return app
+     */
+    function app()
+    {
+        return Cuber\Foundation\Container::getInstance();
+    }
+}
+
 if (! function_exists('array_get')) {
     /**
      * array_get

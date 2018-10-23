@@ -10,23 +10,6 @@ namespace Cuber\Foundation;
 class Controller
 {
 
-    protected $_controller = '';
-
-    protected $_action = '';
-
-    protected $_argv = [];
-
-    public function __construct($opt = [])
-    {
-        foreach (['_controller', '_action'] as $key) {
-            if (isset($opt[$key])) {
-                $this->$key = $opt[$key];
-            }
-        }
-
-        \is_cli() and $this->_argv = \get_argv();
-    }
-
     /**
      * display
      *
@@ -38,12 +21,8 @@ class Controller
     protected function display($tpl = '', $data = [])
     {
         if (!isset($tpl) or '' === $tpl) {
-            $tpl = strtr(strtolower($this->_controller . '/' . $this->_action), ['\\'=>'/']);
+            $tpl = strtr(strtolower(\app()->get('controller') . '/' . \app()->get('action')), ['\\'=>'/']);
         }
-
-        $data['_controller'] = $this->_controller;
-        $data['_action']     = $this->_action;
-        $data['_argv']       = $this->_argv;
 
         View::display($tpl, $data);
     }
@@ -78,9 +57,9 @@ class Controller
     protected function _argv($key = null, $default = null)
     {
         if (isset($key)) {
-            return \array_get($this->_argv, $key, $default);
+            return \array_get(\app()->get('argv'), $key, $default);
         } else {
-            return $this->_argv;
+            return \app()->get('argv');
         }
     }
 

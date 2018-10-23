@@ -27,6 +27,8 @@ class Application
 
     public function __construct($base_path = '')
     {
+        \app()->bind('app', $this);
+
         $this->_base_path = rtrim($base_path, '/') . '/';
 
         $this->init();
@@ -108,7 +110,9 @@ class Application
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
                 $c = Config::get('controllers_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable([$c, $action])) {
-                    (new $c(['_controller'=>$controller, '_action'=>$action]))->$action();
+                    \app()->bind('controller', $controller);
+                    \app()->bind('action', $action);
+                    (new $c())->$action();
                 } else {
                     throw new Exception("Action '{$action}' not found");
                 }
@@ -153,6 +157,7 @@ class Application
         date_default_timezone_set(Config::timezone());
         header("Content-type: text/html; charset=" . Config::charset());
 
+        \is_cli() and \app()->bind('argv', \get_argv());
         (new AliasLoader())->register();
     }
 

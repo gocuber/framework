@@ -140,7 +140,7 @@ class Application
      */
     private function init()
     {
-        define('BASE_PATH', $this->_base_path);
+        \app(['base_path' => $this->_base_path]);
         \put_env();
 
         if (Config::debug()) {
@@ -154,7 +154,7 @@ class Application
         date_default_timezone_set(Config::timezone());
         header("Content-type: text/html; charset=" . Config::charset());
 
-        \is_cli() and \app('argv', \get_argv());
+        \is_cli() and \app(['argv' => \get_argv()]);
         (new AliasLoader())->register();
     }
 

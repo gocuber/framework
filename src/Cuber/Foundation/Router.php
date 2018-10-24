@@ -291,7 +291,7 @@ class Router
      */
     public function load($route = 'app')
     {
-        require BASE_PATH . '/route/' . $route . '.php';
+        require base_path() . '/route/' . $route . '.php';
     }
 
 }

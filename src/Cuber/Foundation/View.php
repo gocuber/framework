@@ -63,7 +63,7 @@ class View
             }
         }
 
-        include Config::get('views', BASE_PATH . 'app/views/') . $_tpl . '.php';
+        include Config::get('views', base_path() . 'app/views/') . $_tpl . '.php';
     }
 
     /**

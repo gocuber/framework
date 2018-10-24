@@ -140,6 +140,18 @@ if (! function_exists('config')) {
     {}
 }
 
+if (! function_exists('base_path')) {
+    /**
+     * base_path
+     *
+     * @return string
+     */
+    function base_path()
+    {
+        return app('base_path');
+    }
+}
+
 if (! function_exists('array_get')) {
     /**
      * array_get
@@ -182,7 +194,7 @@ if (! function_exists('put_env')) {
      */
     function put_env()
     {
-        $config = BASE_PATH . 'config/config.ini';
+        $config = base_path() . 'config/config.ini';
         if (is_file($config)) {
             $conf = parse_ini_file($config, false);
             if (!empty($conf) and is_array($conf)) {

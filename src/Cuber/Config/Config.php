@@ -22,7 +22,7 @@ class Config
     private static function init()
     {
         if (!isset(self::$hash)) {
-            self::$hash = include BASE_PATH . 'config/app.php';
+            self::$hash = include base_path() . 'config/app.php';
         }
     }
 

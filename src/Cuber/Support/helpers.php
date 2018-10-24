@@ -114,12 +114,30 @@ if (! function_exists('app')) {
     /**
      * app
      *
-     * @return app
+     * @param string|array $key
+     * @param string|array $default
+     * @return string|array
      */
-    function app()
+    function app($key = null, $default = null)
     {
-        return Cuber\Foundation\Container::getInstance();
+        if (null === $key or '' === $key) {
+            return Cuber\Foundation\Container::getInstance();
+        }
+
+        if (is_array($key)) {
+            return Cuber\Foundation\Container::getInstance()->set($key);
+        }
+
+        return Cuber\Foundation\Container::getInstance()->get($key, $default);
     }
+}
+
+if (! function_exists('config')) {
+    /**
+     * config
+     */
+    function config()
+    {}
 }
 
 if (! function_exists('array_get')) {

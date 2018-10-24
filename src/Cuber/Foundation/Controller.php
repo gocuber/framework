@@ -21,7 +21,7 @@ class Controller
     protected function display($tpl = '', $data = [])
     {
         if (!isset($tpl) or '' === $tpl) {
-            $tpl = strtr(strtolower(\app()->get('controller') . '/' . \app()->get('action')), ['\\'=>'/']);
+            $tpl = strtr(strtolower(\app('controller') . '/' . \app('action')), ['\\'=>'/']);
         }
 
         View::display($tpl, $data);
@@ -57,7 +57,7 @@ class Controller
     protected function _argv($key = null, $default = null)
     {
         if (isset($key)) {
-            return \array_get(\app()->get('argv'), $key, $default);
+            return \array_get(\app('argv'), $key, $default);
         } else {
             return \app()->get('argv');
         }

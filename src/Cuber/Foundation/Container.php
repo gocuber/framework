@@ -12,16 +12,14 @@ class Container
 
     protected static $instance;
 
-    protected $binds;
-
-    protected $instances;
+    protected $hash;
 
     private function __construct()
     {}
 
     public static function getInstance()
     {
-        if (!isset(self::$instance)) {
+        if (null === self::$instance) {
             self::$instance = new self();
         }
 
@@ -29,55 +27,40 @@ class Container
     }
 
     /**
-     * bind
+     * set
      *
-     * @param string $abstract
-     * @param Closure|string|array|Object|Class $concrete
+     * @param string|array $key
+     * @param string|array $value
      *
      * @return void
      */
-    public function bind($abstract, $concrete)
+    public function set($key = null, $value = null)
     {
-        if ($concrete instanceof \Closure) {
-            $this->binds[$abstract] = $concrete;
-        } else {
-            $this->instances[$abstract] = $concrete;
+        if (null !== $key and '' !== $key) {
+            if (is_array($key)) {
+                foreach ($key as $k=>$v) {
+                    $this->hash[$k] = $v;
+                }
+            } elseif (is_scalar($key)) {
+                $this->hash[$key] = $value;
+            }
         }
-    }
-
-    /**
-     * make
-     *
-     * @param string $abstract
-     * @param array $parameters
-     *
-     * @return mixed
-     */
-    public function make($abstract, $parameters = [])
-    {
-        if (isset($this->instances[$abstract])) {
-            return $this->instances[$abstract];
-        }
-
-        array_unshift($parameters, $this);
-
-        return call_user_func_array($this->binds[$abstract], $parameters);
     }
 
     /**
      * get
      *
      * @param string $key
-     * @param mixed $default
+     * @param string|array $default
      *
-     * @return array|string
+     * @return string|array
      */
     public function get($key = null, $default = null)
     {
         if (isset($key)) {
-            return \array_get($this->instances, $key, $default);
+            return \array_get($this->hash, $key, $default);
         } else {
-            return $this->instances;
+            return $this->hash;
         }
     }
 

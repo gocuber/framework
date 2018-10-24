@@ -60,7 +60,7 @@ class Exception extends \Exception
             echo '<pre>' . $msg . "\n" . $str . '</pre>';
         }
 
-        if (false !== Config::get('error_log', false)) {
+        if (null !== Config::get('error_log')) {
             $error_log = Config::get('error_log');
             $cli       = is_cli() ? '_cli' : '';
             $file      = date('Ymd') . '_' . $type . $cli . '_error.log';

@@ -12,9 +12,23 @@ use Cuber\Config\Config;
 class View
 {
 
-    private static $_public_data  = null; // 公有数据 全局数据
+    private static $instance;
 
-    private static $_private_data = null; // 私有数据 临时数据
+    private $public_data;  // 公有数据 全局数据
+
+    private $private_data; // 私有数据 临时数据
+
+    private function __construct()
+    {}
+
+    public static function getInstance()
+    {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
 
     /**
      * assign
@@ -24,17 +38,17 @@ class View
      *
      * @return void
      */
-    public static function assign($key = null, $value = null)
+    public function assign($key = null, $value = null)
     {
         if (!isset($key)) {
             return null;
         }
 
         if (is_scalar($key)) {
-            self::$_public_data[$key] = $value;
+            $this->public_data[$key] = $value;
         } elseif (!empty($key) and is_array($key)) {
             foreach ($key as $k=>$v) {
-                self::$_public_data[$k] = $v;
+                $this->public_data[$k] = $v;
             }
         }
 
@@ -49,17 +63,17 @@ class View
      *
      * @return void
      */
-    public static function display($_tpl = null, $_data = null)
+    public function display($_tpl = null, $_data = null)
     {
         if (null === $_tpl or '' === $_tpl) {
             $_tpl = strtr(strtolower(app('controller') . '/' . app('action')), ['\\'=>'/']);
         }
 
         if (!empty($_data) and is_array($_data)) {
-            self::assign($_data);
+            $this->assign($_data);
         }
 
-        foreach ([self::$_public_data, self::$_private_data] as $_item) {
+        foreach ([$this->public_data, $this->private_data] as $_item) {
             if (!empty($_item) and is_array($_item)) {
                 foreach ($_item as $_key => $_value) {
                     $$_key = $_value;
@@ -78,13 +92,13 @@ class View
      *
      * @return void
      */
-    public static function load($tpl = null, $data = null)
+    public function load($tpl = null, $data = null)
     {
         if (!empty($data) and is_array($data)) {
-            self::$_private_data = $data;
+            $this->private_data = $data;
         }
 
-        return self::display($tpl, null);
+        return $this->display($tpl, null);
     }
 
 }

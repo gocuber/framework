@@ -136,21 +136,17 @@ if (! function_exists('view')) {
     /**
      * view
      *
-     * @param string|array $key
-     * @param string|array $default
-     * @return string|array
+     * @param string $tpl
+     * @param array $data
+     * @return void|Cuber\Foundation\View
      */
-    function view($key = null, $default = null)
+    function view($tpl = null, array $data = [])
     {
-        if (null === $key or '' === $key) {
+        if (null === $tpl or '' === $tpl) {
             return Cuber\Foundation\View::getInstance();
         }
 
-        if (is_array($key)) {
-            return Cuber\Foundation\Container::getInstance()->set($key);
-        }
-
-        return Cuber\Foundation\Container::getInstance()->get($key, $default);
+        return Cuber\Foundation\View::getInstance()->display($tpl, $data);
     }
 }
 

@@ -58,7 +58,7 @@ class Container
     public function get($key = null, $default = null)
     {
         if (isset($key)) {
-            return \array_get($this->hash, $key, $default);
+            return array_get($this->hash, $key, $default);
         } else {
             return $this->hash;
         }

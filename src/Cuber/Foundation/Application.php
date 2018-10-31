@@ -13,8 +13,6 @@ use Cuber\Support\Exception;
 class Application
 {
 
-    private $_base_path = null;
-
     private $_module = null;
 
     private $_controller = null;
@@ -27,9 +25,7 @@ class Application
 
     public function __construct($base_path = '')
     {
-        $this->_base_path = rtrim($base_path, '/') . '/';
-
-        $this->init();
+        $this->init($base_path);
     }
 
     /**
@@ -108,7 +104,7 @@ class Application
                 $action     = (isset($this->_action)     and '' !== $this->_action)     ? $this->_action     : 'index';
                 $c = Config::get('controllers_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable([$c, $action])) {
-                    \app(['controller' => $controller, 'action' => $action]);
+                    app(['controller' => $controller, 'action' => $action]);
                     (new $c())->$action();
                 } else {
                     throw new Exception("Action '{$action}' not found");
@@ -118,30 +114,20 @@ class Application
         } catch (Exception $e) {
 
             $e->log();
-            Config::debug() or \ret404();
+            Config::debug() or ret404();
 
         }
     }
 
     /**
-     * basePath
-     *
-     * @return string
-     */
-    private function basePath()
-    {
-        return $this->_base_path;
-    }
-
-    /**
-     * Init
+     * init
      *
      * @return void
      */
-    private function init()
+    private function init($base_path = '')
     {
-        \app(['base_path' => $this->_base_path]);
-        \put_env();
+        app(['base_path' => rtrim($base_path, '/') . '/']);
+        put_env();
 
         if (Config::debug()) {
             ini_set('display_errors', 'on');
@@ -154,7 +140,7 @@ class Application
         date_default_timezone_set(Config::timezone());
         header("Content-type: text/html; charset=" . Config::charset());
 
-        \is_cli() and \app(['argv' => \get_argv()]);
+        is_cli() and app(['argv' => get_argv()]);
         (new AliasLoader())->register();
     }
 

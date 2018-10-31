@@ -51,6 +51,10 @@ class View
      */
     public static function display($_tpl = null, $_data = null)
     {
+        if (null === $_tpl or '' === $_tpl) {
+            $_tpl = strtr(strtolower(app('controller') . '/' . app('action')), ['\\'=>'/']);
+        }
+
         if (!empty($_data) and is_array($_data)) {
             self::assign($_data);
         }

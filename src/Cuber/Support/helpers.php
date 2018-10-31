@@ -132,6 +132,50 @@ if (! function_exists('app')) {
     }
 }
 
+if (! function_exists('view')) {
+    /**
+     * view
+     *
+     * @param string|array $key
+     * @param string|array $default
+     * @return string|array
+     */
+    function view($key = null, $default = null)
+    {
+        if (null === $key or '' === $key) {
+            return Cuber\Foundation\View::getInstance();
+        }
+
+        if (is_array($key)) {
+            return Cuber\Foundation\Container::getInstance()->set($key);
+        }
+
+        return Cuber\Foundation\Container::getInstance()->get($key, $default);
+    }
+}
+
+if (! function_exists('request')) {
+    /**
+     * request
+     *
+     * @param null|string $key
+     * @param mixed $default
+     * @param string $type  get|post|request|argv
+     *
+     * @return mixed
+     */
+    function request($key = null, $default = null, $type = 'request')
+    {
+        if (null === $key or '' === $key) {
+            return Cuber\Support\Request::getInstance();
+        }
+
+        if (in_array($type, ['get', 'post', 'request', 'argv'])) {
+            return Cuber\Support\Request::getInstance()->$type($key, $default);
+        }
+    }
+}
+
 if (! function_exists('config')) {
     /**
      * config
@@ -168,7 +212,7 @@ if (! function_exists('array_get')) {
             return $default;
         }
 
-        if (!isset($key)) {
+        if (null === $key or '' === $key) {
             return $default;
         }
 

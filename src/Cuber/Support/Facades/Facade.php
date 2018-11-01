@@ -7,9 +7,15 @@ use Cuber\Foundation\Container;
 abstract class Facade
 {
 
+    protected static $type = 'instance';
+
     public static function __callStatic($method, $args)
     {
-        return Container::getInstance(static::getFacadeAccessor())->$method(...$args);
+        if ('object' == static::$type) {
+            return (new static::$facade_accessor())->$method(...$args);
+        } else {
+            return Container::getInstance(static::$facade_accessor)->$method(...$args);
+        }
     }
 
 }

@@ -20,29 +20,15 @@ class DB
 
     protected $_key = 'default';
 
-    protected $_dbname = '';
-
     protected $_name = '';
-
-    protected $_primarykey = null;
 
     protected $_fields = [];
 
-    public function __construct($key = null)
+    public function connect($key = null)
     {
-        $this->setKey($key);
-    }
+        isset($key) and $this->_key = $key;
 
-    public static function model($model = null)
-    {
-        $model = Config::get('model_namespace', 'App\\Models\\') . $model;
-
-        return new $model();
-    }
-
-    public static function connect($key = null)
-    {
-        return new self($key);
+        return $this;
     }
 
     /**
@@ -126,7 +112,7 @@ class DB
         $sql  = $this->getQuery()->getSql();
 
         $is   = ('*' == $value or count(explode(',', $value)) > 1) ? 1 : 0;
-        $hash = array();
+        $hash = [];
 
         $query = $this->getPdo()->query($sql['sql'], $sql['param']);
         for(;$v = $this->getPdo()->fetch($query);){
@@ -401,7 +387,7 @@ class DB
      *
      * @return int|false
      */
-    public function insert($sql = array(), $param = null)
+    public function insert($sql = [], $param = null)
     {
         if(empty($sql) and !is_array($sql)){
             return false;
@@ -625,13 +611,25 @@ class DB
     }
 
     /**
+     * 设置表字段
+     *
+     * @return array
+     */
+    public function setFields(array $fields = [])
+    {
+        $this->_fields = $fields;
+
+        return $this;
+    }
+
+    /**
      * 取表字段
      *
      * @return array
      */
     public function getFields()
     {
-        return array();
+        return $this->_fields;
     }
 
     /**
@@ -643,7 +641,7 @@ class DB
     protected function prepareData($array = null)
     {
         if(empty($array) or !is_array($array)){
-            return array();
+            return [];
         }
 
         $array = array_change_key_case($array, CASE_LOWER);
@@ -653,7 +651,7 @@ class DB
             return $array;
         }
 
-        $data = array();
+        $data = [];
         foreach($fields as $field){
             if(isset($array[$field]) and is_scalar($array[$field])){
                 $data[$field] = trim($array[$field]);
@@ -679,16 +677,6 @@ class DB
      *
      * @return this
      */
-    public function from($name = '')
-    {
-        return $this->name($name);
-    }
-
-    /**
-     * 设置表名
-     *
-     * @return this
-     */
     public function name($name = '')
     {
         $this->_name = $name;
@@ -704,28 +692,6 @@ class DB
     public function getName()
     {
         return $this->_name;
-    }
-
-    /**
-     * 取库名
-     *
-     * @return string
-     */
-    public function getDbname()
-    {
-        return $this->_dbname;
-    }
-
-    /**
-     * 设置数据库配置key
-     *
-     * @return this
-     */
-    public function setKey($key = null)
-    {
-        isset($key) and $this->_key = $key;
-
-        return $this;
     }
 
     /**

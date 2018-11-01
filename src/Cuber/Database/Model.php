@@ -7,29 +7,47 @@
  */
 namespace Cuber\Database;
 
-use Cuber\Database\DB;
+use Cuber\Foundation\Container;
+use Cuber\Support\Facades\DB;
 
-class Model extends DB
+abstract class Model
 {
 
-    protected $_key = 'default';
+    protected $connect = 'default';
 
-    protected $_dbname = '';
+    protected $name = '';
 
-    protected $_name = '';
+    protected $fields = [];
 
-    protected $_primarykey = 'id';
-
-    protected $_fields = [];
+    private $query = null;
 
     /**
-     * getFields
+     * getQuery
      *
-     * @return array
+     * @return Query
      */
-    public function getFields()
+    protected function getQuery()
     {
-        return $this->_fields;
+        if (!isset($this->query)) {
+            $this->query = DB::connect($this->connect)->name($this->name)->setFields($this->fields);
+        }
+
+        return $this->query;
+    }
+
+    public static function __callStatic($method, $args)
+    {
+        $st = static::class;
+        return Container::getInstance($st)->getQuery()->$method(...$args);
+    }
+
+    public function __call($method, $args)
+    {
+        $st = static::class;
+        s($st);
+        s($method);
+        s($args);
+        return Container::getInstance($st)->getQuery()->$method(...$args);
     }
 
 }

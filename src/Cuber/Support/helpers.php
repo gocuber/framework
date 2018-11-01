@@ -226,7 +226,9 @@ function env($key, $default = null)
  */
 function model($model = null)
 {
-    return Cuber\Database\DB::model($model);
+    $model = Cuber\Config\Config::get('model_namespace', 'App\\Models\\') . $model;
+
+    return Cuber\Foundation\Container::getInstance($model);
 }
 
 /**

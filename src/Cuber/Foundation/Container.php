@@ -17,13 +17,13 @@ class Container
     private function __construct()
     {}
 
-    public static function getInstance()
+    public static function getInstance($class = 'Cuber\\Foundation\\Container')
     {
-        if (null === self::$instance) {
-            self::$instance = new self();
+        if (!isset(self::$instance[$class])) {
+            self::$instance[$class] = new $class();
         }
 
-        return self::$instance;
+        return self::$instance[$class];
     }
 
     /**
@@ -36,7 +36,7 @@ class Container
      */
     public function set($key = null, $value = null)
     {
-        if (null !== $key and '' !== $key) {
+        if (!empty($key)) {
             if (is_array($key)) {
                 foreach ($key as $k=>$v) {
                     $this->hash[$k] = $v;
@@ -57,10 +57,10 @@ class Container
      */
     public function get($key = null, $default = null)
     {
-        if (isset($key)) {
-            return array_get($this->hash, $key, $default);
-        } else {
+        if (null === $key) {
             return $this->hash;
+        } else {
+            return array_get($this->hash, $key, $default);
         }
     }
 

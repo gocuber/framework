@@ -12,23 +12,9 @@ use Cuber\Config\Config;
 class View
 {
 
-    private static $instance;
-
     private $public_data;  // 公有数据 全局数据
 
     private $private_data; // 私有数据 临时数据
-
-    private function __construct()
-    {}
-
-    public static function getInstance()
-    {
-        if (null === self::$instance) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
 
     /**
      * assign

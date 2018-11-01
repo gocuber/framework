@@ -12,7 +12,7 @@ use Cuber\Config\Config;
 class Rsa
 {
 
-    private static $_instance = null;
+    private static $instance = null;
 
     private $public_key = '';
 
@@ -33,11 +33,11 @@ class Rsa
 
     public static function getInstance($key = null)
     {
-        if (!isset(self::$_instance[$key])) {
-            self::$_instance[$key] = new self($key);
+        if (!isset(self::$instance[$key])) {
+            self::$instance[$key] = new self($key);
         }
 
-        return self::$_instance[$key];
+        return self::$instance[$key];
     }
 
     /**

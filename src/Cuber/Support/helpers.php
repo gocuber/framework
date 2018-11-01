@@ -138,15 +138,11 @@ if (! function_exists('view')) {
      *
      * @param string $tpl
      * @param array $data
-     * @return void|Cuber\Foundation\View
+     * @return Cuber\Support\Facades\View::display
      */
-    function view($tpl = null, array $data = [])
+    function view($tpl = null, $data = null)
     {
-        if (null === $tpl or '' === $tpl) {
-            return Cuber\Foundation\View::getInstance();
-        }
-
-        return Cuber\Foundation\View::getInstance()->display($tpl, $data);
+        return Cuber\Support\Facades\View::display($tpl, $data);
     }
 }
 
@@ -163,11 +159,11 @@ if (! function_exists('request')) {
     function request($key = null, $default = null, $type = 'request')
     {
         if (null === $key or '' === $key) {
-            return Cuber\Support\Request::getInstance();
+            return Cuber\Foundation\Container::getInstance('Cuber\\Support\\Request');
         }
 
         if (in_array($type, ['get', 'post', 'request', 'argv'])) {
-            return Cuber\Support\Request::getInstance()->$type($key, $default);
+            return Cuber\Foundation\Container::getInstance('Cuber\\Support\\Request')->$type($key, $default);
         }
     }
 }

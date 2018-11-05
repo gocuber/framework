@@ -10,13 +10,15 @@ namespace Cuber\Database;
 class Query
 {
 
-    private $_cond = null;
+    private $binds = null;
 
-    private $_sql = null;
+    private $cond = null;
 
-    private $_name = null; // model 使用
+    private $sql = null;
 
-    private $_index = null;
+    private $name = null; // model 使用
+
+    private $index = null;
 
     /**
      * autoCond
@@ -57,26 +59,26 @@ class Query
             return false;
         }
 
-        if (empty($this->_cond)) {
-            $this->_cond = $cond;
+        if (empty($this->cond)) {
+            $this->cond = $cond;
         }
 
-        $_sign    = $this->_cond[0];
+        $_sign    = $this->cond[0];
         $sub_sign = $cond[0];
 
         if ($sign == $_sign) {
             if ($sign == $sub_sign) {
                 unset($cond[0]);
-                $this->_cond = array_merge($this->_cond, $cond);
+                $this->cond = array_merge($this->cond, $cond);
             } else {
-                $this->_cond[] = $cond;
+                $this->cond[] = $cond;
             }
         } else {
             if ($sign == $sub_sign) {
                 unset($cond[0]);
-                $this->_cond = array_merge([$sign, $this->_cond], $cond);
+                $this->cond = array_merge([$sign, $this->cond], $cond);
             } else {
-                $this->_cond = [$sign, $this->_cond, $cond];
+                $this->cond = [$sign, $this->cond, $cond];
             }
         }
 
@@ -96,7 +98,7 @@ class Query
             return false;
         }
 
-        $this->_cond = $this->autoCond($cond);
+        $this->cond = $this->autoCond($cond);
         return true;
     }
 
@@ -281,14 +283,14 @@ class Query
      */
     private function setParam($param = '')
     {
-        if (isset($this->_index)) {
-            $this->_index++;
+        if (isset($this->index)) {
+            $this->index++;
         } else {
-            $this->_index = 1;
+            $this->index = 1;
         }
 
-        $key = ':p' . $this->_index;
-        $this->_sql['param'][$key] = $param;
+        $key = ':p' . $this->index;
+        $this->sql['param'][$key] = $param;
         return $key;
     }
 
@@ -299,10 +301,10 @@ class Query
      */
     public function getSql()
     {
-        $this->_sql['where'] = $this->buildCond($this->_cond);
-        extract($this->_sql);
+        $this->sql['where'] = $this->buildCond($this->cond);
+        extract($this->sql);
 
-        $sql = "select " . (isset($field) ? $field : '*') . " from " . (empty($from) ? $this->_name : $from);
+        $sql = "select " . (isset($field) ? $field : '*') . " from " . (empty($from) ? $this->name : $from);
 
         isset($join)    and $sql .= " $join";
         isset($where) and '' !== $where and $sql .= " where $where";
@@ -311,13 +313,13 @@ class Query
         isset($orderby) and $sql .= " order by $orderby";
         isset($limit)   and $sql .= " limit " . (empty($offset) ? $limit : ($offset . ',' . $limit));
 
-        $this->_sql['sql'] = $sql;
-        isset($this->_sql['param']) or $this->_sql['param'] = null;
+        $this->sql['sql'] = $sql;
+        isset($this->sql['param']) or $this->sql['param'] = null;
 
-        $ret = $this->_sql;
-        $this->_cond  = null;
-        $this->_sql   = null;
-        $this->_index = null;
+        $ret = $this->sql;
+        $this->cond  = null;
+        $this->sql   = null;
+        $this->index = null;
         return $ret;
     }
 
@@ -334,7 +336,7 @@ class Query
             return false;
         }
 
-        $this->_sql['field'] = is_array($field) ? implode(',', $field) : trim($field);
+        $this->sql['field'] = is_array($field) ? implode(',', $field) : trim($field);
         return true;
     }
 
@@ -351,7 +353,7 @@ class Query
             return false;
         }
 
-        $this->_sql['from'] = trim($name);
+        $this->sql['from'] = trim($name);
         return true;
     }
 
@@ -370,10 +372,10 @@ class Query
             return false;
         }
 
-        if (isset($this->_sql['join'])) {
-            $this->_sql['join'] .= '' . $type . $table . ' on ' . $on;
+        if (isset($this->sql['join'])) {
+            $this->sql['join'] .= '' . $type . $table . ' on ' . $on;
         } else {
-            $this->_sql['join'] = $type . $table . ' on ' . $on;
+            $this->sql['join'] = $type . $table . ' on ' . $on;
         }
 
         return true;
@@ -392,7 +394,7 @@ class Query
             return false;
         }
 
-        $this->_sql['groupby'] = is_array($cond) ? implode(',', $cond) : trim($cond);
+        $this->sql['groupby'] = is_array($cond) ? implode(',', $cond) : trim($cond);
         return true;
     }
 
@@ -409,7 +411,7 @@ class Query
             return false;
         }
 
-        $this->_sql['having'] = trim($cond);
+        $this->sql['having'] = trim($cond);
         return true;
     }
 
@@ -436,9 +438,9 @@ class Query
                     $by .= "$key {$value},";
                 }
             }
-            $this->_sql['orderby'] = trim($by, ',');
+            $this->sql['orderby'] = trim($by, ',');
         } else {
-            $this->_sql['orderby'] = $cond;
+            $this->sql['orderby'] = $cond;
         }
 
         return true;
@@ -452,7 +454,7 @@ class Query
      */
     public function offset($offset = 0)
     {
-        $this->_sql['offset'] = (int)$offset;
+        $this->sql['offset'] = (int)$offset;
         return true;
     }
 
@@ -464,7 +466,7 @@ class Query
      */
     public function limit($limit = 0)
     {
-        $this->_sql['limit'] = (int)$limit;
+        $this->sql['limit'] = (int)$limit;
         return true;
     }
 
@@ -481,8 +483,8 @@ class Query
         $currpage = (int)$currpage < 1 ? 1 : (int)$currpage;
         $pagesize = (int)$pagesize < 0 ? 0 : (int)$pagesize;
 
-        $this->_sql['offset'] = ($currpage - 1) * $pagesize;
-        $this->_sql['limit']  = $pagesize;
+        $this->sql['offset'] = ($currpage - 1) * $pagesize;
+        $this->sql['limit']  = $pagesize;
 
         return true;
     }
@@ -494,7 +496,7 @@ class Query
      */
     public function name($name = '')
     {
-        $this->_name = $name;
+        $this->name = $name;
         return true;
     }
 

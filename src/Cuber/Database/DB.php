@@ -7,26 +7,33 @@
  */
 namespace Cuber\Database;
 
-use Cuber\Database\Query;
-use Cuber\Database\Connect;
 use Cuber\Config\Config;
 
 class DB
 {
 
-    private $_pdo = null;
+    private $pdo = null;
 
-    private $_query = null;
+    private $query = null;
 
-    protected $_key = 'default';
+    protected $connect = 'default';
 
-    protected $_name = '';
+    protected $name = null;
 
-    protected $_fields = [];
+    protected $fields = [];
+
+    public function model($model)
+    {
+        isset($model->connect) and $this->connect = $model->connect;
+        isset($model->name)    and $this->name    = $model->name;
+        isset($model->fields)  and $this->fields  = $model->fields;
+
+        return $this;
+    }
 
     public function connect($key = null)
     {
-        isset($key) and $this->_key = $key;
+        isset($key) and $this->connect = $key;
 
         return $this;
     }
@@ -522,7 +529,7 @@ class DB
         if(is_array($data)){
 
             $param = null;
-            $sql = "insert into `" . $this->_name . "`"; // sql 1
+            $sql = "insert into `" . $this->name . "`"; // sql 1
 
             $field = '';
             foreach($data as $fieldline){
@@ -611,25 +618,13 @@ class DB
     }
 
     /**
-     * 设置表字段
-     *
-     * @return array
-     */
-    public function setFields(array $fields = [])
-    {
-        $this->_fields = $fields;
-
-        return $this;
-    }
-
-    /**
      * 取表字段
      *
      * @return array
      */
     public function getFields()
     {
-        return $this->_fields;
+        return $this->fields;
     }
 
     /**
@@ -679,7 +674,7 @@ class DB
      */
     public function name($name = '')
     {
-        $this->_name = $name;
+        $this->name = $name;
         $this->getQuery()->from($name);
         return $this;
     }
@@ -691,7 +686,7 @@ class DB
      */
     public function getName()
     {
-        return $this->_name;
+        return $this->name;
     }
 
     /**
@@ -701,7 +696,7 @@ class DB
      */
     public function getConfig()
     {
-        return Config::db($this->_key);
+        return Config::db($this->connect);
     }
 
     /**
@@ -721,11 +716,11 @@ class DB
      */
     protected function getQuery()
     {
-        if(!isset($this->_query)){
-            $this->_query = new Query();
-            !empty($this->_name) and $this->_query->name($this->_name);
+        if (!isset($this->query)) {
+            $this->query = new Query();
+            !empty($this->name) and $this->query->name($this->name);
         }
-        return $this->_query;
+        return $this->query;
     }
 
     /**
@@ -767,10 +762,10 @@ class DB
      */
     public function getPdo()
     {
-        if(!isset($this->_pdo)){
-            $this->_pdo = Connect::getInstance($this->getConfig());
+        if (!isset($this->pdo)) {
+            $this->pdo = Connect::getInstance($this->getConfig());
         }
-        return $this->_pdo;
+        return $this->pdo;
     }
 
     /**

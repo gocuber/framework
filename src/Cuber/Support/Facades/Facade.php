@@ -12,9 +12,9 @@ abstract class Facade
     public static function __callStatic($method, $args)
     {
         if ('object' == static::$type) {
-            return (new static::$facade_accessor())->$method(...$args);
+            return (new static::$accessor())->$method(...$args);
         } else {
-            return Container::getInstance(static::$facade_accessor)->$method(...$args);
+            return Container::getInstance(static::$accessor)->$method(...$args);
         }
     }
 

@@ -16,9 +16,14 @@ class Query
 
     private $sql = null;
 
-    private $name = null; // model 使用
+    private $model = null;
 
     private $index = null;
+
+    public function __construct($model = null)
+    {
+        $this->model = $model;
+    }
 
     /**
      * autoCond
@@ -304,7 +309,8 @@ class Query
         $this->sql['where'] = $this->buildCond($this->cond);
         extract($this->sql);
 
-        $sql = "select " . (isset($field) ? $field : '*') . " from " . (empty($from) ? $this->name : $from);
+        empty($from) and !empty($this->model['name']) and $from = $this->model['name'];
+        $sql = "select " . (isset($field) ? $field : '*') . " from " . $from;
 
         isset($join)    and $sql .= " $join";
         isset($where) and '' !== $where and $sql .= " where $where";
@@ -486,17 +492,6 @@ class Query
         $this->sql['offset'] = ($currpage - 1) * $pagesize;
         $this->sql['limit']  = $pagesize;
 
-        return true;
-    }
-
-    /**
-     * 设置表名 model 使用
-     *
-     * @return bool
-     */
-    public function name($name = '')
-    {
-        $this->name = $name;
         return true;
     }
 

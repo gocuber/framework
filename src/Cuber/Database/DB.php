@@ -22,11 +22,11 @@ class DB
 
     protected $fields = [];
 
-    public function model($model)
+    public function model(Model $model)
     {
-        isset($model->connect) and $this->connect = $model->connect;
-        isset($model->name)    and $this->name    = $model->name;
-        isset($model->fields)  and $this->fields  = $model->fields;
+        $this->connect = $model->getConnect();
+        $this->name    = $model->getName();
+        $this->fields  = $model->getFields();
 
         return $this;
     }
@@ -56,9 +56,10 @@ class DB
      */
     public function max($field = null)
     {
-        if(!isset($field)){
+        if (!isset($field)) {
             return false;
         }
+
         return $this->val("max($field)");
     }
 
@@ -70,9 +71,10 @@ class DB
      */
     public function min($field = null)
     {
-        if(!isset($field)){
+        if (!isset($field)) {
             return false;
         }
+
         return $this->val("min($field)");
     }
 
@@ -84,9 +86,10 @@ class DB
      */
     public function avg($field = null)
     {
-        if(!isset($field)){
+        if (!isset($field)) {
             return false;
         }
+
         return $this->val("avg($field)");
     }
 
@@ -178,6 +181,7 @@ class DB
     public function where($where = null)
     {
         $this->getQuery()->where($where);
+
         return $this;
     }
 
@@ -190,6 +194,7 @@ class DB
     public function andWhere($where = null)
     {
         $this->getQuery()->andWhere($where);
+
         return $this;
     }
 
@@ -202,6 +207,7 @@ class DB
     public function orWhere($where = null)
     {
         $this->getQuery()->orWhere($where);
+
         return $this;
     }
 
@@ -214,6 +220,7 @@ class DB
     public function orderBy($orderby = null)
     {
         $this->getQuery()->orderBy($orderby);
+
         return $this;
     }
 
@@ -226,6 +233,7 @@ class DB
     public function groupBy($groupby = null)
     {
         $this->getQuery()->groupBy($groupby);
+
         return $this;
     }
 
@@ -238,6 +246,7 @@ class DB
     public function having($having = null)
     {
         $this->getQuery()->having($having);
+
         return $this;
     }
 
@@ -250,6 +259,7 @@ class DB
     public function offset($offset = 0)
     {
         $this->getQuery()->offset($offset);
+
         return $this;
     }
 
@@ -262,6 +272,7 @@ class DB
     public function limit($limit = 0)
     {
         $this->getQuery()->limit($limit);
+
         return $this;
     }
 
@@ -276,6 +287,7 @@ class DB
     public function page($currpage = 1, $pagesize = 1)
     {
         $this->getQuery()->page($currpage, $pagesize);
+
         return $this;
     }
 
@@ -290,6 +302,7 @@ class DB
     public function innerJoin($table = null, $on = null)
     {
         $this->getQuery()->join('inner join', $table, $on);
+
         return $this;
     }
 
@@ -304,6 +317,7 @@ class DB
     public function leftJoin($table = null, $on = null)
     {
         $this->getQuery()->join('left join', $table, $on);
+
         return $this;
     }
 
@@ -318,6 +332,7 @@ class DB
     public function rightJoin($table = null, $on = null)
     {
         $this->getQuery()->join('right join', $table, $on);
+
         return $this;
     }
 
@@ -340,7 +355,7 @@ class DB
      */
     public function query($sql = null, $param = null)
     {
-        if(empty($sql)){
+        if (empty($sql)) {
             $_sql  = $this->getQuery()->getSql();
             $sql   = $_sql['sql'];
             $param = $_sql['param'];
@@ -396,20 +411,20 @@ class DB
      */
     public function insert($sql = [], $param = null)
     {
-        if(empty($sql) and !is_array($sql)){
+        if (empty($sql) and !is_array($sql)) {
             return false;
         }
 
-        if(is_array($sql)){
+        if (is_array($sql)) {
 
             $data  = $this->prepareData($sql);
             $param = null;
             $sql   = "insert into `" . $this->getName() . "`";
 
             $cols = $values = '';
-            if(!empty($data) and is_array($data)){
+            if (!empty($data) and is_array($data)) {
                 $index = 1;
-                foreach($data as $key => $value){
+                foreach ($data as $key => $value) {
                     $cols   .= "`" . trim($key) . "`,";
                     $values .= ":pi$index,";
                     $param[":pi$index"] = trim($value);
@@ -418,16 +433,16 @@ class DB
                 $cols   = rtrim($cols, ',');
                 $values = rtrim($values, ',');
                 $sql   .= " ({$cols}) values ({$values})";
-            }else{
+            } else {
                 $sql .= " () values ()";
             }
 
         }
 
         $query = $this->getPdo()->query($sql, $param);
-        if(false === $query){
+        if (false === $query) {
             return false;
-        }else{
+        } else {
             return $this->getPdo()->lastId();
         }
     }
@@ -442,27 +457,27 @@ class DB
      */
     public function update($sql = null, $param = null)
     {
-        if(empty($sql)){
+        if (empty($sql)) {
             return false;
         }
 
-        if(is_array($sql)){
+        if (is_array($sql)) {
 
             $data  = $this->prepareData($sql);
             $param = null;
-            if(empty($data) or !is_array($data)){
+            if (empty($data) or !is_array($data)) {
                 return false;
             }
 
             $field = '';
             $index = 1;
-            foreach($data as $key => $value){
+            foreach ($data as $key => $value) {
                 $field .= "`" . trim($key) . "`=:pu$index,";
                 $param[":pu$index"] = trim($value);
                 $index++;
             }
             $field = rtrim($field, ',');
-            if(empty($field)){
+            if (empty($field)) {
                 return false;
             }
 
@@ -476,9 +491,9 @@ class DB
         }
 
         $query = $this->getPdo()->query($sql, $param);
-        if(false === $query){
+        if (false === $query) {
             return false;
-        }else{
+        } else {
             return $this->getPdo()->rowCount($query);
         }
     }
@@ -493,7 +508,7 @@ class DB
      */
     public function delete($sql = null, $param = null)
     {
-        if(empty($sql)){
+        if (empty($sql)) {
             $sql  = "delete from `" . $this->getName() . "`";
             $_sql = $this->getQuery()->getSql();
 
@@ -505,9 +520,9 @@ class DB
         }
 
         $query = $this->getPdo()->query($sql, $param);
-        if(false === $query){
+        if (false === $query) {
             return false;
-        }else{
+        } else {
             return $this->getPdo()->rowCount($query);
         }
     }
@@ -522,11 +537,11 @@ class DB
      */
     public function batchInsert($data = null, $param = null)
     {
-        if(empty($data)){
+        if (empty($data)) {
             return false;
         }
 
-        if(is_array($data)){
+        if (is_array($data)) {
 
             $param = null;
             $sql = "insert into `" . $this->name . "`"; // sql 1
@@ -568,9 +583,9 @@ class DB
         }
 
         $query = $this->getPdo()->query($sql, $param);
-        if(false === $query){
+        if (false === $query) {
             return false;
-        }else{
+        } else {
             return $this->getPdo()->rowCount($query);
         }
     }
@@ -635,20 +650,20 @@ class DB
      */
     protected function prepareData($array = null)
     {
-        if(empty($array) or !is_array($array)){
+        if (empty($array) or !is_array($array)) {
             return [];
         }
 
         $array = array_change_key_case($array, CASE_LOWER);
 
         $fields = $this->getFields();
-        if(empty($fields) or !is_array($fields)){
+        if (empty($fields) or !is_array($fields)) {
             return $array;
         }
 
         $data = [];
-        foreach($fields as $field){
-            if(isset($array[$field]) and is_scalar($array[$field])){
+        foreach ($fields as $field) {
+            if (isset($array[$field]) and is_scalar($array[$field])) {
                 $data[$field] = trim($array[$field]);
             }
         }
@@ -664,6 +679,7 @@ class DB
     public function field($field = null)
     {
         $this->getQuery()->field($field);
+
         return $this;
     }
 
@@ -674,8 +690,8 @@ class DB
      */
     public function name($name = '')
     {
-        $this->name = $name;
         $this->getQuery()->from($name);
+
         return $this;
     }
 
@@ -717,9 +733,9 @@ class DB
     protected function getQuery()
     {
         if (!isset($this->query)) {
-            $this->query = new Query();
-            !empty($this->name) and $this->query->name($this->name);
+            $this->query = new Query(['name'=>$this->name]);
         }
+
         return $this->query;
     }
 
@@ -732,6 +748,7 @@ class DB
     public function useMaster($is = true)
     {
         $this->getPdo()->useMaster($is);
+
         return $this;
     }
 
@@ -765,6 +782,7 @@ class DB
         if (!isset($this->pdo)) {
             $this->pdo = Connect::getInstance($this->getConfig());
         }
+
         return $this->pdo;
     }
 

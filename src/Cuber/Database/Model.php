@@ -12,11 +12,11 @@ use Cuber\Support\Facades\DB;
 abstract class Model
 {
 
-    public $connect = 'default';
+    protected $connect = 'default';
 
-    public $name = '';
+    protected $name = '';
 
-    public $fields = [];
+    protected $fields = [];
 
     public static function __callStatic($method, $args)
     {
@@ -28,6 +28,21 @@ abstract class Model
     public function __call($method, $args)
     {
         return DB::model($this)->$method(...$args);
+    }
+
+    public function getConnect()
+    {
+        return $this->connect;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function getFields()
+    {
+        return $this->fields;
     }
 
 }

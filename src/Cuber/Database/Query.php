@@ -10,13 +10,11 @@ namespace Cuber\Database;
 class Query
 {
 
+    private $model = null;
+
     private $binds = null;
 
-    private $cond = null;
-
-    private $sql = null;
-
-    private $model = null;
+    private $param = null;
 
     private $index = null;
 
@@ -64,26 +62,26 @@ class Query
             return false;
         }
 
-        if (empty($this->cond)) {
-            $this->cond = $cond;
+        if (empty($this->binds['cond'])) {
+            $this->binds['cond'] = $cond;
         }
 
-        $_sign    = $this->cond[0];
+        $_sign    = $this->binds['cond'][0];
         $sub_sign = $cond[0];
 
         if ($sign == $_sign) {
             if ($sign == $sub_sign) {
                 unset($cond[0]);
-                $this->cond = array_merge($this->cond, $cond);
+                $this->binds['cond'] = array_merge($this->binds['cond'], $cond);
             } else {
-                $this->cond[] = $cond;
+                $this->binds['cond'][] = $cond;
             }
         } else {
             if ($sign == $sub_sign) {
                 unset($cond[0]);
-                $this->cond = array_merge([$sign, $this->cond], $cond);
+                $this->binds['cond'] = array_merge([$sign, $this->binds['cond']], $cond);
             } else {
-                $this->cond = [$sign, $this->cond, $cond];
+                $this->binds['cond'] = [$sign, $this->binds['cond'], $cond];
             }
         }
 
@@ -103,7 +101,7 @@ class Query
             return false;
         }
 
-        $this->cond = $this->autoCond($cond);
+        $this->binds['cond'] = $this->autoCond($cond);
         return true;
     }
 
@@ -216,6 +214,7 @@ class Query
         if (is_array($value)) {
             return $this->buildCondIn($key, $value);
         }
+
         return "$key=" . $this->setParam($value);
     }
 
@@ -262,9 +261,7 @@ class Query
             return '';
         }
 
-        if (count($value) == 4 and in_array($value[1], ['between', 'not between'], true)) {
-            return $this->buildCondBetween($value[0], [$value[2], $value[3]], $value[1]);
-        } elseif (count($value) == 3 and in_array($value[1], ['between', 'not between'], true)) {
+        if (count($value) == 3 and in_array($value[1], ['between', 'not between'], true)) {
             return $this->buildCondBetween($value[0], $value[2], $value[1]);
         } elseif (count($value) == 3 and in_array($value[1], ['in', 'not in'], true)) {
             return $this->buildCondIn($value[0], $value[2], $value[1]);
@@ -295,7 +292,7 @@ class Query
         }
 
         $key = ':p' . $this->index;
-        $this->sql['param'][$key] = $param;
+        $this->param[$key] = $param;
         return $key;
     }
 
@@ -306,26 +303,28 @@ class Query
      */
     public function getSql()
     {
-        $this->sql['where'] = $this->buildCond($this->cond);
-        extract($this->sql);
+        $where = isset($this->binds['cond']) ? $this->buildCond($this->binds['cond']) : '';
+        extract($this->binds);
 
-        empty($from) and !empty($this->model['name']) and $from = $this->model['name'];
-        $sql = "select " . (isset($field) ? $field : '*') . " from " . $from;
+        !isset($from) and isset($this->model['name']) and $from = $this->model['name'];
+        $sql = 'select ' . (isset($field) ? $field : '*') . ' from ' . $from;
 
         isset($join)    and $sql .= " $join";
-        isset($where) and '' !== $where and $sql .= " where $where";
+        '' !== $where   and $sql .= " where $where";
         isset($groupby) and $sql .= " group by $groupby";
         isset($having)  and $sql .= " having $having";
         isset($orderby) and $sql .= " order by $orderby";
         isset($limit)   and $sql .= " limit " . (empty($offset) ? $limit : ($offset . ',' . $limit));
 
-        $this->sql['sql'] = $sql;
-        isset($this->sql['param']) or $this->sql['param'] = null;
+        $ret = ['sql'=>$sql, 'param'=>$this->param];
+        '' !== $where   and $ret['where']   = $where;
+        isset($orderby) and $ret['orderby'] = $orderby;
+        isset($limit)   and $ret['limit']   = $limit;
 
-        $ret = $this->sql;
-        $this->cond  = null;
-        $this->sql   = null;
+        $this->binds = null;
+        $this->param = null;
         $this->index = null;
+
         return $ret;
     }
 
@@ -342,7 +341,7 @@ class Query
             return false;
         }
 
-        $this->sql['field'] = is_array($field) ? implode(',', $field) : trim($field);
+        $this->binds['field'] = is_array($field) ? implode(',', $field) : trim($field);
         return true;
     }
 
@@ -359,7 +358,7 @@ class Query
             return false;
         }
 
-        $this->sql['from'] = trim($name);
+        $this->binds['from'] = trim($name);
         return true;
     }
 
@@ -378,10 +377,10 @@ class Query
             return false;
         }
 
-        if (isset($this->sql['join'])) {
-            $this->sql['join'] .= '' . $type . $table . ' on ' . $on;
+        if (isset($this->binds['join'])) {
+            $this->binds['join'] .= ' ' . $type . $table . ' on ' . $on;
         } else {
-            $this->sql['join'] = $type . $table . ' on ' . $on;
+            $this->binds['join'] = $type . $table . ' on ' . $on;
         }
 
         return true;
@@ -400,7 +399,7 @@ class Query
             return false;
         }
 
-        $this->sql['groupby'] = is_array($cond) ? implode(',', $cond) : trim($cond);
+        $this->binds['groupby'] = is_array($cond) ? implode(',', $cond) : trim($cond);
         return true;
     }
 
@@ -417,7 +416,7 @@ class Query
             return false;
         }
 
-        $this->sql['having'] = trim($cond);
+        $this->binds['having'] = trim($cond);
         return true;
     }
 
@@ -441,12 +440,12 @@ class Query
                     $by .= $value . ',';
                 } else {
                     $value = ('desc'==$value) ? 'desc' : 'asc';
-                    $by .= "$key {$value},";
+                    $by .= "$key $value,";
                 }
             }
-            $this->sql['orderby'] = trim($by, ',');
+            $this->binds['orderby'] = trim($by, ',');
         } else {
-            $this->sql['orderby'] = $cond;
+            $this->binds['orderby'] = $cond;
         }
 
         return true;
@@ -460,7 +459,8 @@ class Query
      */
     public function offset($offset = 0)
     {
-        $this->sql['offset'] = (int)$offset;
+        $this->binds['offset'] = (int)$offset;
+
         return true;
     }
 
@@ -472,7 +472,8 @@ class Query
      */
     public function limit($limit = 0)
     {
-        $this->sql['limit'] = (int)$limit;
+        $this->binds['limit'] = (int)$limit;
+
         return true;
     }
 
@@ -489,8 +490,8 @@ class Query
         $currpage = (int)$currpage < 1 ? 1 : (int)$currpage;
         $pagesize = (int)$pagesize < 0 ? 0 : (int)$pagesize;
 
-        $this->sql['offset'] = ($currpage - 1) * $pagesize;
-        $this->sql['limit']  = $pagesize;
+        $this->binds['offset'] = ($currpage - 1) * $pagesize;
+        $this->binds['limit']  = $pagesize;
 
         return true;
     }

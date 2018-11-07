@@ -16,19 +16,19 @@ class Connect
 
     const RECONN = 3;
 
-    private static $_debug = null;
+    private static $debug = null;
 
-    private static $_instance = null;
+    private static $instance = null;
 
-    private $_conf = null;
+    private $conf = null;
 
-    private $_config = null;
+    private $config = null;
 
-    private $_use_master = false;
+    private $use_master = false;
 
-    private $_master = null;
+    private $master = null;
 
-    private $_slave = null;
+    private $slave = null;
 
     private function __construct($config = null)
     {
@@ -40,11 +40,11 @@ class Connect
     public static function getInstance($config = [])
     {
         $key = md5(serialize($config));
-        if (!isset(self::$_instance[$key])) {
-            self::$_instance[$key] = new self($config);
+        if (!isset(self::$instance[$key])) {
+            self::$instance[$key] = new self($config);
         }
 
-        return self::$_instance[$key];
+        return self::$instance[$key];
     }
 
     /**
@@ -54,7 +54,7 @@ class Connect
      */
     public function exec($sql = null)
     {
-        if($this->isReadQuery($sql)){
+        if ($this->isReadQuery($sql)) {
             return $this->query($sql);
         }
 
@@ -64,7 +64,7 @@ class Connect
             $ret = $this->getMaster()->exec($sql);
             $_e  = microtime(true);
 
-            if(self::$_debug){
+            if(self::$debug){
                 $_log  = '<pre>' . "\n" . 'exec()' . "\n";
                 $_log .= 'config : ' . print_r($this->getConfig('master'), true) . "\n";
                 $_log .= 'time : ' . ($_e - $_s) ."\n";
@@ -77,7 +77,7 @@ class Connect
 
         } catch (PDOException $e) {
 
-            if($this->inTransaction()){
+            if ($this->inTransaction()) {
                 throw new Exception('exec() ' . $sql . $e->getMessage());
             }
 
@@ -95,7 +95,7 @@ class Connect
      */
     private function prepare($sql = null)
     {
-        $pdo = (!$this->_use_master and $this->isReadQuery($sql)) ? $this->getSlave() : $this->getMaster();
+        $pdo = (!$this->use_master and $this->isReadQuery($sql)) ? $this->getSlave() : $this->getMaster();
         $statement = $pdo->prepare($sql);
         return $statement;
     }
@@ -109,16 +109,17 @@ class Connect
      */
     private function bindParams($statement = null, $param = null)
     {
-        if(empty($statement)){
+        if (empty($statement)) {
             return false;
         }
 
-        if(!empty($param) and is_array($param)){
-            foreach($param as $key=>$value){
+        if (!empty($param) and is_array($param)) {
+            foreach ($param as $key=>$value) {
                 is_int($key) and $key++;
                 $statement->bindValue($key, $value, $this->getType($value));
             }
         }
+
         return true;
     }
 
@@ -132,15 +133,16 @@ class Connect
      */
     private function execute($statement = null, $param = null)
     {
-        if(empty($statement)){
+        if (empty($statement)) {
             return false;
         }
 
-        if(isset($param)){
+        if (isset($param)) {
             $ret = $statement->execute($param);
-        }else{
+        } else {
             $ret = $statement->execute();
         }
+
         return $ret;
     }
 
@@ -167,7 +169,7 @@ class Connect
 
             $_e = microtime(true);
 
-            if(self::$_debug){
+            if(self::$debug){
                 $_log  = '<pre>' . "\n" . 'query()' . "\n";
                 $_log .= 'config : ' . print_r($this->getConfig($this->isReadQuery($sql) ? 'slave' : 'master'), true) . "\n";
                 $_log .= 'time : ' . ($_e - $_s) ."\n";
@@ -183,7 +185,7 @@ class Connect
         } catch (PDOException $e) {
 
             if($reconn > 0 and 2006 == $e->errorInfo[1]){
-                if(self::$_debug){
+                if(self::$debug){
                     echo '<pre>reconn : ' . $reconn . '</pre>';
                 }
                 $reconn--;
@@ -207,7 +209,7 @@ class Connect
      */
     public function rowCount($statement = null)
     {
-        if(empty($statement)){
+        if (empty($statement)) {
             return false;
         }
 
@@ -222,7 +224,7 @@ class Connect
      */
     public function fetch($statement = null)
     {
-        if(empty($statement)){
+        if (empty($statement)) {
             return false;
         }
 
@@ -238,9 +240,9 @@ class Connect
     {
         $statement = $this->query($sql, $param);
 
-        if(false === $statement){
+        if (false === $statement) {
             return false;
-        }else{
+        } else {
             return $statement->fetch(PDO::FETCH_ASSOC);
         }
     }
@@ -254,9 +256,9 @@ class Connect
     {
         $statement = $this->query($sql, $param);
 
-        if(false === $statement){
+        if (false === $statement) {
             return false;
-        }else{
+        } else {
             return $statement->fetchColumn();
         }
     }
@@ -270,9 +272,9 @@ class Connect
     {
         $statement = $this->query($sql, $param);
 
-        if(false === $statement){
+        if (false === $statement) {
             return false;
-        }else{
+        } else {
             return $statement->fetchAll(PDO::FETCH_ASSOC);
         }
     }
@@ -336,7 +338,7 @@ class Connect
      */
     public function transaction($closure = null)
     {
-        if(!isset($closure) or is_string($closure) or !is_callable($closure)){
+        if (!isset($closure) or is_string($closure) or !is_callable($closure)) {
             return false;
         }
 
@@ -357,8 +359,8 @@ class Connect
      */
     public function close()
     {
-        $this->_master = null;
-        $this->_slave  = null;
+        $this->master = null;
+        $this->slave  = null;
     }
 
     /**
@@ -369,7 +371,8 @@ class Connect
      */
     public function useMaster($is = true)
     {
-        $this->_use_master = $is;
+        $this->use_master = $is;
+
         return true;
     }
 
@@ -380,13 +383,15 @@ class Connect
      */
     public function getSlave()
     {
-        if(empty($this->_config['slave'])){
+        if (empty($this->config['slave'])) {
             return $this->getMaster();
         }
-        if(!isset($this->_slave)){
-           $this->_slave = $this->conn($this->getConfig('slave'));
+
+        if (!isset($this->slave)) {
+           $this->slave = $this->conn($this->getConfig('slave'));
         }
-        return $this->_slave;
+
+        return $this->slave;
     }
 
     /**
@@ -396,10 +401,11 @@ class Connect
      */
     public function getMaster()
     {
-        if(!isset($this->_master)){
-           $this->_master = $this->conn($this->getConfig('master'));
+        if (!isset($this->master)) {
+           $this->master = $this->conn($this->getConfig('master'));
         }
-        return $this->_master;
+
+        return $this->master;
     }
 
     /**
@@ -411,14 +417,14 @@ class Connect
     private function getDsn($conf = [])
     {
         extract($conf);
-        if(empty($host) or empty($database)){
+        if (empty($host) or empty($database)) {
             return false;
         }
 
-        $dsn   = isset($driver) ? $driver : 'mysql';
-        $dsn  .= ":host={$host};dbname={$database}";
-        (isset($port) and ''!==$port)       and $dsn .= ";port={$port}";
-        (isset($charset) and ''!==$charset) and $dsn .= ";charset={$charset}";
+        $dsn  = isset($driver) ? $driver : 'mysql';
+        $dsn .= ":host={$host};dbname={$database}";
+        isset($port)    and ''!==$port    and $dsn .= ";port={$port}";
+        isset($charset) and ''!==$charset and $dsn .= ";charset={$charset}";
         return $dsn;
     }
 
@@ -434,10 +440,14 @@ class Connect
         extract($conf);
 
         try {
+
             // PDO::ATTR_PERSISTENT => true,
             return new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_INIT_COMMAND => "set names utf8"]);
+
         } catch (PDOException $e) {
+
             (new Exception())->log(Exception::ERROR_TYPE_MYSQL, $e, true);
+
         }
     }
 
@@ -445,20 +455,24 @@ class Connect
      * setConfig
      *
      * @param array $config
-     * @return $this
+     * @return bool
      */
     public function setConfig($config = [])
     {
         try {
-            if(!isset($config) or !is_array($config)){
+
+            if (!isset($config) or !is_array($config)) {
                 throw new Exception("database config error");
             }
+
         } catch (Exception $e) {
+
             $e->log(Exception::ERROR_TYPE_MYSQL);
+
         }
 
-        $this->_config = $config;
-        return $this;
+        $this->config = $config;
+        return true;
     }
 
     /**
@@ -468,25 +482,25 @@ class Connect
      */
     public function getConfig($mode = null)
     {
-        $conf = $this->_config;
+        $conf = $this->config;
         if (empty($mode) or !in_array($mode, ['master', 'slave'])) {
             return $conf;
         }
 
-        if (!isset($this->_conf[$mode])) {
-            if('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])){
-                if(isset($conf['slave'][0]) and is_array($conf['slave'][0])){
+        if (!isset($this->conf[$mode])) {
+            if ('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])) {
+                if (isset($conf['slave'][0]) and is_array($conf['slave'][0])) {
                     $skey = mt_rand(0, count($conf['slave']) - 1);
                     $conf = array_merge($conf, $conf['slave'][$skey]);
-                }else{
+                } else {
                     $conf = array_merge($conf, $conf['slave']);
                 }
             }
             unset($conf['slave']);
-            $this->_conf[$mode] = $conf;
+            $this->conf[$mode] = $conf;
         }
 
-        return $this->_conf[$mode];
+        return $this->conf[$mode];
     }
 
     /**
@@ -497,7 +511,7 @@ class Connect
      */
     public function debug($debug = true)
     {
-        self::$_debug = $debug;
+        self::$debug = $debug;
     }
 
     /**
@@ -517,7 +531,6 @@ class Connect
         ];
 
         $type = gettype($data);
-
         return isset($type_map[$type]) ? $type_map[$type] : PDO::PARAM_STR;
     }
 
@@ -529,8 +542,7 @@ class Connect
      */
     private function isReadQuery($sql = null)
     {
-        $pattern = '/^\s*(SELECT|SHOW|DESCRIBE)\b/i';
-        return preg_match($pattern, $sql) > 0;
+        return preg_match('/^\s*(select|show|desc|describe)\b/i', $sql) > 0;
     }
 
 }

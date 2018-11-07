@@ -101,9 +101,10 @@ class DB
      */
     public function sum($field = null)
     {
-        if(!isset($field)){
+        if (!isset($field)) {
             return false;
         }
+
         return $this->val("sum($field)");
     }
 

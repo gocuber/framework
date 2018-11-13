@@ -7,7 +7,7 @@
  */
 
 /**
- * s()
+ * print_r
  *
  * @param string|array $data
  * @param bool $exit
@@ -23,7 +23,7 @@ function s($data = null, $exit = false)
 }
 
 /**
- * d()
+ * var_dump
  *
  * @param string|array $data
  * @param bool $exit
@@ -34,6 +34,18 @@ function d($data = null, $exit = false)
 {
     var_dump($data);
     $exit and exit();
+}
+
+/**
+ * htmlspecialchars
+ *
+ * @param string $value
+ *
+ * @return void
+ */
+function e($value = null)
+{
+    return htmlspecialchars($value);
 }
 
 /**

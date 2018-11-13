@@ -3,7 +3,7 @@
     "description": "The Cuber Framework.",
     "keywords": ["framework", "cuber"],
     "license": "MIT",
-    "homepage": "http://www.gocuber.com",
+    "homepage": "https://www.gocuber.com",
     "support": {
         "issues": "https://github.com/gocuber/framework/issues",
         "source": "https://github.com/gocuber/framework"
@@ -16,7 +16,8 @@
     ],
     "require": {
         "php": "^7.0.0",
-        "erusev/parsedown": "~1.7"
+        "erusev/parsedown": "~1.7",
+        "elasticsearch/elasticsearch": "~6.0"
     },
     "autoload": {
         "files": [

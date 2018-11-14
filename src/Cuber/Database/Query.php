@@ -16,8 +16,6 @@ class Query
 
     private $param = null;
 
-    private $index = null;
-
     public function __construct($model = null)
     {
         $this->model = $model;
@@ -279,20 +277,15 @@ class Query
     /**
      * setParam
      *
-     * @param string $param
+     * @param string $value
      *
      * @return string
      */
-    private function setParam($param = '')
+    private function setParam($value = '')
     {
-        if (isset($this->index)) {
-            $this->index++;
-        } else {
-            $this->index = 1;
-        }
-
-        $key = ':p' . $this->index;
-        $this->param[$key] = $param;
+        $i = isset($this->param) ? count($this->param) : 0;
+        $key = ':p' . ++$i;
+        $this->param[$key] = $value;
         return $key;
     }
 

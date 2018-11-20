@@ -22,19 +22,33 @@ class Route
      * @param array $pattern
      * @return bool
      */
-    public function pattern($pattern = [])
+    public function pattern(array $pattern = [])
     {
-        return $this->addPattern($pattern);
+        if (empty($pattern)) {
+            return false;
+        }
+
+        $this->pattern = array_merge($this->pattern, $pattern);
+        return true;
     }
 
     /**
      * 路由
      *
+     * @param string $route
+     * @param string $rule
+     * @param array $pattern
+     *
      * @return bool
      */
     public function get($route = '', $rule = null, $pattern = null)
     {
-        return $this->set($route, $rule, $pattern);
+        if (!isset($route)) {
+            return false;
+        }
+
+        $this->route[$this->domain][$route] = ['rule'=>$rule, 'pattern'=>$pattern];
+        return true;
     }
 
     /**
@@ -63,49 +77,6 @@ class Route
     public function domain($domain = '', $rule = null)
     {
         return $this->group(['domain'=>$domain], $rule);
-    }
-
-    /**
-     * set
-     *
-     * @param string $route
-     * @param string $rule
-     * @param array $pattern
-     * @return boolean
-     */
-    private function set($route = '', $rule = null, $pattern = null)
-    {
-        if (!isset($route)) {
-            return false;
-        }
-
-        $this->route[$this->domain][$route] = ['rule'=>$rule, 'pattern'=>$pattern];
-        return true;
-    }
-
-    /**
-     * 获取路由规则
-     *
-     * @return array
-     */
-    public function getRoute()
-    {
-        return $this->route;
-    }
-
-    /**
-     * 追加全局约束通配符
-     *
-     * @return bool
-     */
-    public function addPattern($pattern = [])
-    {
-        if (empty($pattern) or !is_array($pattern)) {
-            return false;
-        }
-
-        $this->pattern = array_merge($this->pattern, $pattern);
-        return true;
     }
 
     /**
@@ -205,7 +176,7 @@ class Route
      */
     private function getRule()
     {
-        $routes = $this->getRoute();
+        $routes = $this->route;
 
         if (empty($routes)) {
             return [];
@@ -279,7 +250,7 @@ class Route
         }
         $controller = rtrim($controller, '\\');
 
-        return ['route'=>$route, 'controller'=>$controller, 'action'=>$action];
+        return ['controller'=>$controller, 'action'=>$action];
     }
 
     /**

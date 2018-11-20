@@ -10,18 +10,18 @@ namespace Cuber\Session;
 class Session
 {
 
-    private static $_is_start = null;
+    private $is_start = null;
 
     /**
      * start
      *
      * @return boolean
      */
-    public static function start()
+    public function start()
     {
-        if (!isset(self::$_is_start)) {
+        if (null === $this->is_start) {
             session_start();
-            self::$_is_start = true;
+            $this->is_start = true;
         }
 
         return true;
@@ -33,7 +33,7 @@ class Session
      * @param string $id
      * @return string
      */
-    public static function id($id = null)
+    public function id($id = null)
     {
         if (isset($id)) {
             return session_id($id);
@@ -48,9 +48,9 @@ class Session
      * @param string $name
      * @return string|null
      */
-    public static function get($name = null)
+    public function get($name = null)
     {
-        self::start();
+        $this->start();
         if (isset($name)) {
             return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
         } else {
@@ -65,9 +65,9 @@ class Session
      * @param string $value
      * @return boolean
      */
-    public static function set($name = null, $value = null)
+    public function set($name = null, $value = null)
     {
-        self::start();
+        $this->start();
         $_SESSION[$name] = $value;
         return true;
     }
@@ -78,9 +78,9 @@ class Session
      * @param string $name
      * @return boolean
      */
-    public static function del($name = null)
+    public function del($name = null)
     {
-        self::start();
+        $this->start();
         if (isset($name)) {
             unset($_SESSION[$name]);
         } else {
@@ -94,9 +94,9 @@ class Session
      *
      * @return boolean
      */
-    public static function destroy()
+    public function destroy()
     {
-        self::start();
+        $this->start();
         unset($_SESSION);
         session_unset();
         session_destroy();

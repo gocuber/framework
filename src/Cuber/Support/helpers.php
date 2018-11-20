@@ -342,13 +342,3 @@ function to_string($data)
 
     return $data;
 }
-
-/**
- * 获取路由
- *
- * @return string
- */
-function get_route()
-{
-    return isset($_GET['r']) ? $_GET['r'] : '';
-}

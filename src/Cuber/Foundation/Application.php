@@ -9,6 +9,7 @@ namespace Cuber\Foundation;
 
 use Cuber\Config\Config;
 use Cuber\Support\Exception;
+use Cuber\Support\Facades\Route;
 
 class Application
 {
@@ -59,18 +60,16 @@ class Application
      */
     private function setAction()
     {
-        $router = new Router();
-        $router->load(Config::get('module.' . app('module') . '.route', 'app'));
-        $ret = $router->hitRoute();
+        Route::load(Config::get('module.' . app('module') . '.route', 'app'));
+        $ret = Route::hitRoute();
 
         if (isset($ret['closure'])) {
-            $ret = $router->runClosureRoute($ret['closure'], $ret['closure_param']);
+            $ret = Route::runClosureRoute($ret['closure'], $ret['closure_param']);
 
             if (isset($ret) and is_string($ret)) {
-                $ret = $router->makeControllerByRule($ret);
+                $ret = Route::makeControllerByRule($ret);
             }
         }
-        unset($router);
 
         if (isset($ret) and is_array($ret)) {
             (!isset($ret['controller']) or '' === $ret['controller']) and $ret['controller'] = 'Index';

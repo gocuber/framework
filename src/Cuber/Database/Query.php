@@ -316,7 +316,6 @@ class Query
 
         $this->binds = null;
         $this->param = null;
-        $this->index = null;
 
         return $ret;
     }

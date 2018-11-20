@@ -18,9 +18,9 @@ class Cookie
      * @param string $name
      * @return string|null
      */
-    public static function get($name = null)
+    public function get($name = null)
     {
-        $name = self::buildKey($name);
+        $name = $this->buildKey($name);
         return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
     }
 
@@ -34,9 +34,9 @@ class Cookie
      * @param string $domain
      * @return bool
      */
-    public static function set($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
+    public function set($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
     {
-        $name = self::buildKey($name);
+        $name = $this->buildKey($name);
         !isset($domain) and $domain = Config::get('cookie.domain');
         setcookie($name, $value, time() + $time, $path, $domain);
         $_COOKIE[$name] = $value;
@@ -53,9 +53,9 @@ class Cookie
      * @param string $domain
      * @return bool
      */
-    public static function setraw($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
+    public function setraw($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
     {
-        $name = self::buildKey($name);
+        $name = $this->buildKey($name);
         !isset($domain) and $domain = Config::get('cookie.domain');
         setrawcookie($name, $value, time() + $time, $path, $domain);
         return true;
@@ -67,9 +67,9 @@ class Cookie
      * @param string $name
      * @return bool
      */
-    public static function del($name = null)
+    public function del($name = null)
     {
-        $name = self::buildKey($name);
+        $name = $this->buildKey($name);
         setcookie($name, null, time() - 3600);
         unset($_COOKIE[$name]);
         return true;
@@ -81,7 +81,7 @@ class Cookie
      * @param string $key
      * @return string
      */
-    private static function buildKey($key = null)
+    private function buildKey($key = null)
     {
         return Config::get('cookie.prefix', '') . $key;
     }

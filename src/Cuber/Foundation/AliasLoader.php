@@ -12,22 +12,11 @@ use Cuber\Config\Config;
 class AliasLoader
 {
 
-    private static $_instance = null;
-
     private $_alias = null;
 
     public function __construct()
     {
         $this->init();
-    }
-
-    public static function getInstance()
-    {
-        if (!isset(self::$_instance)) {
-            self::$_instance = new self();
-        }
-
-        return self::$_instance;
     }
 
     /**

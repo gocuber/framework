@@ -39,13 +39,11 @@ function d($data = null, $exit = false)
 /**
  * htmlspecialchars
  *
- * @param string $value
- *
- * @return void
+ * @return string
  */
-function e($value = null)
+function e()
 {
-    return htmlspecialchars($value);
+    return htmlspecialchars(...func_get_args());
 }
 
 /**

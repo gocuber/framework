@@ -275,23 +275,15 @@ function mk_dir($dir = null)
  */
 function get_client_ip()
 {
-    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (isset($_SERVER['REMOTE_ADDR'])) {
-        $ip = $_SERVER['REMOTE_ADDR'];
-    } elseif (getenv('HTTP_X_FORWARDED_FOR')) {
-        $ip = getenv('HTTP_X_FORWARDED_FOR');
-    } elseif (getenv('HTTP_CLIENT_IP')) {
-        $ip = getenv('HTTP_CLIENT_IP');
-    } elseif (getenv('REMOTE_ADDR')) {
-        $ip = getenv('REMOTE_ADDR');
-    } else {
-        $ip = '127.0.0.1';
+    foreach (['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'REMOTE_ADDR'] as $key) {
+        if (isset($_SERVER[$key])) {
+            return $_SERVER[$key];
+        } elseif (getenv($key)) {
+            return getenv($key);
+        }
     }
 
-    return $ip;
+    return '127.0.0.1';
 }
 
 /**

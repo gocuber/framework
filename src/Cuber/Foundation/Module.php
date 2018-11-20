@@ -21,7 +21,7 @@ class Module
     {
         $module_name = 'default';
 
-        if (\is_cli()) {
+        if (is_cli()) {
             $module_name = 'cli';
         } else {
             $module_conf = Config::get('module');

@@ -253,7 +253,9 @@ class Route
             }
         }
 
-        return strtr(trim($rule, '/'), $_pattern);
+        $rule = strtr($rule, $_pattern);
+        $rule = preg_replace('/{[a-z]+}/', '(.+)', $rule); // 未设置匹配规则默认 .+
+        return trim($rule, '/');
     }
 
     /**

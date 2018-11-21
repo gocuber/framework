@@ -119,13 +119,11 @@ function app($key = null, $default = null)
 /**
  * view
  *
- * @param string $tpl
- * @param array $data
- * @return Cuber\Support\Facades\View::display
+ * @see Cuber\Support\Facades\View::display
  */
-function view($tpl = null, $data = null)
+function view()
 {
-    return Cuber\Support\Facades\View::display($tpl, $data);
+    return Cuber\Support\Facades\View::display(...func_get_args());
 }
 
 /**

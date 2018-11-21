@@ -24,11 +24,8 @@ class Route
      */
     public function pattern(array $pattern = [])
     {
-        if (empty($pattern)) {
-            return false;
-        }
-
         $this->pattern = array_merge($this->pattern, $pattern);
+
         return true;
     }
 
@@ -132,6 +129,7 @@ class Route
                 }
             }
         }
+
         return $this->makeControllerByRoute($route);
     }
 
@@ -142,31 +140,26 @@ class Route
      * @param array $closure['param']
      * @return bool
      */
-    public function runClosureRoute($closure, $param = null)
+    public function runClosureRoute($closure, array $param = [])
     {
         if (!isset($closure) or is_string($closure) or !is_callable($closure)) {
             return false;
         }
 
-        $param      = isset($param) ? $param : [];
-        $call_value = []; // 闭包参数值
-        $reflect    = new \ReflectionFunction($closure);
+        $values  = []; // 闭包参数值
+        $reflect = new \ReflectionFunction($closure);
 
         foreach ($reflect->getParameters() as $_param) {
             $name = $_param->getName();
 
-            if (isset($param[$name]) and ''!==$param[$name]) {
-                $call_value[] = $param[$name];
+            if (isset($param[$name]) and '' !== $param[$name]) {
+                $values[] = $param[$name];
             } else {
-                if ($_param->isOptional()) {
-                    $call_value[] = $_param->getDefaultValue();
-                } else {
-                    $call_value[] = null;
-                }
+                $values[] = $_param->isOptional() ? $_param->getDefaultValue() : null;
             }
         }
 
-        return call_user_func_array($closure, $call_value);
+        return call_user_func_array($closure, $values);
     }
 
     /**
@@ -232,23 +225,23 @@ class Route
     /**
      * makeController
      *
-     * @param string $route
-     * @return array
+     * @param string $route sys/article/add
+     *
+     * @return array ['controller'=>'Sys\\Article', 'action'=>'add']
      */
     private function makeControllerByRoute($route = null)
     {
-        $r = explode('/', trim($route, '/'));
+        $route = explode('/', $route);
 
-        $action = $r[count($r)-1];
-        unset($r[count($r)-1]);
+        $action = count($route) == 1 ? '' : array_pop($route);
 
-        $controller = '';
-        if (!empty($r)) {
-            foreach ($r as $_r) {
-                $controller .= ucfirst(strtolower($_r)) . '\\';
+        $controller = [];
+        if ($route) {
+            foreach ($route as $r) {
+                $controller[] = ucfirst(strtolower($r));
             }
         }
-        $controller = rtrim($controller, '\\');
+        $controller = implode('\\', $controller);
 
         return ['controller'=>$controller, 'action'=>$action];
     }
@@ -256,24 +249,25 @@ class Route
     /**
      * makeController
      *
-     * @param string $rule
-     * @return array
+     * @param string $rule Sys\\Article@index?id=1
+     *
+     * @return array ['controller'=>'Sys\\Article', 'action'=>'add']
      */
     public function makeControllerByRule($rule = null)
     {
         $rule = explode('?', $rule);
         isset($rule[1]) and $this->setParam($rule[1]); // 设置GET
 
-        $r = explode('@', trim($rule[0], '\\'));
-        $action = isset($r[1]) ? $r[1] : '';
+        $rule = explode('@', $rule[0]);
+        $action = isset($rule[1]) ? $rule[1] : '';
 
-        return ['controller'=>trim($r[0], '\\'), 'action'=>trim($action, '/')];
+        return ['controller'=>$rule[0], 'action'=>$action];
     }
 
     /**
      * 设置GET
      *
-     * @param string $url
+     * @param string $url id=1&code=1
      * @return bool
      */
     private function setParam($param = '')

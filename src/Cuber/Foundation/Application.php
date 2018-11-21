@@ -36,7 +36,24 @@ class Application
      */
     private function setModule()
     {
-        app(['module' => Module::get()]);
+        $module_name = 'default';
+
+        if (is_cli()) {
+            $module_name = 'cli';
+        } else {
+            $module_conf = Config::get('module');
+            if (!empty($module_conf) and is_array($module_conf)) {
+                $domain = $_SERVER['HTTP_HOST'];
+                foreach ($module_conf as $module=>$conf) {
+                    if (isset($conf['domain']) and $domain == $conf['domain']) {
+                        $module_name = $module;
+                        break 1;
+                    }
+                }
+            }
+        }
+
+        app(['module' => $module_name]);
 
         // controllers namespace prefix
         $namespace = Config::get('module.' . app('module') . '.controllers', '');
@@ -97,7 +114,7 @@ class Application
                 if (is_callable([$c, $action])) {
                     (new $c())->$action();
                 } else {
-                    throw new Exception("Action '{$action}' not found");
+                    throw new Exception("'$c@$action' not found");
                 }
             }
 

@@ -7,7 +7,6 @@
  */
 namespace Cuber\Foundation;
 
-use Cuber\Config\Config;
 use Cuber\Support\Exception;
 use Cuber\Support\Facades\Route;
 
@@ -41,7 +40,7 @@ class Application
         if (is_cli()) {
             $module_name = 'cli';
         } else {
-            $module_conf = Config::get('module');
+            $module_conf = config('module');
             if (!empty($module_conf) and is_array($module_conf)) {
                 $domain = $_SERVER['HTTP_HOST'];
                 foreach ($module_conf as $module=>$conf) {
@@ -56,15 +55,15 @@ class Application
         app(['module' => $module_name]);
 
         // controllers namespace prefix
-        $namespace = Config::get('module.' . app('module') . '.controllers', '');
+        $namespace = config('module.' . app('module') . '.controllers', '');
         if ('' !== $namespace) {
-            Config::set('controllers_namespace', $namespace);
+            config(['controllers_namespace'=>$namespace]);
         }
 
         // views dir
-        $views = Config::get('module.' . app('module') . '.views', '');
+        $views = config('module.' . app('module') . '.views', '');
         if ('' !== $views) {
-            Config::set('views', $views);
+            config(['views'=>$views]);
         }
 
         return $this;
@@ -77,7 +76,7 @@ class Application
      */
     private function setAction()
     {
-        Route::load(Config::get('module.' . app('module') . '.route', 'app'));
+        Route::load(config('module.' . app('module') . '.route', 'app'));
         $ret = Route::hitRoute();
 
         if (isset($ret['closure'])) {
@@ -110,7 +109,7 @@ class Application
                 $controller = app('controller');
                 $action     = app('action');
 
-                $c = Config::get('controllers_namespace', 'App\\Controllers\\') . $controller;
+                $c = config('controllers_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable([$c, $action])) {
                     (new $c())->$action();
                 } else {

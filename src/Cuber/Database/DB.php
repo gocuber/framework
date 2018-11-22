@@ -7,8 +7,6 @@
  */
 namespace Cuber\Database;
 
-use Cuber\Config\Config;
-
 class DB
 {
 

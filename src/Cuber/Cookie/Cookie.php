@@ -7,8 +7,6 @@
  */
 namespace Cuber\Cookie;
 
-use Cuber\Config\Config;
-
 class Cookie
 {
 
@@ -37,7 +35,7 @@ class Cookie
     public function set($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
     {
         $name = $this->buildKey($name);
-        !isset($domain) and $domain = Config::get('cookie.domain');
+        !isset($domain) and $domain = config('cookie.domain');
         setcookie($name, $value, time() + $time, $path, $domain);
         $_COOKIE[$name] = $value;
         return true;
@@ -56,7 +54,7 @@ class Cookie
     public function setraw($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
     {
         $name = $this->buildKey($name);
-        !isset($domain) and $domain = Config::get('cookie.domain');
+        !isset($domain) and $domain = config('cookie.domain');
         setrawcookie($name, $value, time() + $time, $path, $domain);
         return true;
     }
@@ -83,7 +81,7 @@ class Cookie
      */
     private function buildKey($key = null)
     {
-        return Config::get('cookie.prefix', '') . $key;
+        return config('cookie.prefix', '') . $key;
     }
 
 }

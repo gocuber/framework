@@ -7,8 +7,6 @@
  */
 namespace Cuber\Support;
 
-use Cuber\Config\Config;
-
 class Rsa
 {
 
@@ -24,7 +22,7 @@ class Rsa
 
     private function __construct($key = null)
     {
-        $rsa_dir = Config::get('rsa.dir');
+        $rsa_dir = config('rsa.dir');
         $this->public_key  = file_get_contents($rsa_dir . $key . '.public');
         $this->private_key = file_get_contents($rsa_dir . $key . '.private');
         $this->public_id   = openssl_pkey_get_public($this->public_key);
@@ -132,7 +130,7 @@ class Rsa
      */
     public static function key($key)
     {
-        return md5(md5('rsa_key' . Config::get('rsa.code') . $key));
+        return md5(md5('rsa_key' . config('rsa.code') . $key));
     }
 
     /**
@@ -142,7 +140,7 @@ class Rsa
      */
     public static function getKey()
     {
-        $key     = self::key(mt_rand(1, Config::get('rsa.num')));
+        $key     = self::key(mt_rand(1, config('rsa.num')));
         $public  = self::getInstance($key)->publicKey();
         $private = self::getInstance($key)->privateKey();
 

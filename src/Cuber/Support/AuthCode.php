@@ -7,8 +7,6 @@
  */
 namespace Cuber\Support;
 
-use Cuber\Config\Config;
-
 class AuthCode
 {
 
@@ -60,7 +58,7 @@ class AuthCode
 
         // 密匙
         // $GLOBALS['discuz_auth_key'] 这里可以根据自己的需要修改
-        $key = md5($key ? $key : Config::get('authcode', 'QaHJ%*#@*DGF%^Y5yg#Hf23$!@6%^&'));
+        $key = md5($key ? $key : config('authcode', 'QaHJ%*#@*DGF%^Y5yg#Hf23$!@6%^&'));
 
         // 密匙a会参与加解密
         $keya = md5(substr($key, 0, 16));

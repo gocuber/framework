@@ -7,8 +7,6 @@
  */
 namespace Cuber\Foundation;
 
-use Cuber\Config\Config;
-
 class View
 {
 
@@ -67,7 +65,7 @@ class View
             }
         }
 
-        include Config::get('views', base_path() . 'app/views/') . $_tpl . '.php';
+        include config('views', base_path() . 'app/views/') . $_tpl . '.php';
     }
 
     /**

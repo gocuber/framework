@@ -7,12 +7,10 @@
  */
 namespace Cuber\Foundation;
 
-use Cuber\Config\Config;
-
 class AliasLoader
 {
 
-    private $_alias = null;
+    private $alias;
 
     public function __construct()
     {
@@ -26,7 +24,7 @@ class AliasLoader
      */
     private function init()
     {
-        $this->_alias = Config::alias();
+        $this->alias = config('alias');
     }
 
     /**
@@ -48,8 +46,8 @@ class AliasLoader
      */
     private function load($alias)
     {
-        if (isset($this->_alias[$alias])) {
-            return class_alias($this->_alias[$alias], $alias);
+        if (isset($this->alias[$alias])) {
+            return class_alias($this->alias[$alias], $alias);
         }
     }
 

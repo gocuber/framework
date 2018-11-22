@@ -10,38 +10,45 @@ namespace Cuber\Config;
 class Config
 {
 
-    private static $hash = null;
-
-    private function __construct(){}
+    private $hash;
 
     /**
      * init
      *
      * @return void
      */
-    private static function init()
+    private function init()
     {
-        if (null === self::$hash) {
-            self::$hash = include base_path() . 'config/app.php';
+        if (null === $this->hash) {
+            $this->hash = include base_path() . 'config/app.php';
         }
     }
 
     /**
      * set
      *
-     * @param string $key
+     * @param string|array $key
      * @param string|array $value
      *
-     * @return void
+     * @return bool
      */
-    public static function set($key = null, $value = null)
+    public function set($key = null, $value = null)
     {
         if (!isset($key) or '' === $key) {
-            return ;
+            return false;
         }
 
-        self::init();
-        self::$hash[$key] = $value;
+        $this->init();
+
+        if (is_array($key)) {
+            foreach ($key as $k=>$v) {
+                $this->hash[$k] = $v;
+            }
+        } elseif (is_scalar($key)) {
+            $this->hash[$key] = $value;
+        }
+
+        return true;
     }
 
     /**
@@ -52,11 +59,11 @@ class Config
      *
      * @return conf
      */
-    public static function get($key = null, $default = null)
+    public function get($key = null, $default = null)
     {
-        self::init();
+        $this->init();
 
-        return array_get(self::$hash, $key, $default);
+        return array_get($this->hash, $key, $default);
     }
 
     /**
@@ -66,11 +73,11 @@ class Config
      *
      * @return array
      */
-    public static function db($key = 'default')
+    public function db($key = 'default')
     {
         $key = isset($key) ? 'db.' . $key : 'db';
 
-        return self::get($key, []);
+        return $this->get($key, []);
     }
 
     /**
@@ -80,11 +87,11 @@ class Config
      *
      * @return array
      */
-    public static function mem($key = 'default')
+    public function mem($key = 'default')
     {
         $key = isset($key) ? 'memcache.' . $key : 'memcache';
 
-        return self::get($key, []);
+        return $this->get($key, []);
     }
 
     /**
@@ -94,11 +101,11 @@ class Config
      *
      * @return array
      */
-    public static function redis($key = 'default')
+    public function redis($key = 'default')
     {
         $key = isset($key) ? 'redis.' . $key : 'redis';
 
-        return self::get($key, []);
+        return $this->get($key, []);
     }
 
     /**
@@ -108,11 +115,11 @@ class Config
      *
      * @return array
      */
-    public static function fc($key = 'default')
+    public function fc($key = 'default')
     {
         $key = isset($key) ? 'filecache.' . $key : 'filecache';
 
-        return self::get($key, []);
+        return $this->get($key, []);
     }
 
     /**
@@ -120,9 +127,9 @@ class Config
      *
      * @return array
      */
-    public static function alias()
+    public function alias()
     {
-        return self::get('alias', []);
+        return $this->get('alias', []);
     }
 
     /**
@@ -132,11 +139,11 @@ class Config
      *
      * @return str
      */
-    public static function domain($key = null)
+    public function domain($key = null)
     {
         $key = isset($key) ? $key . '_domain' : 'domain';
 
-        return self::get($key);
+        return $this->get($key);
     }
 
     /**
@@ -146,13 +153,13 @@ class Config
      *
      * @return str
      */
-    public static function moduleDomain($key = null)
+    public function moduleDomain($key = null)
     {
         if (!isset($key)) {
-            return self::get('domain');
+            return $this->get('domain');
         }
 
-        return self::get('module.' . $key . '.domain');
+        return $this->get('module.' . $key . '.domain');
     }
 
     /**
@@ -160,9 +167,9 @@ class Config
      *
      * @return str
      */
-    public static function timezone()
+    public function timezone()
     {
-        return self::get('timezone', 'PRC');
+        return $this->get('timezone', 'PRC');
     }
 
     /**
@@ -170,9 +177,9 @@ class Config
      *
      * @return bool
      */
-    public static function debug()
+    public function debug()
     {
-        return self::get('debug', false);
+        return $this->get('debug', false);
     }
 
     /**
@@ -180,9 +187,9 @@ class Config
      *
      * @return str
      */
-    public static function charset()
+    public function charset()
     {
-        return self::get('charset', 'utf-8');
+        return $this->get('charset', 'utf-8');
     }
 
 }

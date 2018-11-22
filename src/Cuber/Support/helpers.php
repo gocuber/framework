@@ -148,9 +148,20 @@ function request($key = null, $default = null, $type = 'request')
 
 /**
  * config
+ *
+ * @param string|array $key
+ * @param string|array $default
+ *
+ * @return string|array
  */
-function config()
-{}
+function config($key = null, $default = null)
+{
+    if (is_array($key)) {
+        return Cuber\Foundation\Container::getInstance('Cuber\\Config\\Config')->set($key);
+    }
+
+    return Cuber\Foundation\Container::getInstance('Cuber\\Config\\Config')->get($key, $default);
+}
 
 /**
  * base_path
@@ -234,7 +245,7 @@ function env($key, $default = null)
  */
 function model($model = null)
 {
-    $model = Cuber\Config\Config::get('model_namespace', 'App\\Models\\') . $model;
+    $model = config('model_namespace', 'App\\Models\\') . $model;
 
     return Cuber\Foundation\Container::getInstance($model);
 }
@@ -303,7 +314,7 @@ function iconv_array($in_charset, $out_charset, $array)
             $key = iconv($in_charset, $out_charset, $key);
             $array[$key] = iconv_array($in_charset, $out_charset, $value);
         }
-    } elseif (isset($array) and is_string($array)) {
+    } elseif (is_string($array)) {
         $array = iconv($in_charset, $out_charset, $array);
     }
 

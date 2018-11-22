@@ -7,7 +7,6 @@
  */
 namespace Cuber\Cache;
 
-use Cuber\Config\Config;
 use Cuber\Support\Exception;
 
 class Memcache

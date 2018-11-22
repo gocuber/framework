@@ -7,7 +7,6 @@
  */
 namespace Cuber\Support;
 
-use Cuber\Config\Config;
 use Cuber\Support\Log;
 
 class Exception extends \Exception
@@ -60,8 +59,8 @@ class Exception extends \Exception
             echo '<pre>' . $msg . "\n" . $str . '</pre>';
         }
 
-        if (!Config::get('error_log')) {
-            $error_log = Config::get('error_log');
+        if (!config('error_log')) {
+            $error_log = config('error_log');
             $cli       = is_cli() ? '_cli' : '';
             $file      = date('Ymd') . '_' . $type . $cli . '_error.log';
             Log::add($error_log . $file, date('Y-m-d H:i:s') . " ------------------------------------------\n{$msg}\n{$str}\n");

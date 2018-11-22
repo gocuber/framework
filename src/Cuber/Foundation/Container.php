@@ -32,19 +32,23 @@ class Container
      * @param string|array $key
      * @param string|array $value
      *
-     * @return void
+     * @return bool
      */
     public function set($key = null, $value = null)
     {
-        if (!empty($key)) {
-            if (is_array($key)) {
-                foreach ($key as $k=>$v) {
-                    $this->hash[$k] = $v;
-                }
-            } elseif (is_scalar($key)) {
-                $this->hash[$key] = $value;
-            }
+        if (!isset($key) or '' === $key) {
+            return false;
         }
+
+        if (is_array($key)) {
+            foreach ($key as $k=>$v) {
+                $this->hash[$k] = $v;
+            }
+        } elseif (is_scalar($key)) {
+            $this->hash[$key] = $value;
+        }
+
+        return true;
     }
 
     /**

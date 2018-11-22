@@ -7,8 +7,6 @@
  */
 namespace Cuber\Support;
 
-use Cuber\Config\Config;
-
 class Url
 {
 

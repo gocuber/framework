@@ -8,7 +8,6 @@
 namespace Cuber\Cache;
 
 use Cuber\Cookie\Cookie;
-use Cuber\Config\Config;
 
 class Session
 {
@@ -29,8 +28,8 @@ class Session
         if (null === $this->init) {
             $this->id();
 
-            $driver = Config::get('session.driver');
-            $key    = Config::get('session.connect');
+            $driver = config('session.driver');
+            $key    = config('session.connect');
             if ('memcache' == $driver) {
                 $this->_cache = Mem::connect($key);
             } elseif ('redis' == $driver) {
@@ -39,7 +38,7 @@ class Session
                 $this->_cache = File::connect($key);
             }
 
-            $session = $this->_cache->get(Config::get('session.prefix', '') . $this->_session_id);
+            $session = $this->_cache->get(config('session.prefix', '') . $this->_session_id);
             $this->_session = $session ? unserialize($session) : [];
         }
     }
@@ -121,7 +120,7 @@ class Session
             return $this;
         }
 
-        $cookie = Config::get('session.cookie', 'CUBERSESSID0OO00OOO0OO00O00O0O00OO00O');
+        $cookie = config('session.cookie', 'CUBERSESSID0OO00OOO0OO00O00O0O00OO00O');
         $id = Cookie::get($cookie);
         if (empty($id)) {
             $id = $this->createId();
@@ -143,11 +142,11 @@ class Session
             return true;
         }
 
-        $driver = Config::get('session.driver');
+        $driver = config('session.driver');
         if ('memcache' == $driver) {
-            $this->_cache->set(Config::get('session.prefix', '') . $this->session_id, serialize($this->_session), Config::get('session.time', 86400));
+            $this->_cache->set(config('session.prefix', '') . $this->session_id, serialize($this->_session), config('session.time', 86400));
         } else {
-            $this->_cache->set(Config::get('session.prefix', '') . $this->session_id, serialize($this->_session));
+            $this->_cache->set(config('session.prefix', '') . $this->session_id, serialize($this->_session));
         }
 
         $this->is_save = null;

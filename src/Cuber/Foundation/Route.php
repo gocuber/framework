@@ -59,9 +59,9 @@ class Route
             return false;
         }
 
-        $this->_domain = $group['domain'];
+        $this->domain = $group['domain'];
         $rule();
-        $this->_domain = '*';
+        $this->domain = '*';
 
         return true;
     }

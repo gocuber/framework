@@ -7,6 +7,8 @@
  */
 namespace Cuber\Support;
 
+use Cuber\Support\Facades\Config;
+
 class Url
 {
 

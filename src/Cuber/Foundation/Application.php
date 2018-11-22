@@ -135,7 +135,7 @@ class Application
         app(['base_path' => rtrim($base_path, '/') . '/']);
         put_env();
 
-        if (Config::debug()) {
+        if (config('debug')) {
             ini_set('display_errors', 'on');
             error_reporting(-1);
         } else {
@@ -143,8 +143,8 @@ class Application
             error_reporting(0);
         }
 
-        date_default_timezone_set(Config::timezone());
-        header("Content-type: text/html; charset=" . Config::charset());
+        date_default_timezone_set(config('timezone'));
+        header("Content-type: text/html; charset=" . config('charset'));
 
         is_cli() and app(['argv' => get_argv()]);
         (new AliasLoader())->register();

@@ -79,6 +79,7 @@ function get_argv()
 {
     $_argv = $GLOBALS['argv'];
     $_argc = $GLOBALS['argc'];
+
     $argvs = [];
     for ($i = 2; $i < $_argc; $i++) {
         $key = $_argv[$i];
@@ -91,8 +92,9 @@ function get_argv()
             $i--;
             continue 1;
         }
-        $argvs[$key] = $value;
+        $argvs[substr($key, 1)] = $value;
     }
+
     return $argvs;
 }
 

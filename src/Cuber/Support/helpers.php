@@ -137,13 +137,7 @@ function view()
  */
 function request($key = null, $default = null, $type = 'request')
 {
-    if (null === $key or '' === $key) {
-        return Cuber\Foundation\Container::getInstance('Cuber\\Support\\Request');
-    }
-
-    if (in_array($type, ['get', 'post', 'request', 'argv'])) {
-        return Cuber\Foundation\Container::getInstance('Cuber\\Support\\Request')->$type($key, $default);
-    }
+    return Cuber\Foundation\Container::getInstance('Cuber\\Support\\Request')->$type($key, $default);
 }
 
 /**

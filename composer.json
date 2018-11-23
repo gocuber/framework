@@ -17,7 +17,8 @@
     "require": {
         "php": "^7.0.0",
         "erusev/parsedown": "~1.7",
-        "elasticsearch/elasticsearch": "~6.0"
+        "elasticsearch/elasticsearch": "~6.0",
+        "phpmailer/phpmailer": "~6.0"
     },
     "autoload": {
         "files": [

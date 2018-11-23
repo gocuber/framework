@@ -7,100 +7,161 @@
  */
 namespace Cuber\Session;
 
+use Cuber\Cookie\Cookie;
+
 class Session
 {
 
-    private $is_start = null;
+    private $init;
 
-    /**
-     * start
-     *
-     * @return boolean
-     */
-    public function start()
+    private $cache;
+
+    private $session_data;
+
+    private $session_id;
+
+    private $is_save;
+
+    private function init()
     {
-        if (null === $this->is_start) {
-            session_start();
-            $this->is_start = true;
-        }
+        if (null === $this->init) {
+            $this->id();
 
-        return true;
-    }
+            $driver = config('session.driver');
+            $key = config('session.connect');
+            if ('memcache' == $driver) {
+                $this->cache = Mem::connect($key);
+            } elseif ('redis' == $driver) {
+                $this->cache = Redis::connect($key);
+            } else {
+                $this->cache = File::connect($key);
+            }
 
-    /**
-     * id
-     *
-     * @param string $id
-     * @return string
-     */
-    public function id($id = null)
-    {
-        if (isset($id)) {
-            return session_id($id);
-        } else {
-            return session_id();
-        }
-    }
+            $session = $this->cache->get(config('session.prefix', '') . $this->session_id);
+            $this->session_data = $session ? unserialize($session) : [];
 
-    /**
-     * get
-     *
-     * @param string $name
-     * @return string|null
-     */
-    public function get($name = null)
-    {
-        $this->start();
-        if (isset($name)) {
-            return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
-        } else {
-            return $_SESSION;
+            $this->init = true;
         }
     }
 
     /**
      * set
      *
-     * @param string $name
+     * @param string $key
      * @param string $value
-     * @return boolean
+     * @return bool
      */
-    public function set($name = null, $value = null)
+    public function set($key = null, $value = null)
     {
-        $this->start();
-        $_SESSION[$name] = $value;
+        if (!isset($key)) {
+            return false;
+        }
+
+        $this->init();
+        $this->session_data[$key] = $value;
+        $this->is_save = true;
         return true;
+    }
+
+    /**
+     * get
+     *
+     * @param string $key
+     * @return string
+     */
+    public function get($key = null)
+    {
+        $this->init();
+        if (isset($key)) {
+            return isset($this->session_data[$key]) ? $this->session_data[$key] : null;
+        } else {
+            return $this->session_data;
+        }
     }
 
     /**
      * del
      *
-     * @param string $name
-     * @return boolean
+     * @param string $key
+     * @return bool
      */
-    public function del($name = null)
+    public function del($key = null)
     {
-        $this->start();
-        if (isset($name)) {
-            unset($_SESSION[$name]);
+        $this->init();
+        if (isset($this->session_data[$key])) {
+            unset($this->session_data[$key]);
         } else {
-            unset($_SESSION);
+            unset($this->session_data);
         }
+
+        $this->is_save = true;
         return true;
     }
 
     /**
-     * destroy
+     * 生成一个 session_id
      *
-     * @return boolean
+     * @return string
      */
-    public function destroy()
+    public function createId()
     {
-        $this->start();
-        unset($_SESSION);
-        session_unset();
-        session_destroy();
+        return md5(uniqid(mt_rand(), true));
+    }
+
+    /**
+     * 设置 session_id
+     *
+     * @param string $id
+     * @return $this
+     */
+    public function id($id = null)
+    {
+        if (!empty($id)) {
+            $this->session_id = $id;
+            return $this;
+        }
+
+        $cookie = config('session.cookie', 'CUBERSESSID0OO00OOO0OO00O00O0O00OO00O');
+        $id = Cookie::get($cookie);
+        if (empty($id)) {
+            $id = $this->createId();
+            Cookie::set($cookie, $id, 86400 * 3600);
+        }
+        $this->session_id = $id;
+        return $this;
+    }
+
+    /**
+     * save
+     *
+     * @param string $id
+     * @return bool
+     */
+    private function save()
+    {
+        if (null === $this->is_save) {
+            return true;
+        }
+
+        $driver = config('session.driver');
+        if ('memcache' == $driver) {
+            $this->cache->set(config('session.prefix', '') . $this->session_id, serialize($this->session_data), config('session.time', 86400));
+        } else {
+            $this->cache->set(config('session.prefix', '') . $this->session_id, serialize($this->session_data));
+        }
+
+        $this->is_save = null;
         return true;
+    }
+
+    /**
+     * __destruct
+     *
+     * @return void
+     */
+    public function __destruct()
+    {
+        $this->save();
     }
 
 }

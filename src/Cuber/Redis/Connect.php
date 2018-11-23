@@ -40,9 +40,7 @@ class Connect
 
     public function __call($name, $args)
     {
-        $method = new \ReflectionMethod($this->conn(), $name);
-
-        return $method->invokeArgs($this->conn(), $args);
+        return $this->conn()->$name(...$args);
     }
 
 }

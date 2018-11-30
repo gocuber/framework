@@ -15,6 +15,7 @@ class Application
 
     public function __construct($base_path = '')
     {
+        // app()->bind('app', $this);
         $this->init($base_path);
     }
 

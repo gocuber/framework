@@ -14,6 +14,10 @@ class Container
 
     protected $hash;
 
+    protected $bindings;
+
+    protected $instances;
+
     private function __construct()
     {}
 
@@ -24,6 +28,40 @@ class Container
         }
 
         return self::$instance[$class];
+    }
+
+    public function singleton($abstract, $concrete = null)
+    {
+        $this->bind($abstract, $concrete, true);
+    }
+
+    public function bind($abstract, $concrete = null, $shared = false)
+    {
+        if ($concrete instanceof \Closure) {
+            $this->binds[$abstract] = ['concrete'=>$concrete, 'shared'=>$shared];
+        } else {
+            $this->instances[$abstract] = $concrete;
+        }
+    }
+
+    public function make($abstract, array $parameters = [])
+    {
+        if (isset($this->instances[$abstract])) {
+            return $this->instances[$abstract];
+        }
+
+        if (!isset($this->binds[$abstract])) {
+            return null;
+        }
+
+        $result = call_user_func_array($this->binds[$abstract]['concrete'], $parameters);
+        // $result = $this->binds[$abstract]['concrete'](...$parameters);
+
+        if ($this->binds[$abstract]['shared']) {
+            $this->instances[$abstract] = (null === $result) ? false : $result;
+        }
+
+        return $result;
     }
 
     /**

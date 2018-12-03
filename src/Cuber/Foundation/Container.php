@@ -7,7 +7,7 @@
  */
 namespace Cuber\Foundation;
 
-class Container
+class Container implements ArrayAccess
 {
 
     protected static $instance;
@@ -105,5 +105,26 @@ class Container
             return array_get($this->hash, $key, $default);
         }
     }
+
+    /**
+     * @param offset
+     */
+    public function offsetExists($offset) {}
+
+    /**
+     * @param offset
+     */
+    public function offsetGet($offset) {}
+
+    /**
+     * @param offset
+     * @param value
+     */
+    public function offsetSet($offset, $value) {}
+
+    /**
+     * @param offset
+     */
+    public function offsetUnset($offset) {}
 
 }

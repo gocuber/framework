@@ -46,8 +46,6 @@ class Container
 
     public function make($abstract, array $parameters = [])
     {
-        $abstract = $this->getAlias($abstract);
-
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }

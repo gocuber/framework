@@ -276,7 +276,7 @@ function mk_dir($dir = null)
  *
  * @return bool
  */
-function alog($file = '', $data = '', $mode = 'ab')
+function ll($file = '', $data = '', $mode = 'ab')
 {
     if (empty($file)) {
         return false;

@@ -7,7 +7,7 @@
  */
 namespace Cuber\Foundation;
 
-class Container implements \ArrayAccess
+class Container
 {
 
     protected static $instance;
@@ -21,23 +21,13 @@ class Container implements \ArrayAccess
     private function __construct()
     {}
 
-    /**
-     * Set the globally available instance of the container.
-     *
-     * @return static
-     */
     public static function getInstance()
     {
-        if (is_null(static::$instance)) {
-            static::$instance = new static;
+        if (is_null(self::$instance)) {
+            self::$instance = new self;
         }
 
-        return static::$instance;
-    }
-
-    public static function setInstance(Container $container = null)
-    {
-        return static::$instance = $container;
+        return self::$instance;
     }
 
     public function singleton($abstract, $concrete = null)
@@ -76,51 +66,9 @@ class Container implements \ArrayAccess
         return $result;
     }
 
-    public function getAlias($abstract)
-    {
-        if (! isset($this->aliases[$abstract])) {
-            return $abstract;
-        }
-
-        if ($this->aliases[$abstract] === $abstract) {
-            throw new \Exception("[{$abstract}] is aliased to itself.");
-        }
-
-        return $this->getAlias($this->aliases[$abstract]);
-    }
-
-    public function isAlias($name)
-    {
-        return isset($this->aliases[$name]);
-    }
-
     public function bound($abstract)
     {
-        return isset($this->bindings[$abstract]) ||
-               isset($this->instances[$abstract]) ||
-               $this->isAlias($abstract);
-    }
-
-    public function offsetExists($key)
-    {
-        return $this->bound($key);
-    }
-
-    public function offsetGet($key)
-    {
-        return $this->make($key);
-    }
-
-    public function offsetSet($key, $value)
-    {
-        $this->bind($key, $value instanceof Closure ? $value : function () use ($value) {
-            return $value;
-        });
-    }
-
-    public function offsetUnset($key)
-    {
-        unset($this->bindings[$key], $this->instances[$key]);
+        return isset($this->bindings[$abstract]) or isset($this->instances[$abstract]);
     }
 
 }

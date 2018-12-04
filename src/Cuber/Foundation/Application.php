@@ -11,11 +11,12 @@ use Cuber\Support\Exception;
 use Cuber\Support\Facades\Route;
 use Cuber\Foundation\Container;
 
-class Application extends Container
+class Application //extends Container
 {
 
     public function __construct($base_path = '')
     {
+        app()->bind('app', $this);
         $this->init($base_path);
     }
 
@@ -131,7 +132,7 @@ class Application extends Container
     private function register()
     {
         foreach ([
-            ['app', \Cuber\Foundation\App::class, true],
+            //['app', \Cuber\Foundation\App::class, true],
             ['config', \Cuber\Config\Config::class, true],
             ['route', \Cuber\Foundation\Route::class, true],
             ['request', \Cuber\Support\Request::class, true],
@@ -174,6 +175,12 @@ class Application extends Container
 
         is_cli() and app()->bind('app.argv', get_argv());
         (new AliasLoader())->register();
+    }
+
+    public $aa = 'd1';
+    public function aaa()
+    {
+        return $this->aa;
     }
 
 }

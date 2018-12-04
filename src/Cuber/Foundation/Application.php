@@ -9,13 +9,13 @@ namespace Cuber\Foundation;
 
 use Cuber\Support\Exception;
 use Cuber\Support\Facades\Route;
+use Cuber\Foundation\Container;
 
-class Application
+class Application extends Container
 {
 
     public function __construct($base_path = '')
     {
-        // app()->bind('app', $this);
         $this->init($base_path);
     }
 
@@ -53,16 +53,16 @@ class Application
             }
         }
 
-        app(['module' => $module_name]);
+        app()->bind('app.module', $module_name);
 
         // controllers namespace prefix
-        $namespace = config('module.' . app('module') . '.controllers', '');
+        $namespace = config('module.' . app('app.module') . '.controllers', '');
         if ('' !== $namespace) {
             config(['controllers_namespace'=>$namespace]);
         }
 
         // views dir
-        $views = config('module.' . app('module') . '.views', '');
+        $views = config('module.' . app('app.module') . '.views', '');
         if ('' !== $views) {
             config(['views'=>$views]);
         }
@@ -77,7 +77,7 @@ class Application
      */
     private function setAction()
     {
-        Route::load(config('module.' . app('module') . '.route', 'app'));
+        Route::load(config('module.' . app('app.module') . '.route', 'app'));
         $ret = Route::hitRoute();
 
         if (isset($ret['closure'])) {
@@ -91,7 +91,9 @@ class Application
         if (isset($ret) and is_array($ret)) {
             (!isset($ret['controller']) or '' === $ret['controller']) and $ret['controller'] = 'Index';
             (!isset($ret['action']) or '' === $ret['action'])         and $ret['action']     = 'index';
-            app($ret);
+            foreach ($ret as $key=>$value) {
+                app()->bind('app.' . $key, $value);
+            }
         }
         return $this;
     }
@@ -105,10 +107,10 @@ class Application
     {
         try {
 
-            if (app('controller')) {
+            if (app('app.controller')) {
 
-                $controller = app('controller');
-                $action     = app('action');
+                $controller = app('app.controller');
+                $action     = app('app.action');
 
                 $c = config('controllers_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable([$c, $action])) {
@@ -126,6 +128,28 @@ class Application
         }
     }
 
+    private function register()
+    {
+        foreach ([
+            ['app', \Cuber\Foundation\App::class, true],
+            ['config', \Cuber\Config\Config::class, true],
+            ['route', \Cuber\Foundation\Route::class, true],
+            ['request', \Cuber\Support\Request::class, true],
+            ['cookie', \Cuber\Support\Cookie::class, true],
+            ['session', \Cuber\Support\Session::class, true],
+            ['view', \Cuber\Support\View::class, true],
+            ['db', \Cuber\Support\DB::class, false],
+            ['redis', \Cuber\Redis\Redis::class, false],
+            ['url', \Cuber\Support\Url::class, true],
+            ['memcache', \Cuber\Support\Memcache::class, true],
+            ['filecache', \Cuber\Support\Filecache::class, true],
+        ] as $value) {
+            Container::getInstance()->bind($value[0], function () use ($value) {
+                return new $value[1];
+            }, $value[2]);
+        }
+    }
+
     /**
      * init
      *
@@ -133,8 +157,9 @@ class Application
      */
     private function init($base_path = '')
     {
-        app(['base_path' => rtrim($base_path, '/') . '/']);
+        app()->bind('app.base_path', rtrim($base_path, '/') . '/');
         put_env();
+        $this->register();
 
         if (config('debug')) {
             ini_set('display_errors', 'on');
@@ -147,7 +172,7 @@ class Application
         date_default_timezone_set(config('timezone'));
         header("Content-type: text/html; charset=" . config('charset'));
 
-        is_cli() and app(['argv' => get_argv()]);
+        is_cli() and app()->bind('app.argv', get_argv());
         (new AliasLoader())->register();
     }
 

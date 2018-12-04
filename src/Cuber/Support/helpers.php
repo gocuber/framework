@@ -99,23 +99,19 @@ function get_argv()
 }
 
 /**
- * app
+ * Get the available container instance.
  *
- * @param string|array $key
- * @param string|array $default
- * @return string|array
+ * @param  string  $abstract
+ * @param  array   $parameters
+ * @return mixed|\Cuber\Foundation\Container
  */
-function app($key = null, $default = null)
+function app($abstract = null, array $parameters = [])
 {
-    if (null === $key or '' === $key) {
+    if (is_null($abstract)) {
         return Cuber\Foundation\Container::getInstance();
     }
 
-    if (is_array($key)) {
-        return Cuber\Foundation\Container::getInstance()->set($key);
-    }
-
-    return Cuber\Foundation\Container::getInstance()->get($key, $default);
+    return Cuber\Foundation\Container::getInstance()->make($abstract, $parameters);
 }
 
 /**
@@ -139,7 +135,7 @@ function view()
  */
 function request($key = null, $default = null, $type = 'request')
 {
-    return Cuber\Foundation\Container::getInstance('Cuber\\Support\\Request')->$type($key, $default);
+    return app('request')->$type($key, $default);
 }
 
 /**
@@ -153,10 +149,10 @@ function request($key = null, $default = null, $type = 'request')
 function config($key = null, $default = null)
 {
     if (is_array($key)) {
-        return Cuber\Foundation\Container::getInstance('Cuber\\Config\\Config')->set($key);
+        return app('config')->set($key);
     }
 
-    return Cuber\Foundation\Container::getInstance('Cuber\\Config\\Config')->get($key, $default);
+    return app('config')->get($key, $default);
 }
 
 /**
@@ -166,7 +162,7 @@ function config($key = null, $default = null)
  */
 function base_path()
 {
-    return app('base_path');
+    return app('app.base_path');
 }
 
 /**
@@ -268,6 +264,31 @@ function mk_dir($dir = null)
         return @chmod($dir, 0777);
     }
 
+    return true;
+}
+
+/**
+ * log
+ *
+ * @param string $file
+ * @param string $data
+ * @param string $mode
+ *
+ * @return bool
+ */
+function log($file = '', $data = '', $mode = 'ab')
+{
+    if (empty($file)) {
+        return false;
+    }
+
+    if (!mk_dir(dirname($file))) {
+        return false;
+    }
+
+    $handle = fopen($file, $mode);
+    fwrite($handle, $data);
+    fclose($handle);
     return true;
 }
 

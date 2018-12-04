@@ -27,7 +27,7 @@ class Request
 
     public function argv($key = null, $default = null)
     {
-        return $this->_get(app('argv'), $key, $default);
+        return $this->_get(app('app.argv'), $key, $default);
     }
 
     /**

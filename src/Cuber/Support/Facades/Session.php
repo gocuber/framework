@@ -5,6 +5,6 @@ namespace Cuber\Support\Facades;
 class Session extends Facade
 {
 
-    protected static $accessor = 'Cuber\\Session\\Session';
+    protected static $accessor = 'session';
 
 }

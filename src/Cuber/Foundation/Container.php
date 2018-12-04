@@ -7,27 +7,37 @@
  */
 namespace Cuber\Foundation;
 
-class Container implements ArrayAccess
+class Container implements \ArrayAccess
 {
 
     protected static $instance;
-
-    protected $hash;
 
     protected $bindings;
 
     protected $instances;
 
+    protected $aliases;
+
     private function __construct()
     {}
 
-    public static function getInstance($class = 'Cuber\\Foundation\\Container')
+    /**
+     * Set the globally available instance of the container.
+     *
+     * @return static
+     */
+    public static function getInstance()
     {
-        if (!isset(self::$instance[$class])) {
-            self::$instance[$class] = new $class();
+        if (is_null(static::$instance)) {
+            static::$instance = new static;
         }
 
-        return self::$instance[$class];
+        return static::$instance;
+    }
+
+    public static function setInstance(Container $container = null)
+    {
+        return static::$instance = $container;
     }
 
     public function singleton($abstract, $concrete = null)
@@ -38,7 +48,7 @@ class Container implements ArrayAccess
     public function bind($abstract, $concrete = null, $shared = false)
     {
         if ($concrete instanceof \Closure) {
-            $this->binds[$abstract] = ['concrete'=>$concrete, 'shared'=>$shared];
+            $this->bindings[$abstract] = ['concrete'=>$concrete, 'shared'=>$shared];
         } else {
             $this->instances[$abstract] = $concrete;
         }
@@ -46,85 +56,71 @@ class Container implements ArrayAccess
 
     public function make($abstract, array $parameters = [])
     {
+        $abstract = $this->getAlias($abstract);
+
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }
 
-        if (!isset($this->binds[$abstract])) {
+        if (!isset($this->bindings[$abstract])) {
             return null;
         }
 
-        $result = call_user_func_array($this->binds[$abstract]['concrete'], $parameters);
-        // $result = $this->binds[$abstract]['concrete'](...$parameters);
+        $result = call_user_func_array($this->bindings[$abstract]['concrete'], $parameters);
+        // $result = $this->bindings[$abstract]['concrete'](...$parameters);
 
-        if ($this->binds[$abstract]['shared']) {
+        if ($this->bindings[$abstract]['shared']) {
             $this->instances[$abstract] = (null === $result) ? false : $result;
         }
 
         return $result;
     }
 
-    /**
-     * set
-     *
-     * @param string|array $key
-     * @param string|array $value
-     *
-     * @return bool
-     */
-    public function set($key = null, $value = null)
+    public function getAlias($abstract)
     {
-        if (!isset($key) or '' === $key) {
-            return false;
+        if (! isset($this->aliases[$abstract])) {
+            return $abstract;
         }
 
-        if (is_array($key)) {
-            foreach ($key as $k=>$v) {
-                $this->hash[$k] = $v;
-            }
-        } elseif (is_scalar($key)) {
-            $this->hash[$key] = $value;
+        if ($this->aliases[$abstract] === $abstract) {
+            throw new \Exception("[{$abstract}] is aliased to itself.");
         }
 
-        return true;
+        return $this->getAlias($this->aliases[$abstract]);
     }
 
-    /**
-     * get
-     *
-     * @param string $key
-     * @param string|array $default
-     *
-     * @return string|array
-     */
-    public function get($key = null, $default = null)
+    public function isAlias($name)
     {
-        if (null === $key) {
-            return $this->hash;
-        } else {
-            return array_get($this->hash, $key, $default);
-        }
+        return isset($this->aliases[$name]);
     }
 
-    /**
-     * @param offset
-     */
-    public function offsetExists($offset) {}
+    public function bound($abstract)
+    {
+        return isset($this->bindings[$abstract]) ||
+               isset($this->instances[$abstract]) ||
+               $this->isAlias($abstract);
+    }
 
-    /**
-     * @param offset
-     */
-    public function offsetGet($offset) {}
+    public function offsetExists($key)
+    {
+        return $this->bound($key);
+    }
 
-    /**
-     * @param offset
-     * @param value
-     */
-    public function offsetSet($offset, $value) {}
+    public function offsetGet($key)
+    {
+        return $this->make($key);
+    }
 
-    /**
-     * @param offset
-     */
-    public function offsetUnset($offset) {}
+    public function offsetSet($key, $value)
+    {
+        $this->bind($key, $value instanceof Closure ? $value : function () use ($value) {
+            return $value;
+        });
+    }
+
+    public function offsetUnset($key)
+    {
+        unset($this->bindings[$key], $this->instances[$key]);
+    }
 
 }

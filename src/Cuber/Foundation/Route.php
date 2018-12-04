@@ -308,7 +308,7 @@ class Route
         }
 
         $route = trim($route, '/');
-        app(['route'=>$route]);
+        app()->bind('app.route', $route);
         return $route;
     }
 

@@ -8,6 +8,7 @@
 namespace Cuber\Support;
 
 use Cuber\Support\Log;
+use Cuber\Support\Facades\Config;
 
 class Exception extends \Exception
 {

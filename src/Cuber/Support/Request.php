@@ -33,7 +33,7 @@ class Request
     /**
      * _get
      *
-     * @param array $data  $_GET|$_POST|$_REQUEST|app('argv')
+     * @param array $data  $_GET|$_POST|$_REQUEST|app('app.argv')
      * @param string $key
      * @param string $default
      *

@@ -10,27 +10,36 @@ namespace Cuber\Redis;
 class Redis
 {
 
-    private static $instance;
+    private $configs;
+
+    private $connects;
+
+    public function __construct($configs = [])
+    {
+        $this->configs = $configs;
+    }
 
     /**
      * connect
      *
      * @return Redis
      */
-    public static function connect($key = 'default', $mode = 'master')
+    public function connect($key = 'default', $mode = 'master')
     {
-        $conf = config('redis.' . $key);
-        $key = md5($conf['host'] . '_' . $conf['port'] . '_' . $conf['database'] . '_' . $mode);
+        $conf = array_get($this->configs, $key);
 
-        if (!isset(self::$instance[$key])) {
-            if ('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])) {
-                $skey = mt_rand(0, count($conf['slave']) - 1);
-                $conf = array_merge($conf, $conf['slave'][$skey]);
-            }
-            self::$instance[$key] = new Connect($conf);
+        $conn_key = $key . '.' . $mode;
+        if (isset($this->connects[$conn_key])) {
+            return $this->connects[$conn_key];
         }
 
-        return self::$instance[$key];
+        if ('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])) {
+            $skey = mt_rand(0, count($conf['slave']) - 1);
+            $conf = array_merge($conf, $conf['slave'][$skey]);
+        }
+
+        $this->connects[$conn_key] = app('redis.connect', [$conf]);
+        return $this->connects[$conn_key];
     }
 
     /**
@@ -38,9 +47,9 @@ class Redis
      *
      * @return Redis
      */
-    public static function master($key = 'default')
+    public function master($key = 'default')
     {
-        return self::connect($key, 'master');
+        return $this->connect($key, 'master');
     }
 
     /**
@@ -50,12 +59,12 @@ class Redis
      */
     public static function slave($key = 'default')
     {
-        return self::connect($key, 'slave');
+        return $this->connect($key, 'slave');
     }
 
-    public static function __callStatic($method, $args)
+    public function __call($method, $args)
     {
-        return self::connect()->$method(...$args);
+        return $this->connect()->$method(...$args);
     }
 
 }

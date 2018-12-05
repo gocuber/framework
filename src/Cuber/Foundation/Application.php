@@ -16,9 +16,34 @@ class Application extends Container
     public function __construct($base_path = '')
     {
         static::setInstance($this);
+
         $this->bind('app', $this);
 
-        $this->init($base_path);
+        $this->bind('app.base_path', rtrim($base_path, '/') . '/');
+
+        $this->registerBaseServices();
+
+        $this->init();
+
+        $this->registerBaseProviders();
+    }
+
+    protected function registerBaseServices()
+    {
+        foreach ([
+            ['config', \Cuber\Config\Config::class, true],
+        ] as $value) {
+            $this->bind($value[0], function () use ($value) {
+                return new $value[1];
+            }, $value[2]);
+        }
+    }
+
+    protected function registerBaseProviders()
+    {
+        foreach (config('providers', []) as $provider) {
+            (new $provider())->register();
+        }
     }
 
     /**
@@ -130,36 +155,14 @@ class Application extends Container
         }
     }
 
-    private function register()
-    {
-        foreach ([
-            ['config', \Cuber\Config\Config::class, true],
-            ['route', \Cuber\Foundation\Route::class, true],
-            ['request', \Cuber\Support\Request::class, true],
-            ['cookie', \Cuber\Support\Cookie::class, true],
-            ['session', \Cuber\Support\Session::class, true],
-            ['view', \Cuber\Support\View::class, true],
-            ['db', \Cuber\Support\DB::class, false],
-            ['redis', \Cuber\Redis\Redis::class, false],
-        ] as $value) {
-            $this->bind($value[0], function () use ($value) {
-                return new $value[1];
-            }, $value[2]);
-        }
-    }
-
     /**
      * init
      *
      * @return void
      */
-    private function init($base_path = '')
+    private function init()
     {
-        $this->alias('app', 'app123');
-
-        app()->bind('app.base_path', rtrim($base_path, '/') . '/');
         put_env();
-        $this->register();
 
         if (config('debug')) {
             ini_set('display_errors', 'on');
@@ -172,7 +175,7 @@ class Application extends Container
         date_default_timezone_set(config('timezone'));
         header("Content-type: text/html; charset=" . config('charset'));
 
-        is_cli() and app()->bind('app.argv', get_argv());
+        is_cli() and $this->bind('app.argv', get_argv());
         (new AliasLoader())->register();
     }
 

@@ -9,14 +9,15 @@ namespace Cuber\Foundation;
 
 use Cuber\Support\Exception;
 use Cuber\Support\Facades\Route;
-use Cuber\Foundation\Container;
 
-class Application //extends Container
+class Application extends Container
 {
 
     public function __construct($base_path = '')
     {
-        app()->bind('app', $this);
+        static::setInstance($this);
+        $this->bind('app', $this);
+
         $this->init($base_path);
     }
 
@@ -132,7 +133,6 @@ class Application //extends Container
     private function register()
     {
         foreach ([
-            //['app', \Cuber\Foundation\App::class, true],
             ['config', \Cuber\Config\Config::class, true],
             ['route', \Cuber\Foundation\Route::class, true],
             ['request', \Cuber\Support\Request::class, true],
@@ -141,11 +141,8 @@ class Application //extends Container
             ['view', \Cuber\Support\View::class, true],
             ['db', \Cuber\Support\DB::class, false],
             ['redis', \Cuber\Redis\Redis::class, false],
-            ['url', \Cuber\Support\Url::class, true],
-            ['memcache', \Cuber\Support\Memcache::class, true],
-            ['filecache', \Cuber\Support\Filecache::class, true],
         ] as $value) {
-            Container::getInstance()->bind($value[0], function () use ($value) {
+            $this->bind($value[0], function () use ($value) {
                 return new $value[1];
             }, $value[2]);
         }
@@ -158,6 +155,8 @@ class Application //extends Container
      */
     private function init($base_path = '')
     {
+        $this->alias('app', 'app123');
+
         app()->bind('app.base_path', rtrim($base_path, '/') . '/');
         put_env();
         $this->register();
@@ -175,12 +174,6 @@ class Application //extends Container
 
         is_cli() and app()->bind('app.argv', get_argv());
         (new AliasLoader())->register();
-    }
-
-    public $aa = 'd1';
-    public function aaa()
-    {
-        return $this->aa;
     }
 
 }

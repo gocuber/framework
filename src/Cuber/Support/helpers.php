@@ -99,7 +99,7 @@ function get_argv()
 }
 
 /**
- * Get the available container instance.
+ * app container instance
  *
  * @param  string  $abstract
  * @param  array   $parameters
@@ -117,11 +117,11 @@ function app($abstract = null, array $parameters = [])
 /**
  * view
  *
- * @see Cuber\Support\Facades\View::display
+ * @see Cuber\Foundation\View
  */
 function view()
 {
-    return Cuber\Support\Facades\View::display(...func_get_args());
+    return app('view')->display(...func_get_args());
 }
 
 /**

@@ -8,11 +8,16 @@
 namespace Cuber\Foundation;
 
 use Cuber\Support\Exception;
-use Cuber\Support\Facades\Route;
 
 class Application extends Container
 {
 
+    /**
+     * Create application instance
+     *
+     * @param string $base_path
+     * @return void
+     */
     public function __construct($base_path = '')
     {
         static::setInstance($this);
@@ -26,28 +31,12 @@ class Application extends Container
         $this->init();
 
         $this->registerBaseProviders();
-    }
 
-    protected function registerBaseServices()
-    {
-        foreach ([
-            ['config', \Cuber\Config\Config::class, true],
-        ] as $value) {
-            $this->bind($value[0], function () use ($value) {
-                return new $value[1];
-            }, $value[2]);
-        }
-    }
-
-    protected function registerBaseProviders()
-    {
-        foreach (config('providers', []) as $provider) {
-            (new $provider())->register();
-        }
+        $this->registerBaseAliases();
     }
 
     /**
-     * run
+     * Run
      *
      * @return void
      */
@@ -57,7 +46,7 @@ class Application extends Container
     }
 
     /**
-     * setModule
+     * Set module
      *
      * @return $this
      */
@@ -80,7 +69,7 @@ class Application extends Container
             }
         }
 
-        app()->bind('app.module', $module_name);
+        $this->bind('app.module', $module_name);
 
         // controllers namespace prefix
         $namespace = config('module.' . app('app.module') . '.controllers', '');
@@ -98,20 +87,20 @@ class Application extends Container
     }
 
     /**
-     * setAction
+     * Set action
      *
      * @return this
      */
     private function setAction()
     {
-        Route::load(config('module.' . app('app.module') . '.route', 'app'));
-        $ret = Route::hitRoute();
+        $this->make('route')->load(config('module.' . app('app.module') . '.route', 'app'));
+        $ret = $this->make('route')->hitRoute();
 
         if (isset($ret['closure'])) {
-            $ret = Route::runClosureRoute($ret['closure'], $ret['closure_param']);
+            $ret = $this->make('route')->runClosureRoute($ret['closure'], $ret['closure_param']);
 
             if (isset($ret) and is_string($ret)) {
-                $ret = Route::makeControllerByRule($ret);
+                $ret = $this->make('route')->makeControllerByRule($ret);
             }
         }
 
@@ -119,14 +108,15 @@ class Application extends Container
             (!isset($ret['controller']) or '' === $ret['controller']) and $ret['controller'] = 'Index';
             (!isset($ret['action']) or '' === $ret['action'])         and $ret['action']     = 'index';
             foreach ($ret as $key=>$value) {
-                app()->bind('app.' . $key, $value);
+                $this->bind('app.' . $key, $value);
             }
         }
+
         return $this;
     }
 
     /**
-     * runAction
+     * Run action
      *
      * @return void
      */
@@ -156,11 +146,27 @@ class Application extends Container
     }
 
     /**
+     * Register base services
+     *
+     * @return void
+     */
+    protected function registerBaseServices()
+    {
+        foreach ([
+            ['config', \Cuber\Config\Config::class, true],
+        ] as $value) {
+            $this->bind($value[0], function () use ($value) {
+                return new $value[1];
+            }, $value[2]);
+        }
+    }
+
+    /**
      * init
      *
      * @return void
      */
-    private function init()
+    protected function init()
     {
         put_env();
 
@@ -176,7 +182,32 @@ class Application extends Container
         header("Content-type: text/html; charset=" . config('charset'));
 
         is_cli() and $this->bind('app.argv', get_argv());
-        (new AliasLoader())->register();
+    }
+
+    /**
+     * Register base service providers
+     *
+     * @return void
+     */
+    protected function registerBaseProviders()
+    {
+        $providers = config('providers', []);
+
+        if (!empty($providers) and is_array($providers)) {
+            foreach ($providers as $provider) {
+                (new $provider())->register();
+            }
+        }
+    }
+
+    /**
+     * Register base aliases
+     *
+     * @return void
+     */
+    protected function registerBaseAliases()
+    {
+        $this->make('aliasloader', [config('aliases', [])])->register();
     }
 
 }

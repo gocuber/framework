@@ -11,26 +11,38 @@ class Service
 {
 
     /**
-     * register
+     * Register
      *
      * @return void
      */
     public function register()
     {
+        app()->bind('aliasloader', function ($aliases) {
+            return new \Cuber\Foundation\AliasLoader($aliases);
+        });
+
         app()->singleton('route', function () {
             return new \Cuber\Foundation\Route();
         });
+
         app()->singleton('view', function () {
             return new \Cuber\Foundation\View();
         });
+
+        app()->singleton('request', function () {
+            return new \Cuber\Support\Request();
+        });
+
+        app()->singleton('url', function () {
+            return new \Cuber\Support\Url();
+        });
+
         app()->singleton('cookie', function () {
             return new \Cuber\Cookie\Cookie();
         });
+
         app()->singleton('session', function () {
             return new \Cuber\Session\Session();
-        });
-        app()->singleton('request', function () {
-            return new \Cuber\Support\Requese();
         });
     }
 

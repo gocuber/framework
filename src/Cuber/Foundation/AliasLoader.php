@@ -10,21 +10,11 @@ namespace Cuber\Foundation;
 class AliasLoader
 {
 
-    private $alias;
+    private $aliases;
 
-    public function __construct()
+    public function __construct(array $aliases = [])
     {
-        $this->init();
-    }
-
-    /**
-     * init
-     *
-     * @return void
-     */
-    private function init()
-    {
-        $this->alias = config('alias');
+        $this->aliases = $aliases;
     }
 
     /**
@@ -46,8 +36,8 @@ class AliasLoader
      */
     private function load($alias)
     {
-        if (isset($this->alias[$alias])) {
-            return class_alias($this->alias[$alias], $alias);
+        if (isset($this->aliases[$alias])) {
+            return class_alias($this->aliases[$alias], $alias);
         }
     }
 

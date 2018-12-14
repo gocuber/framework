@@ -16,6 +16,7 @@
     ],
     "require": {
         "php": "^7.0.0",
+        "illuminate/container": "^5.7",
         "erusev/parsedown": "~1.7",
         "elasticsearch/elasticsearch": "~6.0",
         "phpmailer/phpmailer": "~6.0"

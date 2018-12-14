@@ -8,6 +8,7 @@
 namespace Cuber\Foundation;
 
 use Cuber\Support\Exception;
+use Illuminate\Container\Container;
 
 class Application extends Container
 {
@@ -24,7 +25,7 @@ class Application extends Container
 
         $this->bind('app', $this);
 
-        $this->bind('app.base_path', rtrim($base_path, '/') . '/');
+        $this->instance('app.base_path', rtrim($base_path, '/') . '/');
 
         $this->registerBaseServices();
 
@@ -69,7 +70,7 @@ class Application extends Container
             }
         }
 
-        $this->bind('app.module', $module_name);
+        $this->instance('app.module', $module_name);
 
         // controllers namespace prefix
         $namespace = config('module.' . app('app.module') . '.controllers', '');
@@ -108,7 +109,7 @@ class Application extends Container
             (!isset($ret['controller']) or '' === $ret['controller']) and $ret['controller'] = 'Index';
             (!isset($ret['action']) or '' === $ret['action'])         and $ret['action']     = 'index';
             foreach ($ret as $key=>$value) {
-                $this->bind('app.' . $key, $value);
+                $this->instance('app.' . $key, $value);
             }
         }
 
@@ -131,6 +132,8 @@ class Application extends Container
 
                 $c = config('controllers_namespace', 'App\\Controllers\\') . $controller;
                 if (is_callable([$c, $action])) {
+                    s($c);
+                    s($action);
                     (new $c())->$action();
                 } else {
                     throw new Exception("'$c@$action' not found");
@@ -207,7 +210,7 @@ class Application extends Container
      */
     protected function registerBaseAliases()
     {
-        $this->make('aliasloader', [config('aliases', [])])->register();
+        $this->make('aliasloader')->register();
     }
 
 }

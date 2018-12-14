@@ -41,7 +41,7 @@ function d($data = null, $exit = false)
  *
  * @return string
  */
-function e()
+function e1()
 {
     return htmlspecialchars(...func_get_args());
 }
@@ -108,10 +108,10 @@ function get_argv()
 function app($abstract = null, array $parameters = [])
 {
     if (is_null($abstract)) {
-        return Cuber\Foundation\Container::getInstance();
+        return Illuminate\Container\Container::getInstance();
     }
 
-    return Cuber\Foundation\Container::getInstance()->make($abstract, $parameters);
+    return Illuminate\Container\Container::getInstance()->make($abstract, $parameters);
 }
 
 /**
@@ -174,7 +174,7 @@ function base_path()
  *
  * @return value
  */
-function array_get($array = [], $key = null, $default = null)
+function array_get1($array = [], $key = null, $default = null)
 {
     if (empty($array) or !is_array($array)) {
         return $default;
@@ -223,7 +223,7 @@ function put_env()
  *
  * @return mixed
  */
-function env($key, $default = null)
+function env1($key, $default = null)
 {
     $value = getenv($key);
 

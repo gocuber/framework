@@ -2,7 +2,7 @@
 
 namespace Cuber\Support\Facades;
 
-use Illuminate\Container\Container;
+use Cuber\Foundation\Container;
 
 abstract class Facade
 {

@@ -8,6 +8,7 @@
 namespace Cuber\Cache;
 
 use Cuber\Support\Exception;
+use Cuber\Support\Facades\Config;
 
 class File
 {

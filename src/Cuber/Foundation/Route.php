@@ -106,7 +106,9 @@ class Route
         foreach ($rules as $rule => $line) {
             $_rule = $this->regular($rule, $line['pattern']);
 
-            if (preg_match('/^' . $_rule . '$/i', $route, $mat) or (')' == substr($_rule, -1) and preg_match('/^' . $_rule . '$/i', $route . '/', $mat))) {
+            if (preg_match('/^' . $_rule . '$/i', $route, $mat)
+                or (')' == substr($_rule, -1) and preg_match('/^' . $_rule . '$/i', $route . '/', $mat))) {
+
                 // $mat_param = ['{name}', '{id}']
                 preg_match_all('/{[a-z]+}/', $rule, $mat_param, PREG_PATTERN_ORDER);
                 isset($mat_param) and isset($mat_param[0]) and $mat_param = $mat_param[0];
@@ -205,7 +207,8 @@ class Route
      */
     private function regular($rule = '', $pattern = [])
     {
-        if (!isset($rule) or '' === $rule) {
+        $rule = trim($rule, '/');
+        if ('' === $rule) {
             return '';
         }
 

@@ -711,7 +711,7 @@ class DB
      */
     public function getConfig()
     {
-        return Config::db($this->connect);
+        return config('db.' . $this->connect);
     }
 
     /**

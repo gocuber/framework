@@ -7,7 +7,8 @@
  */
 namespace Cuber\Session;
 
-use Cuber\Cookie\Cookie;
+use Cuber\Support\Facades\Cookie;
+use Cuber\Cache\File;
 
 class Session
 {

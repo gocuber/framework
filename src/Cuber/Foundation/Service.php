@@ -17,8 +17,8 @@ class Service
      */
     public function register()
     {
-        app()->bind('aliasloader', function ($app) {
-            return new \Cuber\Foundation\AliasLoader($app->make('config')->get('aliases', []));
+        app()->bind('aliasloader', function ($aliases) {
+            return new \Cuber\Foundation\AliasLoader($aliases);
         });
 
         app()->singleton('route', function () {
@@ -43,6 +43,10 @@ class Service
 
         app()->singleton('session', function () {
             return new \Cuber\Session\Session();
+        });
+
+        app()->bind('db', function () {
+            return new \Cuber\Database\DB();
         });
     }
 

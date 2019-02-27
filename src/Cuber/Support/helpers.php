@@ -41,7 +41,7 @@ function d($data = null, $exit = false)
  *
  * @return string
  */
-function e1()
+function e()
 {
     return htmlspecialchars(...func_get_args());
 }
@@ -108,10 +108,10 @@ function get_argv()
 function app($abstract = null, array $parameters = [])
 {
     if (is_null($abstract)) {
-        return Illuminate\Container\Container::getInstance();
+        return Cuber\Foundation\Container::getInstance();
     }
 
-    return Illuminate\Container\Container::getInstance()->make($abstract, $parameters);
+    return Cuber\Foundation\Container::getInstance()->make($abstract, $parameters);
 }
 
 /**
@@ -135,6 +135,10 @@ function view()
  */
 function request($key = null, $default = null, $type = 'request')
 {
+    if (is_null($key)) {
+        return app('request');
+    }
+
     return app('request')->$type($key, $default);
 }
 
@@ -174,7 +178,7 @@ function base_path()
  *
  * @return value
  */
-function array_get1($array = [], $key = null, $default = null)
+function array_get($array = [], $key = null, $default = null)
 {
     if (empty($array) or !is_array($array)) {
         return $default;
@@ -223,7 +227,7 @@ function put_env()
  *
  * @return mixed
  */
-function env1($key, $default = null)
+function env($key, $default = null)
 {
     $value = getenv($key);
 
@@ -239,7 +243,8 @@ function model($model = null)
 {
     $model = config('model_namespace', 'App\\Models\\') . $model;
 
-    return Cuber\Foundation\Container::getInstance($model);
+    return new $model;
+    //return Cuber\Foundation\Container::getInstance($model);
 }
 
 /**

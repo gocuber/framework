@@ -133,36 +133,6 @@ class Config
     }
 
     /**
-     * Get Domain Config
-     *
-     * @param string $key
-     *
-     * @return str
-     */
-    public function domain($key = null)
-    {
-        $key = isset($key) ? $key . '_domain' : 'domain';
-
-        return $this->get($key);
-    }
-
-    /**
-     * Get moduleDomain Config
-     *
-     * @param string $key
-     *
-     * @return str
-     */
-    public function moduleDomain($key = null)
-    {
-        if (!isset($key)) {
-            return $this->get('domain');
-        }
-
-        return $this->get('module.' . $key . '.domain');
-    }
-
-    /**
      * Get timezone Config
      *
      * @return str

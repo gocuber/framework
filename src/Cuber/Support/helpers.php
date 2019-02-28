@@ -170,6 +170,62 @@ function base_path($path = '')
 }
 
 /**
+ * url
+ *
+ * @return string
+ */
+function url($url = null)
+{
+    if (null === $url) {
+        return app('url');
+    } else {
+        return app('url')->getUrl($url);
+    }
+}
+
+/**
+ * module_url
+ *
+ * @param string $module
+ * @param string $url
+ * @param string $http
+ *
+ * @return string
+ */
+function module_url($module = '', $url = '', $http = '//')
+{
+    return app('url')->getModuleUrl($module, $url, $http);
+}
+
+/**
+ * domain_url
+ *
+ * @param string $domain
+ * @param string $url
+ * @param string $http
+ *
+ * @return string
+ */
+function domain_url($domain = '', $url = '', $http = '//')
+{
+    return app('url')->getDomainUrl($domain, $url, $http);
+}
+
+/**
+ * res_url
+ *
+ * @param string $url
+ * @param string $domain
+ * @param string $http
+ *
+ * @return string
+ */
+function res_url($url = '', $domain = '', $http = '//')
+{
+    return app('url')->getResUrl($url, $domain, $http);
+}
+
+/**
  * array_get
  *
  * @param array $array

@@ -7,82 +7,69 @@
  */
 namespace Cuber\Support;
 
-use Cuber\Support\Facades\Config;
-
 class Url
 {
 
     /**
      * 取url
      *
-     * @param str $module 模块
+     * @param string $url
      *
-     * @return str $url
+     * @return string $url
      */
-    public static function getUrl($module = null)
+    public function getUrl($url = '')
     {
+        return $url;
+    }
 
-        $http     = self::isHttps() ? 'https://' : 'http://';
-        $sitepath = self::getSitePath();
-        $domain   = self::getDomain();
+    /**
+     * 模块url
+     *
+     * @param string $module
+     * @param string $url
+     * @param string $http
+     *
+     * @return string $url
+     */
+    public function getModuleUrl($module = '', $url = '', $http = '//')
+    {
+        return $http . config('module.' . $module . '.domain', '') . $url;
+    }
 
-        if (isset($module)) {
+    /**
+     * 域名url
+     *
+     * @param string $domain
+     * @param string $url
+     * @param string $http
+     *
+     * @return string $url
+     */
+    public function getDomainUrl($domain = '', $url = '', $http = '//')
+    {
+        return $http . $domain . $url;
+    }
 
-            $module_domain = Config::moduleDomain($module);
-
-            if (empty($module_domain)) {
-                return $http . $domain . $sitepath . '/' . $module . '/';
-            } else {
-                return $http . $module_domain . '/';
-            }
-
+    /**
+     * res url
+     *
+     * @param string $url
+     * @param string $domain
+     * @param string $http
+     *
+     * @return string $url
+     */
+    public function getResUrl($url = '', $domain = '', $http = '//')
+    {
+        if (isset($domain) and '' !== $domain) {
+            return $http . $domain . $url;
         } else {
-
-            return $http . $domain . $sitepath . '/';
-
+            if (config('res_domain', false) and '' !== config('res_domain')) {
+                return $http . config('res_domain') . $url;
+            } else {
+                return $url;
+            }
         }
-
-    }
-
-    /**
-     * 取网站域名
-     *
-     * @return str $domain
-     */
-    private static function getDomain()
-    {
-        $domain = Config::domain();
-
-        if (empty($domain) and isset($_SERVER['HTTP_HOST'])) {
-            $domain = $_SERVER['HTTP_HOST'];
-        }
-
-        return $domain;
-    }
-
-    /**
-     * 取网站相对于web根目录的路径部分
-     *
-     * @return string
-     */
-    private static function getSitePath()
-    {
-        $_site = dirname($_SERVER['SCRIPT_NAME']);
-        $_site = (strlen($_site)>1) ? $_site : '';
-        return $_site;
-    }
-
-    /**
-     * isHttps
-     *
-     * @return boolean
-     */
-    public static function isHttps()
-    {
-        return (
-            (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') or
-            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
-        );
     }
 
 }

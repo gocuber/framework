@@ -65,7 +65,7 @@ class View
             }
         }
 
-        include config('views', base_path() . 'app/views/') . $_tpl . '.php';
+        include config('views', base_path('app/views/')) . $_tpl . '.php';
     }
 
     /**
@@ -83,6 +83,29 @@ class View
         }
 
         return $this->display($tpl, null);
+    }
+
+    /**
+     * 加载组件
+     *
+     * @param string $_tpl
+     * @param array $_data
+     *
+     * @return void
+     */
+    public function component($_tpl = null, $_data = null)
+    {
+        if (null === $_tpl or '' === $_tpl) {
+            return null;
+        }
+
+        if (!empty($_data) and is_array($_data)) {
+            foreach ($_data as $_key => $_value) {
+                $$_key = $_value;
+            }
+        }
+
+        include config('views', base_path('app/views/')) . $_tpl . '.php';
     }
 
 }

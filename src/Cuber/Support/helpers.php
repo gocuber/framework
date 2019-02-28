@@ -164,9 +164,9 @@ function config($key = null, $default = null)
  *
  * @return string
  */
-function base_path()
+function base_path($path = '')
 {
-    return app('app.base_path');
+    return app('app.base_path') . $path;
 }
 
 /**

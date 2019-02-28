@@ -33,10 +33,6 @@ class Service
             return new \Cuber\Support\Request();
         });
 
-        app()->singleton('url', function () {
-            return new \Cuber\Support\Url();
-        });
-
         app()->singleton('cookie', function () {
             return new \Cuber\Cookie\Cookie();
         });

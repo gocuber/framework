@@ -238,7 +238,7 @@ function array_get($array = [], $key = null, $default = null)
  */
 function put_env()
 {
-    $config = base_path() . 'config/config.ini';
+    $config = base_path('.env');
     if (is_file($config)) {
         $conf = parse_ini_file($config, false);
         if (!empty($conf) and is_array($conf)) {

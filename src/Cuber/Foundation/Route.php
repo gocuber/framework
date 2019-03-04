@@ -324,7 +324,7 @@ class Route
      */
     public function load($route = 'app')
     {
-        require base_path() . '/route/' . $route . '.php';
+        require base_path('route/' . $route . '.php');
     }
 
 }

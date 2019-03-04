@@ -50,7 +50,7 @@ class View
     public function display($_tpl = null, $_data = null)
     {
         if (null === $_tpl or '' === $_tpl) {
-            $_tpl = strtr(strtolower(app('controller') . '/' . app('action')), ['\\'=>'/']);
+            $_tpl = strtr(strtolower(app('app.controller') . '/' . app('app.action')), ['\\'=>'/']);
         }
 
         if (!empty($_data) and is_array($_data)) {

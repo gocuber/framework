@@ -20,7 +20,7 @@ class Config
     private function init()
     {
         if (null === $this->hash) {
-            $this->hash = include base_path() . 'config/app.php';
+            $this->hash = include base_path('config/app.php');
         }
     }
 

@@ -295,8 +295,9 @@ function mk_dir($dir = null)
             if (!@mkdir($dir, 0777, true)) {
                 return false;
             }
+        } else {
+            return @chmod($dir, 0777);
         }
-        return @chmod($dir, 0777);
     }
 
     return true;

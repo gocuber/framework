@@ -181,7 +181,7 @@ class Application extends Container
         date_default_timezone_set(config('timezone'));
         header("Content-type: text/html; charset=" . config('charset'));
 
-        is_cli() and $this->bind('app.argv', get_argv());
+        is_cli() and $this->bind('app.argv', argvs());
     }
 
     /**

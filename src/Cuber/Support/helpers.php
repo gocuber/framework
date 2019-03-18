@@ -71,11 +71,11 @@ function is_cli()
 }
 
 /**
- * get_argv
+ * argvs
  *
  * @return array
  */
-function get_argv()
+function argvs()
 {
     $_argv = $GLOBALS['argv'];
     $_argc = $GLOBALS['argc'];
@@ -121,7 +121,11 @@ function app($abstract = null, array $parameters = [])
  */
 function view()
 {
-    return app('view')->display(...func_get_args());
+    if (func_num_args() > 0) {
+        return app('view')->display(...func_get_args());
+    } else {
+        return app('view');
+    }
 }
 
 /**
@@ -129,17 +133,16 @@ function view()
  *
  * @param null|string $key
  * @param mixed $default
- * @param string $type  get|post|request|argv
  *
  * @return mixed
  */
-function request($key = null, $default = null, $type = 'request')
+function request($key = null, $default = null)
 {
     if (is_null($key)) {
         return app('request');
     }
 
-    return app('request')->$type($key, $default);
+    return app('request')->param($key, $default);
 }
 
 /**
@@ -219,7 +222,6 @@ function array_get($array = [], $key = null, $default = null)
     }
 
     $key = explode('.', $key);
-
     foreach ($key as $k) {
         if (isset($array[$k])) {
             $array = $array[$k];
@@ -228,7 +230,7 @@ function array_get($array = [], $key = null, $default = null)
         }
     }
 
-    return $array;
+    return $default;
 }
 
 /**

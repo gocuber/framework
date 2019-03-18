@@ -230,7 +230,7 @@ function array_get($array = [], $key = null, $default = null)
         }
     }
 
-    return $default;
+    return $array;
 }
 
 /**

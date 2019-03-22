@@ -93,19 +93,43 @@ class View
      *
      * @return void
      */
-    public function component($_tpl = null, $_data = null)
+    public function component($_tpl = null, array $_data = [])
     {
         if (null === $_tpl or '' === $_tpl) {
             return null;
         }
 
-        if (!empty($_data) and is_array($_data)) {
+        $_components_data = app('app.components.' . $_tpl);
+        if (!empty($_components_data)) {
+            foreach ($_components_data as $_key => $_value) {
+                $$_key = $_value;
+            }
+        }
+        if (!empty($_data)) {
             foreach ($_data as $_key => $_value) {
                 $$_key = $_value;
             }
         }
 
         include config('views', base_path('app/views/')) . $_tpl . '.php';
+    }
+
+    /**
+     * 组件赋值
+     *
+     * @param string $name
+     * @param array $data
+     *
+     * @return void
+     */
+    public function componentAssign($name = null, array $data = [])
+    {
+        if (null === $name or empty($data)) {
+            return null;
+        }
+
+        app()->bind('app.components.' . $name, $data);
+        return null;
     }
 
 }

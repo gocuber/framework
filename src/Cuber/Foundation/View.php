@@ -128,7 +128,14 @@ class View
             return null;
         }
 
-        app()->bind('app.components.' . $name, $data);
+        if (is_array($name)) {
+            foreach ($name as $key => $value) {
+                app()->bind('app.components.' . $key, $value);
+            }
+        } else {
+            app()->bind('app.components.' . $name, $data);
+        }
+
         return null;
     }
 

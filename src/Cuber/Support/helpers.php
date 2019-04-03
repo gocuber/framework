@@ -234,6 +234,56 @@ function array_get($array = [], $key = null, $default = null)
 }
 
 /**
+ * array_hash
+ *
+ * @param array $array
+ * @param string $key_field
+ * @param string|array $value_field
+ *
+ * @return array
+ */
+function array_hash($array = [], $key_field = 'id', $value_field = null)
+{
+    if (empty($array) or !is_array($array)) {
+        return [];
+    }
+
+    $hash = [];
+    foreach ($array as $value) {
+        $hash[$value[$key_field]] = isset($value_field) ? $value[$value_field] : $value;
+    }
+
+    return $hash;
+}
+
+/**
+ * array_field
+ *
+ * @param array $array
+ * @param string|array $fields
+ *
+ * @return array
+ */
+function array_field($array = [], $fields = null)
+{
+    if (empty($array) or !is_array($array) or empty($fields)) {
+        return [];
+    }
+
+    $fields = is_array($fields) ? $fields : explode(',', $fields);
+    $new = [];
+    foreach ($array as $key=>$value) {
+        $line = [];
+        foreach ($fields as $field) {
+            $line[$field] = isset($value[$field]) ? $value[$field] : '';
+        }
+        $new[$key] = $line;
+    }
+
+    return $new;
+}
+
+/**
  * put_env
  *
  * @return void

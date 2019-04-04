@@ -146,6 +146,28 @@ function request($key = null, $default = null)
 }
 
 /**
+ * cookie
+ *
+ * @param  string   $name
+ * @param  string   $value
+ * @param  int      $expire
+ * @param  string   $path
+ * @param  string   $domain
+ * @param  bool     $secure
+ * @param  bool     $httponly
+ *
+ * @return mixed
+ */
+function cookie($name = null, $value = null, $expire = 0, $path = null, $domain = null, $secure = null, $httponly = null)
+{
+    if (is_null($key)) {
+        return app('cookie');
+    }
+
+    return app('cookie')->make($name, $value, $expire, $path, $domain, $secure, $httponly);
+}
+
+/**
  * config
  *
  * @param string|array $key
@@ -326,7 +348,6 @@ function model($model = null)
     $model = config('model_namespace', 'App\\Models\\') . $model;
 
     return new $model;
-    //return Cuber\Foundation\Container::getInstance($model);
 }
 
 /**

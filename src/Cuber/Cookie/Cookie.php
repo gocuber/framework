@@ -10,78 +10,100 @@ namespace Cuber\Cookie;
 class Cookie
 {
 
+    private $path = '/';
+
+    private $domain = null;
+
+    private $secure = false;
+
+    private $httponly = false;
+
     /**
-     * get
+     * 设置默认 Cookie 配置
      *
-     * @param string $name
-     * @return string|null
+     * @return $this
+     */
+    public function setDefaultConfig($path = '/', $domain = null, $secure = false, $httponly = false)
+    {
+        $this->path = $path;
+        $this->domain = $domain;
+        $this->secure = $secure;
+        $this->httponly = $httponly;
+
+        return $this;
+    }
+
+    /**
+     * 创建 Cookie
+     *
+     * @param  string   $name
+     * @param  string   $value
+     * @param  int      $expire
+     * @param  string   $path
+     * @param  string   $domain
+     * @param  bool     $secure
+     * @param  bool     $httponly
+     *
+     * @return bool
+     */
+    public function make($name = null, $value = null, $expire = 0, $path = null, $domain = null, $secure = null, $httponly = null)
+    {
+        return setcookie(
+            $name,
+            $value,
+            $_SERVER['REQUEST_TIME'] + $expire,
+            $path ? $path : $this->path,
+            $domain ? $domain : $this->domain,
+            is_bool($secure) ? $secure : $this->secure,
+            is_bool($httponly) ? $httponly : $this->httponly
+        );
+    }
+
+    /**
+     * 创建永久 Cookie
+     *
+     * @param  string   $name
+     * @param  string   $value
+     * @param  string   $path
+     * @param  string   $domain
+     * @param  bool     $secure
+     * @param  bool     $httponly
+     *
+     * @return bool
+     */
+    public function forever($name, $value, $path = null, $domain = null, $secure = null, $httponly = null)
+    {
+        return $this->make($name, $value, 86400 * 3650, $path, $domain, $secure, $httponly);
+    }
+
+    /**
+     * 使 Cookie 过期
+     *
+     * @param  string  $name
+     * @param  string  $path
+     * @param  string  $domain
+     *
+     * @return bool
+     */
+    public function forget($name, $path = null, $domain = null)
+    {
+        return $this->make($name, null, -3600, $path, $domain);
+    }
+
+    /**
+     * 获取 Cookie
+     *
+     * @param  string  $name
+     *
+     * @return string|array|null
      */
     public function get($name = null)
     {
-        $name = $this->buildKey($name);
+        if (null === $name) {
+            return $_COOKIE;
+        }
+
         return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
-    }
-
-    /**
-     * set
-     *
-     * @param string $name
-     * @param string $value
-     * @param int $time
-     * @param string $path
-     * @param string $domain
-     * @return bool
-     */
-    public function set($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
-    {
-        $name = $this->buildKey($name);
-        !isset($domain) and $domain = config('cookie.domain');
-        setcookie($name, $value, time() + $time, $path, $domain);
-        $_COOKIE[$name] = $value;
-        return true;
-    }
-
-    /**
-     * setraw
-     *
-     * @param string $name
-     * @param string $value
-     * @param int $time
-     * @param string $path
-     * @param string $domain
-     * @return bool
-     */
-    public function setraw($name = null, $value = null, $time = 3600, $path = '/', $domain = null)
-    {
-        $name = $this->buildKey($name);
-        !isset($domain) and $domain = config('cookie.domain');
-        setrawcookie($name, $value, time() + $time, $path, $domain);
-        return true;
-    }
-
-    /**
-     * del
-     *
-     * @param string $name
-     * @return bool
-     */
-    public function del($name = null)
-    {
-        $name = $this->buildKey($name);
-        setcookie($name, null, time() - 3600);
-        unset($_COOKIE[$name]);
-        return true;
-    }
-
-    /**
-     * buildKey
-     *
-     * @param string $key
-     * @return string
-     */
-    private function buildKey($key = null)
-    {
-        return config('cookie.prefix', '') . $key;
     }
 
 }

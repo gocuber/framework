@@ -272,7 +272,11 @@ function array_hash($array = [], $key_field = 'id', $value_field = null)
 
     $hash = [];
     foreach ($array as $value) {
-        $hash[$value[$key_field]] = isset($value_field) ? $value[$value_field] : $value;
+        $hash[$value[$key_field]] = is_scalar($value_field) ? $value[$value_field] : $value;
+    }
+
+    if (is_array($value_field)) {
+        return array_field($hash, $value_field);
     }
 
     return $hash;

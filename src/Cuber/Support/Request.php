@@ -76,6 +76,19 @@ class Request
     }
 
     /**
+     * cookie
+     *
+     * @param string $key
+     * @param string $default
+     *
+     * @return string|array
+     */
+    public function cookie($key = null, $default = null)
+    {
+        return $this->arrayGet($_COOKIE, $key, $default);
+    }
+
+    /**
      * arrayGet
      *
      * @param array $data

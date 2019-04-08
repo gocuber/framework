@@ -239,8 +239,8 @@ function array_get($array = [], $key = null, $default = null)
         return $default;
     }
 
-    if (null === $key or '' === $key) {
-        return $default;
+    if (null === $key) {
+        return $array;
     }
 
     $key = explode('.', $key);

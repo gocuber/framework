@@ -94,16 +94,17 @@ class Cookie
      * 获取 Cookie
      *
      * @param  string  $name
+     * @param  string  $default
      *
      * @return string|array|null
      */
-    public function get($name = null)
+    public function get($name = null, $default = null)
     {
         if (null === $name) {
             return $_COOKIE;
         }
 
-        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
+        return array_get($_COOKIE, $name, $default);
     }
 
 }

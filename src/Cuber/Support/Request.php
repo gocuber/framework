@@ -99,11 +99,11 @@ class Request
      */
     private function arrayGet($data = [], $key = null, $default = null)
     {
-        if (null === $key or '' === $key) {
+        if (null === $key) {
             return $data;
-        } else {
-            return array_get($data, $key, $default);
         }
+
+        return array_get($data, $key, $default);
     }
 
     /**

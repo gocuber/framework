@@ -8,49 +8,49 @@
 namespace Cuber\Session;
 
 use SessionHandlerInterface;
-use Cuber\Support\Facades\Cookie;
+use Cuber\Cookie\Cookie;
 
 class CookieSessionHandler implements SessionHandlerInterface
 {
 
     /**
-     * The cookie jar instance.
+     * Cookie
      *
-     * @var \Illuminate\Contracts\Cookie\Factory
+     * @var Cuber\Cookie\Cookie
      */
-    protected $cookie;
+    private $cookie;
 
     /**
-     * The request instance.
-     *
-     * @var \Symfony\Component\HttpFoundation\Request
-     */
-    protected $request;
-
-    /**
-     * The number of minutes the session should be valid.
+     * 过期秒数
      *
      * @var int
      */
-    protected $minutes;
+    private $expire;
 
     /**
-     * Create a new cookie driven handler instance.
+     * Cookie前缀
      *
-     * @param  \Illuminate\Contracts\Cookie\QueueingFactory  $cookie
-     * @param  int  $minutes
+     * @var string
+     */
+    private $prefix = 'CUBERSESS_';
+
+    /**
+     * 创建 cookie 驱动
+     *
+     * @param  Cookie  $cookie
+     * @param  int  $expire
      * @return void
      */
-    public function __construct(CookieJar $cookie, $minutes)
+    public function __construct(Cookie $cookie, $expire = 86400 * 7)
     {
         $this->cookie = $cookie;
-        $this->minutes = $minutes;
+        $this->expire = $expire;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function open($savePath, $sessionName)
+    public function open($save_path, $session_name)
     {
         return true;
     }
@@ -66,46 +66,31 @@ class CookieSessionHandler implements SessionHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function read($sessionId)
+    public function read($id)
     {
-        $value = $this->request->cookies->get($sessionId) ?: '';
-
-        if (! is_null($decoded = json_decode($value, true)) && is_array($decoded)) {
-            if (isset($decoded['expires']) && $this->currentTime() <= $decoded['expires']) {
-                return $decoded['data'];
-            }
-        }
-
-        return '';
+        return json_decode($this->cookie->get($this->prefix . $id), true);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($sessionId, $data)
+    public function write($id, $data)
     {
-        $this->cookie->queue($sessionId, json_encode([
-            'data' => $data,
-            'expires' => $this->availableAt($this->minutes * 60),
-        ]), $this->minutes);
-
-        return true;
+        return $this->cookie->make($this->prefix . $id, json_encode($data), $this->expire);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function destroy($sessionId)
+    public function destroy($id)
     {
-        $this->cookie->queue($this->cookie->forget($sessionId));
-
-        return true;
+        return $this->cookie->forget($this->prefix . $id);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function gc($lifetime)
+    public function gc($maxlifetime)
     {
         return true;
     }

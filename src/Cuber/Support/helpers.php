@@ -160,11 +160,28 @@ function request($key = null, $default = null)
  */
 function cookie($name = null, $value = null, $expire = 0, $path = null, $domain = null, $secure = null, $httponly = null)
 {
-    if (is_null($key)) {
+    if (is_null($name)) {
         return app('cookie');
     }
 
     return app('cookie')->make($name, $value, $expire, $path, $domain, $secure, $httponly);
+}
+
+/**
+ * session
+ *
+ * @param null|string $key
+ * @param mixed $default
+ *
+ * @return mixed
+ */
+function session($key = null, $default = null)
+{
+    if (is_null($key)) {
+        return app('session');
+    }
+
+    return app('session')->get($key, $default);
 }
 
 /**

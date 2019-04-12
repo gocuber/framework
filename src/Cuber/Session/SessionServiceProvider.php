@@ -17,15 +17,13 @@ class SessionServiceProvider
      */
     public function register()
     {
-
-        $this->app->singleton('session', function ($app) {
-            return new SessionManager($app);
-        });
-
-        $this->app->singleton('session.store', function ($app) {
+        app()->singleton('session.store', function ($app) {
             return $app->make('session')->driver();
         });
 
+        app()->singleton('session', function ($app) {
+            return new SessionManager($app);
+        });
     }
 
 }

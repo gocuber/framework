@@ -89,6 +89,19 @@ class Request
     }
 
     /**
+     * session
+     *
+     * @param string $key
+     * @param string $default
+     *
+     * @return string|array
+     */
+    public function session($key = null, $default = null)
+    {
+        return app('session')->get($key, $default);
+    }
+
+    /**
      * arrayGet
      *
      * @param array $data

@@ -33,7 +33,7 @@ class SessionServiceProvider
             return new \Cuber\Session\RedisSessionHandler();
         });
         app()->singleton('session', function ($id = null) {
-            return new \Cuber\Session\SessionManager(config('session.driver', 'session.file'), $id);
+            return new \Cuber\Session\SessionManager('session.' . config('session.driver', 'file'), $id);
         });
     }
 

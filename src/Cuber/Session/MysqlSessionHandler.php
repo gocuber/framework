@@ -1,23 +1,23 @@
 <?php
 
 /**
- * FileSessionHandler
+ * MysqlSessionHandler
+ * 
+ * 创建表 字段：
+ * 
+ * id
+ * data
+ * expire
  *
  * @author Cuber <dafei.net@gmail.com>
  */
 namespace Cuber\Session;
 
 use SessionHandlerInterface;
+use Cuber\Support\Facades\DB;
 
-class FileSessionHandler implements SessionHandlerInterface
+class MysqlSessionHandler implements SessionHandlerInterface
 {
-
-    /**
-     * file
-     *
-     * @var Cuber\Cache\File
-     */
-    private $file;
 
     /**
      * 过期秒数
@@ -27,22 +27,20 @@ class FileSessionHandler implements SessionHandlerInterface
     private $expire;
 
     /**
-     * 前缀
+     * 存储Session数据的表名
      *
      * @var string
      */
-    private $prefix = 'CUBERSESS_';
+    private $table = 'app_session';
 
     /**
      * 创建驱动
      *
-     * @param  File  $file
      * @param  int  $expire
      * @return void
      */
-    public function __construct(File $file, $expire = 86400 * 7)
+    public function __construct($expire = 86400 * 7)
     {
-        $this->file = $file;
         $this->expire = $expire;
     }
 
@@ -67,7 +65,13 @@ class FileSessionHandler implements SessionHandlerInterface
      */
     public function read($id)
     {
-        return $this->file->get($this->prefix . $id);
+        $data = DB::name($this->table)->where(['id'=>$id])->line();
+
+        if (0 == $data['expire'] or $data >= $_SERVER['REQUEST_TIME']) {
+            return json_decode($data['data'], true);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -75,7 +79,10 @@ class FileSessionHandler implements SessionHandlerInterface
      */
     public function write($id, $data)
     {
-        return $this->file->set($this->prefix . $id, $data, $this->expire);
+        $sql = "insert into " . $this->table . " (id,data,expire) values (':id',':data',:expire) on ...";
+        DB::query($sql, ['id'=>$id, 'data'=>json_encode($data), 'expire'=>$this->expire]);
+
+        return true;
     }
 
     /**
@@ -83,7 +90,7 @@ class FileSessionHandler implements SessionHandlerInterface
      */
     public function destroy($id)
     {
-        return $this->file->delete($this->prefix . $id);
+        return DB::name($this->table)->where(['id'=>$id])->delete();
     }
 
     /**

@@ -7,22 +7,18 @@
  */
 namespace Cuber\Cache;
 
-use Cuber\Support\Exception;
-
 class Memcache
 {
 
-    private static $_instance = null;
+    private static $instance;
 
-    private $_config = null;
+    private $config;
 
-    private $_conn   = null;
+    private $conn;
 
     private function __construct($config = null)
     {
-        if (isset($config)) {
-            $this->setConfig($config);
-        }
+        $this->config = $config;
     }
 
     public static function connect($key = 'default')
@@ -30,11 +26,11 @@ class Memcache
         $conf = Config::mem($key);
 
         $key = md5(serialize($conf));
-        if (!isset(self::$_instance[$key])) {
-            self::$_instance[$key] = new self($conf);
+        if (!isset(self::$instance[$key])) {
+            self::$instance[$key] = new self($conf);
         }
 
-        return self::$_instance[$key];
+        return self::$instance[$key];
     }
 
     /**
@@ -187,10 +183,11 @@ class Memcache
      */
     public function close()
     {
-        if(isset($this->_conn)){
-            $this->_conn->close();
-            $this->_conn = null;
+        if (isset($this->conn)) {
+            $this->conn->close();
+            $this->conn = null;
         }
+
         return true;
     }
 
@@ -201,58 +198,25 @@ class Memcache
      */
     private function conn()
     {
-        if(!isset($this->_conn)){
-            $config = $this->getConfig();
+        if (!isset($this->conn)) {
+            $config = $this->config;
 
             $mem = new Memcache();
-            if(isset($config[0]) and is_array($config[0])){
-                foreach($config as $value){
-                    if(isset($value['weight'])){
+            if (isset($config[0]) and is_array($config[0])) {
+                foreach ($config as $value) {
+                    if (isset($value['weight'])) {
                         $mem->addServer($value['host'], $value['port'], true, $value['weight']);
-                    }else{
+                    } else {
                         $mem->addServer($value['host'], $value['port'], true);
                     }
                 }
-            }else{
+            } else {
                 $mem->addServer($config['host'], $config['port'], true);
             }
-            $this->_conn = $mem;
-        }
-        return $this->_conn;
-    }
-
-    /**
-     * setConfig
-     *
-     * @param array $config
-     * @return bool
-     */
-    private function setConfig($config = null)
-    {
-        try {
-            if(empty($config) or !is_array($config)){
-                throw new Exception("memcache config error");
-            }
-        } catch (Exception $e) {
-            $e->log(Exception::ERROR_TYPE_MEM);
+            $this->conn = $mem;
         }
 
-        if(empty($config)){
-            return false;
-        }
-
-        $this->_config = $config;
-        return true;
-    }
-
-    /**
-     * getConfig
-     *
-     * @return array
-     */
-    private function getConfig()
-    {
-        return $this->_config;
+        return $this->conn;
     }
 
 }

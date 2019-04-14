@@ -7,20 +7,17 @@
  */
 namespace Cuber\Cache;
 
-use Cuber\Support\Exception;
 use Cuber\Support\Facades\Config;
 
 class File
 {
 
-    private static $_instance = null;
-    private $_config = null;
+    private static $instance;
+    private $config;
 
     private function __construct($config = null)
     {
-        if (isset($config)) {
-            $this->setConfig($config);
-        }
+        $this->config = $config;
     }
 
     public static function connect($key = 'default')
@@ -28,11 +25,11 @@ class File
         $conf = Config::fc($key);
 
         $key = md5(serialize($conf));
-        if (!isset(self::$_instance[$key])) {
-            self::$_instance[$key] = new self($conf);
+        if (!isset(self::$instance[$key])) {
+            self::$instance[$key] = new self($conf);
         }
 
-        return self::$_instance[$key];
+        return self::$instance[$key];
     }
 
     /**
@@ -173,57 +170,6 @@ class File
     }
 
     /**
-     * getHitMissData
-     *
-     * @param array $keys ['key', 'key']
-     * @param str $pre
-     *
-     * @return ['hit'=>['key'=>'value'], 'miss'=>['key','key']]
-     */
-    public function getHitMissData($keys = [], $pre = '')
-    {
-        if (empty($keys)) {
-            return [];
-        }
-
-        $mkeys = [];
-        foreach ($keys as $key) {
-            $mkeys[$key] = $pre . $key;
-        }
-
-        return $this->getHitMissHash($mkeys);
-    }
-
-    /**
-     * getHitMissHash
-     *
-     * @param array $keys ['id'=>'key', 'id'=>'key']
-     *
-     * @return ['hit'=>['id'=>'value'], 'miss'=>['id','id']]
-     */
-    public function getHitMissHash($keys = [])
-    {
-        if (empty($keys)) {
-            return [];
-        }
-
-        $data = $this->getMulti($keys);
-        $flip = array_flip($keys);
-
-        $hit = $miss = [];
-        foreach ($data as $key=>$value) {
-            if (isset($value)) {
-                $hit[$flip[$key]] = $value;
-            } else {
-                $miss[] = $flip[$key];
-            }
-        }
-
-        unset($data, $flip);
-        return ['hit'=>$hit, 'miss'=>$miss];
-    }
-
-    /**
      * 返回缓存文件全路径
      *
      * @param string $key
@@ -236,48 +182,10 @@ class File
         }
 
         $md5    = md5($key);
-        $dir    = $this->_config['dir'];
-        $subdir = $this->_config['is_subdir'] ? substr($md5,0,2).'/'.substr($md5,2,2).'/'.substr($md5,4,2).'/' : '';
+        $dir    = $this->config['dir'];
+        $subdir = $this->config['is_subdir'] ? substr($md5,0,2).'/'.substr($md5,2,2).'/'.substr($md5,4,2).'/' : '';
         $file   = $dir . $subdir . $key;
         return $file;
-    }
-
-    /**
-     * setConfig
-     *
-     * @param array $config
-     * @return bool
-     */
-    private function setConfig($config = null)
-    {
-        try {
-
-            if (empty($config) or !is_array($config)) {
-                throw new Exception('file config error');
-            }
-
-        } catch (Exception $e) {
-
-            $e->log(Exception::ERROR_TYPE_FC);
-
-        }
-
-        if (empty($config)) {
-            return false;
-        }
-
-        $this->_config = $config;
-        return true;
-    }
-
-    /**
-     * getConfig
-     *
-     * @return array
-     */
-    private function getConfig()
-    {
-        return $this->_config;
     }
 
 }

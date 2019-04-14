@@ -73,8 +73,8 @@ class SessionManager
         $id = $this->createId();
         Cookie::forever($cookie, $id);
 
-        // 下面三行应该删除 不存在的
         $this->session_id = $id;
+        // 下面两行 为了防止错误使用 产生错误的Session存储数据
         $this->session_data = [];
         $this->is_change = false;
         return $this;

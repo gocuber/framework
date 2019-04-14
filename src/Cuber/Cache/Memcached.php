@@ -7,22 +7,18 @@
  */
 namespace Cuber\Cache;
 
-use Cuber\Support\Exception;
-
 class Memcached
 {
 
-    private static $_instance = null;
+    private static $instance;
 
-    private $_config = null;
+    private $config;
 
-    private $_conn   = null;
+    private $conn;
 
     private function __construct($config = null)
     {
-        if (isset($config)) {
-            $this->setConfig($config);
-        }
+        $this->config = $config;
     }
 
     public static function connect($key = 'default')
@@ -30,11 +26,11 @@ class Memcached
         $conf = Config::mem($key);
 
         $key = md5(serialize($conf));
-        if (!isset(self::$_instance[$key])) {
-            self::$_instance[$key] = new self($conf);
+        if (!isset(self::$instance[$key])) {
+            self::$instance[$key] = new self($conf);
         }
 
-        return self::$_instance[$key];
+        return self::$instance[$key];
     }
 
     /**
@@ -151,7 +147,7 @@ class Memcached
     public function add($key = '', $value = '', $time = 3600)
     {
         $mem = $this->conn();
-        return $mem->add($key, $value, time() + $time);
+        return $mem->add($key, $value, $_SERVER['REQUEST_TIME'] + $time);
     }
 
     /**
@@ -165,7 +161,7 @@ class Memcached
     public function replace($key = '', $value = '', $time = 3600)
     {
         $mem = $this->conn();
-        return $mem->replace($key, $value, time() + $time);
+        return $mem->replace($key, $value, $_SERVER['REQUEST_TIME'] + $time);
     }
 
     /**
@@ -175,10 +171,11 @@ class Memcached
      */
     public function close()
     {
-        if(isset($this->_conn)){
-            $this->_conn->quit();
-            $this->_conn = null;
+        if (isset($this->conn)) {
+            $this->conn->quit();
+            $this->conn = null;
         }
+
         return true;
     }
 
@@ -189,57 +186,24 @@ class Memcached
      */
     private function conn()
     {
-        if(!isset($this->_conn)){
-            $config = $this->getConfig();
+        if (!isset($this->conn)) {
+            $config = $this->config;
 
             $key = md5(serialize($config));
             $mem = new Memcached($key);
-            if(isset($config[0]) and is_array($config[0])){
-                $conf = array();
-                foreach($config as $value){
+            if (isset($config[0]) and is_array($config[0])) {
+                $conf = [];
+                foreach ($config as $value) {
                     $conf[] = array_values($value);
                 }
                 $mem->addServers($conf);
-            }else{
+            } else {
                 $mem->addServer($config['host'], $config['port']);
             }
-            $this->_conn = $mem;
-        }
-        return $this->_conn;
-    }
-
-    /**
-     * setConfig
-     *
-     * @param array $config
-     * @return bool
-     */
-    private function setConfig($config = null)
-    {
-        try {
-            if(empty($config) or !is_array($config)){
-                throw new Exception("memcached config error");
-            }
-        } catch (Exception $e) {
-            $e->log(Exception::ERROR_TYPE_MEM);
+            $this->conn = $mem;
         }
 
-        if(empty($config)){
-            return false;
-        }
-
-        $this->_config = $config;
-        return true;
-    }
-
-    /**
-     * getConfig
-     *
-     * @return array
-     */
-    private function getConfig()
-    {
-        return $this->_config;
+        return $this->conn;
     }
 
 }

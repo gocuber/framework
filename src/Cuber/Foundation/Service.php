@@ -37,10 +37,6 @@ class Service
             return new \Cuber\Cookie\Cookie();
         });
 
-        app()->singleton('session', function () {
-            return new \Cuber\Session\Session();
-        });
-
         app()->bind('db', function () {
             return new \Cuber\Database\DB();
         });

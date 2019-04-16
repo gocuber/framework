@@ -100,7 +100,7 @@ class Query
         }
 
         $this->binds['cond'] = $this->autoCond($cond);
-        return true;
+        return $this;
     }
 
     /**
@@ -116,7 +116,8 @@ class Query
             return false;
         }
 
-        return $this->mergeCond($this->autoCond($cond));
+        $this->mergeCond($this->autoCond($cond));
+        return $this;
     }
 
     /**
@@ -132,7 +133,8 @@ class Query
             return $this;
         }
 
-        return $this->mergeCond($this->autoCond($cond), 'or');
+        $this->mergeCond($this->autoCond($cond), 'or');
+        return $this;
     }
 
     /**
@@ -334,7 +336,7 @@ class Query
         }
 
         $this->binds['field'] = is_array($field) ? implode(',', $field) : trim($field);
-        return true;
+        return $this;
     }
 
     /**
@@ -351,7 +353,7 @@ class Query
         }
 
         $this->binds['from'] = trim($name);
-        return true;
+        return $this;
     }
 
     /**
@@ -375,7 +377,7 @@ class Query
             $this->binds['join'] = $type . $table . ' on ' . $on;
         }
 
-        return true;
+        return $this;
     }
 
     /**
@@ -392,7 +394,7 @@ class Query
         }
 
         $this->binds['groupby'] = is_array($cond) ? implode(',', $cond) : trim($cond);
-        return true;
+        return $this;
     }
 
     /**
@@ -409,7 +411,7 @@ class Query
         }
 
         $this->binds['having'] = trim($cond);
-        return true;
+        return $this;
     }
 
     /**
@@ -440,7 +442,7 @@ class Query
             $this->binds['orderby'] = $cond;
         }
 
-        return true;
+        return $this;
     }
 
     /**
@@ -453,7 +455,7 @@ class Query
     {
         $this->binds['offset'] = (int)$offset;
 
-        return true;
+        return $this;
     }
 
     /**
@@ -466,7 +468,7 @@ class Query
     {
         $this->binds['limit'] = (int)$limit;
 
-        return true;
+        return $this;
     }
 
     /**
@@ -485,7 +487,7 @@ class Query
         $this->binds['offset'] = ($currpage - 1) * $pagesize;
         $this->binds['limit']  = $pagesize;
 
-        return true;
+        return $this;
     }
 
 }

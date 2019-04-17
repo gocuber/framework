@@ -1,35 +1,71 @@
 <?php
 
 /**
- * File
+ * FileCache
  *
  * @author Cuber <dafei.net@gmail.com>
  */
-namespace Cuber\Cache;
+namespace Cuber\FileCache;
 
-use Cuber\Support\Facades\Config;
-
-class File
+class FileCache
 {
 
-    private static $instance;
+    /**
+     * 配置
+     *
+     * @var array
+     */
     private $config;
+
+    /**
+     * 当前连接
+     *
+     * @var string
+     */
+    private $connect = 'default';
+
+    /**
+     * 连接
+     *
+     * @var array
+     */
+    private $conn;
 
     private function __construct($config = null)
     {
         $this->config = $config;
     }
 
-    public static function connect($key = 'default')
+    /**
+     * 切换连接
+     *
+     * @return $this
+     */
+    public function connect($key = 'default')
     {
-        $conf = Config::fc($key);
+        $this->connect = $key;
 
-        $key = md5(serialize($conf));
-        if (!isset(self::$instance[$key])) {
-            self::$instance[$key] = new self($conf);
+        return $this;
+    }
+
+    /**
+     * 返回缓存文件全路径
+     *
+     * @param string $key
+     * @return string
+     */
+    public function getFilePath($key = null)
+    {
+        if (!isset($key) or !isset($this->config[$this->connect])) {
+            return false;
         }
 
-        return self::$instance[$key];
+        $config = $this->config[$this->connect];
+        $md5    = md5($key);
+        $dir    = $config['dir'];
+        $subdir = $config['is_subdir'] ? substr($md5, 0, 2) . '/' . substr($md5, 2, 2) . '/' . substr($md5, 4, 2) . '/' : '';
+        $file   = $dir . $subdir . $key;
+        return $file;
     }
 
     /**
@@ -45,7 +81,7 @@ class File
             return $default;
         }
 
-        $file = $this->getFile($key);
+        $file = $this->getFilePath($key);
         if (!is_file($file)) {
             return $default;
         }
@@ -75,7 +111,7 @@ class File
             return false;
         }
 
-        $file = $this->getFile($key);
+        $file = $this->getFilePath($key);
         if (!\mk_dir(dirname($file))) {
             return false;
         }
@@ -100,13 +136,13 @@ class File
      * @param string $key
      * @return bool
      */
-    public function del($key = '')
+    public function delete($key = '')
     {
         if (empty($key)) {
             return false;
         }
 
-        $file = $this->getFile($key);
+        $file = $this->getFilePath($key);
         if (is_file($file)) {
             return @unlink($file);
         }
@@ -152,40 +188,21 @@ class File
     }
 
     /**
-     * delMulti
+     * deleteMulti
      *
      * @param array $keys
      * @return array
      */
-    public function delMulti($keys = [])
+    public function deleteMulti($keys = [])
     {
         if (empty($keys) or !is_array($keys)) {
             return false;
         }
 
         foreach ($keys as $key) {
-            $this->del($key);
+            $this->delete($key);
         }
         return true;
-    }
-
-    /**
-     * 返回缓存文件全路径
-     *
-     * @param string $key
-     * @return string
-     */
-    public function getFile($key = false)
-    {
-        if (!isset($key)) {
-            return false;
-        }
-
-        $md5    = md5($key);
-        $dir    = $this->config['dir'];
-        $subdir = $this->config['is_subdir'] ? substr($md5,0,2).'/'.substr($md5,2,2).'/'.substr($md5,4,2).'/' : '';
-        $file   = $dir . $subdir . $key;
-        return $file;
     }
 
 }

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Service
+ * ServiceProvider
  *
  * @author Cuber <dafei.net@gmail.com>
  */
 namespace Cuber\Redis;
 
-class Service
+class RedisServiceProvider
 {
 
     /**

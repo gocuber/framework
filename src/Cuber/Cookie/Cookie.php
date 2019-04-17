@@ -23,7 +23,7 @@ class Cookie
      *
      * @return $this
      */
-    public function setDefaultConfig($path = '/', $domain = null, $secure = false, $httponly = false)
+    public function config($path = '/', $domain = null, $secure = false, $httponly = false)
     {
         $this->path = $path;
         $this->domain = $domain;

@@ -194,7 +194,7 @@ class SessionManager
      */
     public function write()
     {
-        if (null === $this->is_change) {
+        if (false === $this->is_change) {
             return true;
         }
 

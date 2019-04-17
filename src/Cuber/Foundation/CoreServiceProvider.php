@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Service
+ * 核心服务提供者
  *
  * @author Cuber <dafei.net@gmail.com>
  */
 namespace Cuber\Foundation;
 
-class Service
+class CoreServiceProvider
 {
 
     /**
@@ -31,10 +31,6 @@ class Service
 
         app()->singleton('request', function () {
             return new \Cuber\Support\Request();
-        });
-
-        app()->singleton('cookie', function () {
-            return new \Cuber\Cookie\Cookie();
         });
 
         app()->bind('db', function () {

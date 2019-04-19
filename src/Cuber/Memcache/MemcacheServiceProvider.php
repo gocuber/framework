@@ -18,15 +18,15 @@ class MemcacheServiceProvider
     public function register()
     {
         app()->singleton('memcache', function () {
-            return new \Cuber\Cache\Memcache(config('memcache', []));
+            return new \Cuber\Memcache\Memcache(config('memcache', []));
         });
 
         app()->singleton('memcached', function () {
-            return new \Cuber\Cache\Memcached(config('memcache', []));
+            return new \Cuber\Memcache\Memcached(config('memcache', []));
         });
 
         app()->bind('MemcacheManager', function () {
-            return new \Cuber\Cache\MemcacheManager(app(config('memcache.driver', 'memcache')));
+            return new \Cuber\Memcache\MemcacheManager(app(config('memcache.driver', 'memcached')));
         });
     }
 

@@ -31,7 +31,7 @@ class Memcached
      */
     private $conn;
 
-    private function __construct($config = null)
+    public function __construct($config = null)
     {
         $this->config = $config;
     }
@@ -41,9 +41,11 @@ class Memcached
      *
      * @return $this
      */
-    public function connect($key = 'default')
+    public function connect($key = null)
     {
-        $this->connect = $key;
+        if (isset($key)) {
+            $this->connect = $key;
+        }
 
         return $this;
     }
@@ -58,7 +60,7 @@ class Memcached
         if (!isset($this->conn[$this->connect])) {
             $config = $this->config[$this->connect];
             $key = md5(serialize($config));
-            $mem = new Memcached($key);
+            $mem = new \Memcached($key);
             if (isset($config[0]) and is_array($config[0])) {
                 $conf = [];
                 foreach ($config as $value) {

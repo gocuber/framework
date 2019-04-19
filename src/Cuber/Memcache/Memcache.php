@@ -31,7 +31,7 @@ class Memcache
      */
     private $conn;
 
-    private function __construct($config = null)
+    public function __construct($config = null)
     {
         $this->config = $config;
     }
@@ -57,7 +57,7 @@ class Memcache
     {
         if (!isset($this->conn[$this->connect])) {
             $config = $this->config[$this->connect];
-            $mem = new Memcache();
+            $mem = new \Memcache();
             if (isset($config[0]) and is_array($config[0])) {
                 foreach ($config as $value) {
                     if (isset($value['weight'])) {

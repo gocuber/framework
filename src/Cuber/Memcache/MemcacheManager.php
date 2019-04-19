@@ -14,7 +14,7 @@ class MemcacheManager
 
     private $connect;
 
-    private function __construct($driver)
+    public function __construct($driver)
     {
         $this->driver = $driver;
     }

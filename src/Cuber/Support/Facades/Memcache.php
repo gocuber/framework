@@ -10,6 +10,6 @@ namespace Cuber\Support\Facades;
 class Memcache extends Facade
 {
 
-    protected static $accessor = 'memcache';
+    protected static $accessor = 'MemcacheManager';
 
 }

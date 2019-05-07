@@ -10,36 +10,50 @@ namespace Cuber\Redis;
 class Redis
 {
 
-    private $configs;
+    /**
+     * 配置
+     *
+     * @var array
+     */
+    private $config;
 
-    private $connects;
+    /**
+     * 当前连接
+     *
+     * @var string
+     */
+    private $connect = 'default';
 
-    public function __construct($configs = [])
+    /**
+     * mode
+     *
+     * @var string
+     */
+    private $mode = 'master';
+
+    /**
+     * 连接
+     *
+     * @var array
+     */
+    private $conn;
+
+    public function __construct($config = [])
     {
-        $this->configs = $configs;
+        $this->config = $config;
     }
 
     /**
      * connect
      *
-     * @return Redis
+     * @return $this
      */
     public function connect($key = 'default', $mode = 'master')
     {
-        $conf = array_get($this->configs, $key);
+        $this->connect = $key;
+        $this->mode = $mode;
 
-        $conn_key = $key . '.' . $mode;
-        if (isset($this->connects[$conn_key])) {
-            return $this->connects[$conn_key];
-        }
-
-        if ('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])) {
-            $skey = mt_rand(0, count($conf['slave']) - 1);
-            $conf = array_merge($conf, $conf['slave'][$skey]);
-        }
-
-        $this->connects[$conn_key] = app('redis.connect', [$conf]);
-        return $this->connects[$conn_key];
+        return $this;
     }
 
     /**
@@ -57,14 +71,41 @@ class Redis
      *
      * @return Redis
      */
-    public static function slave($key = 'default')
+    public function slave($key = 'default')
     {
         return $this->connect($key, 'slave');
     }
 
+    /**
+     * conn
+     *
+     * @return \Redis
+     */
+    private function conn()
+    {
+        $conf = array_get($this->config, $this->connect);
+
+        $conn_key = $this->connect . '.' . $this->mode;
+        if (isset($this->conn[$conn_key]) and '+PONG' === $this->conn[$conn_key]->ping()) {
+            return $this->conn[$conn_key];
+        }
+
+        if ('slave' == $this->mode and !empty($conf['slave']) and is_array($conf['slave'])) {
+            $skey = mt_rand(0, count($conf['slave']) - 1);
+            $conf = array_merge($conf, $conf['slave'][$skey]);
+        }
+
+        $this->conn[$conn_key] = new \Redis();
+        $this->conn[$conn_key]->pconnect($conf['host'], $conf['port'], 2, md5($conf['host'] . '_' . $conf['port']));
+        isset($conf['auth']) and '' !== $conf['auth'] and $this->conn[$conn_key]->auth($conf['auth']);
+        isset($conf['database']) and '' !== $conf['database'] and $this->conn[$conn_key]->select($conf['database']);
+
+        return $this->conn[$conn_key];
+    }
+
     public function __call($method, $args)
     {
-        return $this->connect()->$method(...$args);
+        return $this->conn()->$method(...$args);
     }
 
 }

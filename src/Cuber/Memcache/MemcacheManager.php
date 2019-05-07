@@ -28,6 +28,8 @@ class MemcacheManager
 
     public function driver()
     {
+        // connect() 避免driver由于单例模式而默认连接到上次使用的connect
+
         return $this->driver->connect($this->connect);
     }
 

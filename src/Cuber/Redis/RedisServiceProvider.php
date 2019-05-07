@@ -18,11 +18,11 @@ class RedisServiceProvider
     public function register()
     {
         app()->singleton('redis', function () {
-            return new Redis(config('redis', []));
+            return new \Cuber\Redis\Redis(config('redis', []));
         });
 
-        app()->bind('redis.connect', function ($config) {
-            return new Connect($config);
+        app()->bind('RedisManager', function () {
+            return new \Cuber\Redis\RedisManager(app(config('redis.driver', 'redis')));
         });
     }
 

@@ -72,14 +72,14 @@ class Application extends Container
         $this->bind('app.module', $module_name);
 
         // controllers namespace prefix
-        $namespace = config('module.' . app('app.module') . '.controllers', '');
-        if ('' !== $namespace) {
+        $namespace = config('module.' . app('app.module') . '.controllers');
+        if ($namespace) {
             config(['controllers_namespace'=>$namespace]);
         }
 
         // views dir
-        $views = config('module.' . app('app.module') . '.views', '');
-        if ('' !== $views) {
+        $views = config('module.' . app('app.module') . '.views');
+        if ($views) {
             config(['views'=>$views]);
         }
 

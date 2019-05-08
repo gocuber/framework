@@ -32,10 +32,6 @@ class CoreServiceProvider
         app()->singleton('request', function () {
             return new \Cuber\Support\Request();
         });
-
-        app()->bind('db', function () {
-            return new \Cuber\Database\DB();
-        });
     }
 
 }

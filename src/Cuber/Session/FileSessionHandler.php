@@ -8,6 +8,7 @@
 namespace Cuber\Session;
 
 use SessionHandlerInterface;
+use Cuber\FileCache\FileCache;
 
 class FileSessionHandler implements SessionHandlerInterface
 {
@@ -15,7 +16,7 @@ class FileSessionHandler implements SessionHandlerInterface
     /**
      * file
      *
-     * @var Cuber\Cache\File
+     * @var Cuber\FileCache\FileCache
      */
     private $file;
 
@@ -36,11 +37,11 @@ class FileSessionHandler implements SessionHandlerInterface
     /**
      * 创建驱动
      *
-     * @param  File  $file
+     * @param  FileCache  $file
      * @param  int  $expire
      * @return void
      */
-    public function __construct(File $file, $expire = 86400 * 7)
+    public function __construct(FileCache $file, $expire = 86400 * 7)
     {
         $this->file = $file;
         $this->expire = $expire;

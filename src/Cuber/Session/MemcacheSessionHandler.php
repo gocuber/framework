@@ -8,6 +8,7 @@
 namespace Cuber\Session;
 
 use SessionHandlerInterface;
+use Cuber\Memcache\MemcacheManager;
 
 class CacheSessionHandler implements SessionHandlerInterface
 {
@@ -15,7 +16,7 @@ class CacheSessionHandler implements SessionHandlerInterface
     /**
      * cache
      *
-     * @var Cuber\Cache\Cache
+     * @var Cuber\Memcache\MemcacheManager
      */
     private $cache;
 
@@ -36,11 +37,11 @@ class CacheSessionHandler implements SessionHandlerInterface
     /**
      * 创建驱动
      *
-     * @param  Cache  $cache
+     * @param  MemcacheManager  $cache
      * @param  int  $expire
      * @return void
      */
-    public function __construct(Cache $cache, $expire = 86400 * 7)
+    public function __construct(MemcacheManager $cache, $expire = 86400 * 7)
     {
         $this->cache = $cache;
         $this->expire = $expire;

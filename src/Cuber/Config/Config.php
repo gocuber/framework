@@ -25,6 +25,33 @@ class Config
     }
 
     /**
+     * set
+     *
+     * @param string|array $key
+     * @param string|array $value
+     *
+     * @return bool
+     */
+    public function set($key = null, $value = null)
+    {
+        if (!isset($key) or '' === $key) {
+            return false;
+        }
+
+        $this->init();
+
+        if (is_array($key)) {
+            foreach ($key as $k=>$v) {
+                $this->hash[$k] = $v;
+            }
+        } elseif (is_scalar($key)) {
+            $this->hash[$key] = $value;
+        }
+
+        return true;
+    }
+
+    /**
      * Get Config
      *
      * @param string $key

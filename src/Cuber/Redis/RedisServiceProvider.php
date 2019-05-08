@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ServiceProvider
+ * RedisServiceProvider
  *
  * @author Cuber <dafei.net@gmail.com>
  */

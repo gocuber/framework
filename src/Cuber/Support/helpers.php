@@ -187,17 +187,13 @@ function session($key = null, $default = null)
 /**
  * config
  *
- * @param string|array $key
+ * @param string $key
  * @param string|array $default
  *
  * @return string|array
  */
 function config($key = null, $default = null)
 {
-    if (is_array($key)) {
-        return app('config')->set($key);
-    }
-
     return app('config')->get($key, $default);
 }
 

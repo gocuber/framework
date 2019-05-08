@@ -140,7 +140,7 @@ class Application extends Container
         } catch (Exception $e) {
 
             $e->log();
-            Config::debug() or ret404();
+            config('debug') or ret404();
 
         }
     }

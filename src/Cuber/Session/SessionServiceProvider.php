@@ -27,10 +27,10 @@ class SessionServiceProvider
             return new \Cuber\Session\MysqlSessionHandler();
         });
         app()->singleton('session.memcache', function () {
-            return new \Cuber\Session\MemcacheSessionHandler(app('memcache'));
+            return new \Cuber\Session\MemcacheSessionHandler(app('MemcacheManager'));
         });
         app()->singleton('session.redis', function () {
-            return new \Cuber\Session\RedisSessionHandler(app('redis'));
+            return new \Cuber\Session\RedisSessionHandler(app('RedisManager'));
         });
         app()->singleton('session', function ($id = null) {
             return new \Cuber\Session\SessionManager(app('session.' . config('session.driver', 'file')), $id);

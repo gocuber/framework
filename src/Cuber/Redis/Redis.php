@@ -59,21 +59,31 @@ class Redis
     /**
      * master
      *
-     * @return Redis
+     * @return $this
      */
-    public function master($key = 'default')
+    public function master($key = null)
     {
-        return $this->connect($key, 'master');
+        if (null !== $key) {
+            $this->connect = $key;
+        }
+        $this->mode = 'master';
+
+        return $this;
     }
 
     /**
      * slave
      *
-     * @return Redis
+     * @return $this
      */
-    public function slave($key = 'default')
+    public function slave($key = null)
     {
-        return $this->connect($key, 'slave');
+        if (null !== $key) {
+            $this->connect = $key;
+        }
+        $this->mode = 'slave';
+
+        return $this;
     }
 
     /**

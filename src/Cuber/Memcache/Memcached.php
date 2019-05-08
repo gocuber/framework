@@ -25,40 +25,38 @@ class Memcached
     private $connect = 'default';
 
     /**
-     * memcache连接
+     * 连接
      *
      * @var array
      */
     private $conn;
 
-    public function __construct($config = null)
+    public function __construct($config = [])
     {
         $this->config = $config;
     }
 
     /**
-     * 切换memcache连接
+     * 切换连接
      *
      * @return $this
      */
-    public function connect($key = null)
+    public function connect($key = 'default')
     {
-        if (isset($key)) {
-            $this->connect = $key;
-        }
+        $this->connect = $key;
 
         return $this;
     }
 
     /**
-     * 建立memcache连接
+     * 建立连接
      *
-     * @return Memcached
+     * @return \Memcached
      */
     private function conn()
     {
         if (!isset($this->conn[$this->connect])) {
-            $config = $this->config[$this->connect];
+            $config = array_get($this->config, $this->connect);
             $key = md5(serialize($config));
             $mem = new \Memcached($key);
             if (isset($config[0]) and is_array($config[0])) {
@@ -77,7 +75,7 @@ class Memcached
     }
 
     /**
-     * 关闭当前memcache连接
+     * 关闭当前连接
      *
      * @return bool
      */
@@ -92,7 +90,7 @@ class Memcached
     }
 
     /**
-     * 关闭全部memcache连接
+     * 关闭全部连接
      *
      * @return bool
      */
@@ -116,7 +114,7 @@ class Memcached
      */
     public function set($key = '', $value = '', $time = 3600)
     {
-        return $this->conn()->set($key, $value, $_SERVER['REQUEST_TIME'] + $time);
+        return $this->conn()->set($key, $value, time() + $time);
     }
 
     /**
@@ -151,7 +149,7 @@ class Memcached
      */
     public function setMulti($items = [], $time = 3600)
     {
-        return $this->conn()->setMulti($items, $_SERVER['REQUEST_TIME'] + $time);
+        return $this->conn()->setMulti($items, time() + $time);
     }
 
     /**
@@ -211,7 +209,7 @@ class Memcached
      */
     public function add($key = '', $value = '', $time = 3600)
     {
-        return $this->conn()->add($key, $value, $_SERVER['REQUEST_TIME'] + $time);
+        return $this->conn()->add($key, $value, time() + $time);
     }
 
     /**
@@ -224,7 +222,7 @@ class Memcached
      */
     public function replace($key = '', $value = '', $time = 3600)
     {
-        return $this->conn()->replace($key, $value, $_SERVER['REQUEST_TIME'] + $time);
+        return $this->conn()->replace($key, $value, time() + $time);
     }
 
 }

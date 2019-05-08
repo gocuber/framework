@@ -25,7 +25,7 @@ class Memcache
     private $connect = 'default';
 
     /**
-     * memcache连接
+     * 连接
      *
      * @var array
      */
@@ -37,7 +37,7 @@ class Memcache
     }
 
     /**
-     * 切换memcache连接
+     * 切换连接
      *
      * @return $this
      */
@@ -49,14 +49,14 @@ class Memcache
     }
 
     /**
-     * 建立memcache连接
+     * 建立连接
      *
-     * @return Memcache
+     * @return \Memcache
      */
     private function conn()
     {
         if (!isset($this->conn[$this->connect])) {
-            $config = $this->config[$this->connect];
+            $config = array_get($this->config, $this->connect);
             $mem = new \Memcache();
             if (isset($config[0]) and is_array($config[0])) {
                 foreach ($config as $value) {
@@ -76,7 +76,7 @@ class Memcache
     }
 
     /**
-     * 关闭当前memcache连接
+     * 关闭当前连接
      *
      * @return bool
      */
@@ -91,7 +91,7 @@ class Memcache
     }
 
     /**
-     * 关闭全部memcache连接
+     * 关闭全部连接
      *
      * @return bool
      */

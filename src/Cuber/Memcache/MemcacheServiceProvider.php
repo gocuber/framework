@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ServiceProvider
+ * MemcacheServiceProvider
  *
  * @author Cuber <dafei.net@gmail.com>
  */

@@ -12,7 +12,7 @@ class MemcacheManager
 
     private $driver;
 
-    private $connect;
+    private $connect = 'default';
 
     public function __construct($driver)
     {

@@ -1,24 +1,30 @@
 <?php
 
 /**
- * DB
+ * DatabaseManager
  *
  * @author Cuber <dafei.net@gmail.com>
  */
 namespace Cuber\Database;
 
-class DB
+class DatabaseManager
 {
 
-    private $pdo = null;
+    private $app;
+
+    private $config = [];
 
     private $query = null;
 
     protected $connect = 'default';
 
-    protected $name = null;
+    private $use_master = false;
 
-    protected $fields = [];
+    public function __construct($app, $config)
+    {
+        $this->app = $app;
+        $this->config = $config;
+    }
 
     public function model(Model $model)
     {
@@ -29,11 +35,34 @@ class DB
         return $this;
     }
 
-    public function connect($key = null)
+    public function connect($key = 'default')
     {
-        isset($key) and $this->connect = $key;
+        $this->connect = $key;
 
         return $this;
+    }
+
+    /**
+     * 切换到读写主库
+     *
+     * @param bool $is
+     * @return this
+     */
+    public function useMaster($is = true)
+    {
+        $this->use_master = $is;
+
+        return $this;
+    }
+
+    public function getDriver()
+    {
+        $driver = array_get($this->config, $this->connect . '.driver', 'mysql');
+
+        return $this->app->make('db.' . $driver)
+            ->setConfig(array_get($this->config, $this->connect))
+            ->connect($this->connect)
+            ->useMaster($this->use_master);
     }
 
     /**
@@ -123,8 +152,8 @@ class DB
         $is   = ('*' == $value or count(explode(',', $value)) > 1) ? 1 : 0;
         $hash = [];
 
-        $query = $this->getPdo()->query($sql['sql'], $sql['param']);
-        for(;$v = $this->getPdo()->fetch($query);){
+        $query = $this->getDriver()->query($sql['sql'], $sql['param']);
+        for(;$v = $this->getDriver()->fetch($query);){
             $hash[$v[$key]] = $is ? $v : $v[$value];
         }
 
@@ -141,7 +170,7 @@ class DB
     {
         $this->getQuery()->field($field);
         $sql = $this->getQuery()->getSql();
-        return $this->getPdo()->get($sql['sql'], $sql['param']);
+        return $this->getDriver()->get($sql['sql'], $sql['param']);
     }
 
     /**
@@ -154,7 +183,7 @@ class DB
     {
         $this->getQuery()->field($field);
         $sql = $this->getQuery()->getSql();
-        return $this->getPdo()->line($sql['sql'], $sql['param']);
+        return $this->getDriver()->line($sql['sql'], $sql['param']);
     }
 
     /**
@@ -167,7 +196,7 @@ class DB
     {
         $this->getQuery()->field($field);
         $sql = $this->getQuery()->getSql();
-        return $this->getPdo()->val($sql['sql'], $sql['param']);
+        return $this->getDriver()->val($sql['sql'], $sql['param']);
     }
 
     /**
@@ -342,7 +371,7 @@ class DB
      */
     public function exec($sql = null)
     {
-        return $this->getPdo()->exec($sql);
+        return $this->getDriver()->exec($sql);
     }
 
     /**
@@ -360,7 +389,7 @@ class DB
             $param = $_sql['param'];
         }
 
-        return $this->getPdo()->query($sql, $param);
+        return $this->getDriver()->query($sql, $param);
     }
 
     /**
@@ -372,7 +401,7 @@ class DB
      */
     public function rowCount($statement = null)
     {
-        return $this->getPdo()->rowCount($statement);
+        return $this->getDriver()->rowCount($statement);
     }
 
     /**
@@ -384,7 +413,7 @@ class DB
      */
     public function fetch($statement = null)
     {
-        return $this->getPdo()->fetch($statement);
+        return $this->getDriver()->fetch($statement);
     }
 
     /**
@@ -397,7 +426,7 @@ class DB
      */
     public function select($sql = null, $param = null)
     {
-        return $this->getPdo()->get($sql, $param);
+        return $this->getDriver()->get($sql, $param);
     }
 
     /**
@@ -438,11 +467,11 @@ class DB
 
         }
 
-        $query = $this->getPdo()->query($sql, $param);
+        $query = $this->getDriver()->query($sql, $param);
         if (false === $query) {
             return false;
         } else {
-            return $this->getPdo()->lastId();
+            return $this->getDriver()->lastId();
         }
     }
 
@@ -489,11 +518,11 @@ class DB
             !empty($_sql['param'])   and $param = array_merge($param, $_sql['param']);
         }
 
-        $query = $this->getPdo()->query($sql, $param);
+        $query = $this->getDriver()->query($sql, $param);
         if (false === $query) {
             return false;
         } else {
-            return $this->getPdo()->rowCount($query);
+            return $this->getDriver()->rowCount($query);
         }
     }
 
@@ -518,11 +547,11 @@ class DB
             $param = $_sql['param'];
         }
 
-        $query = $this->getPdo()->query($sql, $param);
+        $query = $this->getDriver()->query($sql, $param);
         if (false === $query) {
             return false;
         } else {
-            return $this->getPdo()->rowCount($query);
+            return $this->getDriver()->rowCount($query);
         }
     }
 
@@ -581,11 +610,11 @@ class DB
 
         }
 
-        $query = $this->getPdo()->query($sql, $param);
+        $query = $this->getDriver()->query($sql, $param);
         if (false === $query) {
             return false;
         } else {
-            return $this->getPdo()->rowCount($query);
+            return $this->getDriver()->rowCount($query);
         }
     }
 
@@ -596,7 +625,7 @@ class DB
      */
     public function beginTransaction()
     {
-        return $this->getPdo()->beginTransaction();
+        return $this->getDriver()->beginTransaction();
     }
 
     /**
@@ -606,7 +635,7 @@ class DB
      */
     public function commit()
     {
-        return $this->getPdo()->commit();
+        return $this->getDriver()->commit();
     }
 
     /**
@@ -616,7 +645,7 @@ class DB
      */
     public function rollBack()
     {
-        return $this->getPdo()->rollBack();
+        return $this->getDriver()->rollBack();
     }
 
     /**
@@ -628,7 +657,7 @@ class DB
      */
     public function transaction($closure = null)
     {
-        return $this->getPdo()->transaction($closure);
+        return $this->getDriver()->transaction($closure);
     }
 
     /**
@@ -705,23 +734,13 @@ class DB
     }
 
     /**
-     * 取数据库配置
-     *
-     * @return array
-     */
-    public function getConfig()
-    {
-        return config('db.' . $this->connect);
-    }
-
-    /**
      * getLastId
      *
      * @return int
      */
     public function getLastId()
     {
-        return $this->getPdo()->lastId();
+        return $this->getDriver()->lastId();
     }
 
     /**
@@ -732,23 +751,10 @@ class DB
     protected function getQuery()
     {
         if (!isset($this->query)) {
-            $this->query = new Query(['name'=>$this->name]);
+            $this->query = $this->app->make('db.query');
         }
 
         return $this->query;
-    }
-
-    /**
-     * 切换到读写主库
-     *
-     * @param bool $is
-     * @return this
-     */
-    public function useMaster($is = true)
-    {
-        $this->getPdo()->useMaster($is);
-
-        return $this;
     }
 
     /**
@@ -758,7 +764,7 @@ class DB
      */
     public function getMaster()
     {
-        return $this->getPdo()->getMaster();
+        return $this->getDriver()->getMaster();
     }
 
     /**
@@ -768,7 +774,7 @@ class DB
      */
     public function getSlave()
     {
-        return $this->getPdo()->getSlave();
+        return $this->getDriver()->getSlave();
     }
 
     /**
@@ -778,11 +784,7 @@ class DB
      */
     public function getPdo()
     {
-        if (!isset($this->pdo)) {
-            $this->pdo = Connect::getInstance($this->getConfig());
-        }
-
-        return $this->pdo;
+        return $this->getDriver()->getPdo();
     }
 
     /**
@@ -793,7 +795,9 @@ class DB
      */
     public function debug($debug = true)
     {
-        $this->getPdo()->debug($debug);
+        $this->getDriver()->debug($debug);
+
+        return $this;
     }
 
 }

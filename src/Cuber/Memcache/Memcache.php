@@ -113,9 +113,9 @@ class Memcache
      * @param int $time
      * @return bool
      */
-    public function set($key = '', $value = '', $time = 3600)
+    public function set($key = '', $value = '', $time = 0)
     {
-        return $this->conn()->set($key, $value, 0 ,$time);
+        return $this->conn()->set($key, $value, 0, $time);
     }
 
     /**
@@ -148,7 +148,7 @@ class Memcache
      * @param int $time
      * @return bool
      */
-    public function setMulti($items = [], $time = 3600)
+    public function setMulti($items = [], $time = 0)
     {
         if (empty($items) or !is_array($items)) {
             return false;
@@ -222,9 +222,9 @@ class Memcache
      * @param int $time
      * @return bool
      */
-    public function add($key = '', $value = '', $time = 3600)
+    public function add($key = '', $value = '', $time = 0)
     {
-        return $this->conn()->add($key, $value, 0, time() + $time);
+        return $this->conn()->add($key, $value, 0, $time);
     }
 
     /**
@@ -235,9 +235,9 @@ class Memcache
      * @param int $time
      * @return bool
      */
-    public function replace($key = '', $value = '', $time = 3600)
+    public function replace($key = '', $value = '', $time = 0)
     {
-        return $this->conn()->replace($key, $value, 0, time() + $time);
+        return $this->conn()->replace($key, $value, 0, $time);
     }
 
 }

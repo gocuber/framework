@@ -24,7 +24,7 @@ class FileCache
      */
     private $connect = 'default';
 
-    private function __construct($config = [])
+    public function __construct($config = [])
     {
         $this->config = $config;
     }

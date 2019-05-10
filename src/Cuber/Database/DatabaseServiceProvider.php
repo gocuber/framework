@@ -17,8 +17,16 @@ class DatabaseServiceProvider
      */
     public function register()
     {
+        app()->singleton('db.mysql', function () {
+            return new \Cuber\Database\Mysql();
+        });
+
+        app()->bind('db.query', function () {
+            return new \Cuber\Database\Query();
+        });
+
         app()->bind('db', function () {
-            return new \Cuber\Database\DB();
+            return new \Cuber\Database\DatabaseManager(app(), config('db', []));
         });
     }
 

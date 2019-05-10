@@ -21,13 +21,14 @@ abstract class Model
     public static function __callStatic($method, $args)
     {
         $st = static::class;
+        $m = new $st();
 
-        return DB::model(new $st())->$method(...$args);
+        return DB::model($m)->connect($m->getConnect())->name($m->getName())->$method(...$args);
     }
 
     public function __call($method, $args)
     {
-        return DB::model($this)->$method(...$args);
+        return DB::model($this)->connect($this->connect)->name($this->name)->$method(...$args);
     }
 
     public function getConnect()

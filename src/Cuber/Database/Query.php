@@ -10,16 +10,9 @@ namespace Cuber\Database;
 class Query
 {
 
-    private $model = null;
-
     private $binds = null;
 
     private $param = null;
-
-    public function __construct($model = null)
-    {
-        $this->model = $model;
-    }
 
     /**
      * autoCond
@@ -301,7 +294,6 @@ class Query
         $where = isset($this->binds['cond']) ? $this->buildCond($this->binds['cond']) : '';
         extract($this->binds);
 
-        !isset($from) and isset($this->model['name']) and $from = $this->model['name'];
         $sql = 'select ' . (isset($field) ? $field : '*') . ' from ' . $from;
 
         isset($join)    and $sql .= " $join";

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Connect
+ * Mysql
  *
  * @author Cuber <dafei.net@gmail.com>
  */
@@ -11,40 +11,57 @@ use PDO;
 use PDOException;
 use Cuber\Support\Exception;
 
-class Connect
+class Mysql
 {
 
     const RECONN = 3;
 
-    private static $debug = null;
+    private $debug = false;
 
-    private static $instance = null;
+    private $config = [];
 
-    private $conf = null;
-
-    private $config = null;
+    private $connect = 'default';
 
     private $use_master = false;
 
-    private $master = null;
+    private $conn;
 
-    private $slave = null;
-
-    private function __construct($config = null)
+    /**
+     * setConfig
+     *
+     * @param array $config
+     * @return $this
+     */
+    public function setConfig($config = [])
     {
-        if (isset($config)) {
-            $this->setConfig($config);
-        }
+        $this->config = $config;
+
+        return $this;
     }
 
-    public static function getInstance($config = [])
+    /**
+     * connect
+     *
+     * @return $this
+     */
+    public function connect($key = 'default')
     {
-        $key = md5(serialize($config));
-        if (!isset(self::$instance[$key])) {
-            self::$instance[$key] = new self($config);
-        }
+        $this->connect = $key;
 
-        return self::$instance[$key];
+        return $this;
+    }
+
+    /**
+     * 切换到读写主库
+     *
+     * @param bool $is
+     * @return bool
+     */
+    public function useMaster($is = true)
+    {
+        $this->use_master = $is;
+
+        return $this;
     }
 
     /**
@@ -64,13 +81,11 @@ class Connect
             $ret = $this->getMaster()->exec($sql);
             $_e  = microtime(true);
 
-            if(self::$debug){
-                $_log  = '<pre>' . "\n" . 'exec()' . "\n";
-                $_log .= 'config : ' . print_r($this->getConfig('master'), true) . "\n";
-                $_log .= 'time : ' . ($_e - $_s) ."\n";
-                $_log .= 'sql : ' . print_r($sql, true) . "\n";
-                $_log .= '</pre>';
-                echo $_log;
+            if ($this->debug) {
+                $_log  = 'exec()' . "\n";
+                $_log .= 'time: ' . ($_e - $_s) . "\n";
+                $_log .= 'sql: ' . print_r($sql, true) . "\n";
+                s($_log);
             }
 
             return $ret;
@@ -169,31 +184,31 @@ class Connect
 
             $_e = microtime(true);
 
-            if(self::$debug){
-                $_log  = '<pre>' . "\n" . 'query()' . "\n";
-                $_log .= 'config : ' . print_r($this->getConfig($this->isReadQuery($sql) ? 'slave' : 'master'), true) . "\n";
-                $_log .= 'time : ' . ($_e - $_s) ."\n";
-                $_log .= 'sql : ' . print_r($sql, true) . "\n";
-                $_log .= 'param : ' . print_r($param, true) . "\n";
-                $_log .= '</pre>';
-                echo $_log;
-                echo '<pre>debugDumpParams : ';$statement->debugDumpParams();echo '</pre>';
+            if ($this->debug) {
+                $_log  = 'query()' . "\n";
+                $_log .= 'time: ' . ($_e - $_s) . "\n";
+                $_log .= 'sql: ' . print_r($sql, true) . "\n";
+                $_log .= 'param: ' . print_r($param, true) . "\n";
+                s($_log);
+                echo '<pre>debugDumpParams: ';
+                $statement->debugDumpParams();
+                echo '</pre>';
             }
 
             return (false === $ret) ? false : $statement;
 
         } catch (PDOException $e) {
 
-            if($reconn > 0 and 2006 == $e->errorInfo[1]){
-                if(self::$debug){
-                    echo '<pre>reconn : ' . $reconn . '</pre>';
+            if ($reconn > 0 and 2006 == $e->errorInfo[1]) {
+                if ($this->debug) {
+                    s('reconn: ' . $reconn);
                 }
                 $reconn--;
                 $this->close();
                 return $this->query($sql, $param, $reconn);
             }
 
-            if($this->inTransaction()){
+            if ($this->inTransaction()) {
                 throw new Exception('query() ' . $sql . $e->getMessage());
             }
 
@@ -364,34 +379,13 @@ class Connect
     }
 
     /**
-     * 切换到读写主库
-     *
-     * @param bool $is
-     * @return bool
-     */
-    public function useMaster($is = true)
-    {
-        $this->use_master = $is;
-
-        return true;
-    }
-
-    /**
      * 获取当前实例的从库连接
      *
      * @return resource
      */
     public function getSlave()
     {
-        if (empty($this->config['slave'])) {
-            return $this->getMaster();
-        }
-
-        if (!isset($this->slave)) {
-           $this->slave = $this->conn($this->getConfig('slave'));
-        }
-
-        return $this->slave;
+        return $this->conn('slave');
     }
 
     /**
@@ -401,11 +395,7 @@ class Connect
      */
     public function getMaster()
     {
-        if (!isset($this->master)) {
-           $this->master = $this->conn($this->getConfig('master'));
-        }
-
-        return $this->master;
+        return $this->conn('master');
     }
 
     /**
@@ -431,76 +421,43 @@ class Connect
     /**
      * conn
      *
-     * @param array $conf
+     * @param string $mode
      * @return PDO
      */
-    private function conn($conf = [])
+    private function conn($mode = 'master')
     {
+        $conf = $this->config;
+
+        $conn_key = $this->connect . '.' . $mode;
+        if (isset($this->conn[$conn_key])) {
+            return $this->conn[$conn_key];
+        }
+
+        if ('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])) {
+            $skey = mt_rand(0, count($conf['slave']) - 1);
+            $conf = array_merge($conf, $conf['slave'][$skey]);
+        }
+
+        if ($this->debug) {
+            $_log  = 'conn()' . "\n";
+            $_log .= 'config: ' . print_r($conf, true) . "\n";
+            s($_log);
+        }
+
         $dsn = $this->getDsn($conf);
         extract($conf);
 
         try {
 
             // PDO::ATTR_PERSISTENT => true,
-            return new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_INIT_COMMAND => "set names utf8"]);
+            $this->conn[$conn_key] = new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_INIT_COMMAND => "set names utf8"]);
+            return $this->conn[$conn_key];
 
         } catch (PDOException $e) {
 
             (new Exception())->log(Exception::ERROR_TYPE_MYSQL, $e, true);
 
         }
-    }
-
-    /**
-     * setConfig
-     *
-     * @param array $config
-     * @return bool
-     */
-    public function setConfig($config = [])
-    {
-        try {
-
-            if (!isset($config) or !is_array($config)) {
-                throw new Exception("database config error");
-            }
-
-        } catch (Exception $e) {
-
-            $e->log(Exception::ERROR_TYPE_MYSQL);
-
-        }
-
-        $this->config = $config;
-        return true;
-    }
-
-    /**
-     * getConfig
-     *
-     * @return array
-     */
-    public function getConfig($mode = null)
-    {
-        $conf = $this->config;
-        if (empty($mode) or !in_array($mode, ['master', 'slave'])) {
-            return $conf;
-        }
-
-        if (!isset($this->conf[$mode])) {
-            if ('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])) {
-                if (isset($conf['slave'][0]) and is_array($conf['slave'][0])) {
-                    $skey = mt_rand(0, count($conf['slave']) - 1);
-                    $conf = array_merge($conf, $conf['slave'][$skey]);
-                } else {
-                    $conf = array_merge($conf, $conf['slave']);
-                }
-            }
-            unset($conf['slave']);
-            $this->conf[$mode] = $conf;
-        }
-
-        return $this->conf[$mode];
     }
 
     /**
@@ -511,7 +468,7 @@ class Connect
      */
     public function debug($debug = true)
     {
-        self::$debug = $debug;
+        $this->debug = $debug;
     }
 
     /**

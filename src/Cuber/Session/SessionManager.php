@@ -21,6 +21,13 @@ class SessionManager
     private $driver;
 
     /**
+     * 存储中的 session_id 前缀
+     *
+     * @var string
+     */
+    private $prefix;
+
+    /**
      * session id
      *
      * @var string
@@ -42,24 +49,25 @@ class SessionManager
     private $is_change = false;
 
     /**
-     * 默认存储 Session ID 的 cookie key
+     * Cookie中用来存储 Session ID 的 cookie key
      *
      * @var string
      */
-    private $cookie_key = 'CUBERSESSID0OO00OOO0OO00O00O0O00OO00O';
+    private $cookie_key;
 
     /**
      * __construct
      *
-     * @param SessionHandlerInterface $driver
-     * @param string $id
+     * @param  SessionHandlerInterface $driver
+     * @param  array  $config
      * @return void
      */
-    public function __construct(SessionHandlerInterface $driver, $id = null)
+    public function __construct(SessionHandlerInterface $driver, $config = [])
     {
         $this->driver = $driver;
-
-        $this->id($id);
+        $this->prefix = array_get($config, 'prefix', '');
+        $this->cookie_key = array_get($config, 'cookie_key', 'CUBERSESSID');
+        $this->id();
     }
 
     /**
@@ -69,9 +77,8 @@ class SessionManager
      */
     public function regenerate()
     {
-        $cookie = config('session.cookie', $this->cookie_key);
         $id = $this->createId();
-        Cookie::forever($cookie, $id);
+        Cookie::forever($this->cookie_key, $id);
 
         $this->session_id = $id;
         // 下面两行 为了防止错误使用 产生错误的Session存储数据
@@ -89,11 +96,10 @@ class SessionManager
     public function id($id = null)
     {
         if (null === $id) {
-            $cookie = config('session.cookie', $this->cookie_key);
-            $id = Cookie::get($cookie);
+            $id = Cookie::get($this->cookie_key);
             if (empty($id)) {
                 $id = $this->createId();
-                Cookie::forever($cookie, $id);
+                Cookie::forever($this->cookie_key, $id);
             }
         }
 
@@ -111,7 +117,7 @@ class SessionManager
     private function initSessionData()
     {
         if (null === $this->session_data) {
-            $session = $this->driver->read($this->session_id);
+            $session = $this->driver->read($this->prefix . $this->session_id);
             $this->session_data = $session ? unserialize($session) : [];
         }
 
@@ -199,9 +205,9 @@ class SessionManager
         }
 
         if (empty($this->session_data)) {
-            $this->driver->destroy($this->session_id);
+            $this->driver->destroy($this->prefix . $this->session_id);
         } else {
-            $this->driver->write($this->session_id, serialize($this->session_data));
+            $this->driver->write($this->prefix . $this->session_id, serialize($this->session_data));
         }
         $this->is_change = false;
         return true;

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CacheSessionHandler
+ * MemcacheSessionHandler
  *
  * @author Cuber <dafei.net@gmail.com>
  */
@@ -10,7 +10,7 @@ namespace Cuber\Session;
 use SessionHandlerInterface;
 use Cuber\Memcache\MemcacheManager;
 
-class CacheSessionHandler implements SessionHandlerInterface
+class MemcacheSessionHandler implements SessionHandlerInterface
 {
 
     /**
@@ -28,23 +28,16 @@ class CacheSessionHandler implements SessionHandlerInterface
     private $expire;
 
     /**
-     * 前缀
-     *
-     * @var string
-     */
-    private $prefix = 'CUBERSESS_';
-
-    /**
      * 创建驱动
      *
      * @param  MemcacheManager  $cache
-     * @param  int  $expire
+     * @param  array  $config
      * @return void
      */
-    public function __construct(MemcacheManager $cache, $expire = 86400 * 7)
+    public function __construct(MemcacheManager $cache, $config = [])
     {
-        $this->cache = $cache;
-        $this->expire = $expire;
+        $this->cache = $cache->connect(array_get($config, 'connect', 'session'));
+        $this->expire = array_get($config, 'expire', 86400 * 7);
     }
 
     /**
@@ -68,7 +61,7 @@ class CacheSessionHandler implements SessionHandlerInterface
      */
     public function read($id)
     {
-        return $this->cache->get($this->prefix . $id);
+        return $this->cache->get($id);
     }
 
     /**
@@ -76,7 +69,7 @@ class CacheSessionHandler implements SessionHandlerInterface
      */
     public function write($id, $data)
     {
-        return $this->cache->set($this->prefix . $id, $data, $this->expire);
+        return $this->cache->set($id, $data, $this->expire);
     }
 
     /**
@@ -84,7 +77,7 @@ class CacheSessionHandler implements SessionHandlerInterface
      */
     public function destroy($id)
     {
-        return $this->cache->delete($this->prefix . $id);
+        return $this->cache->delete($id);
     }
 
     /**

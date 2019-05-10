@@ -28,23 +28,16 @@ class CookieSessionHandler implements SessionHandlerInterface
     private $expire;
 
     /**
-     * Cookie前缀
-     *
-     * @var string
-     */
-    private $prefix = 'CUBERSESS_';
-
-    /**
      * 创建 cookie 驱动
      *
      * @param  Cookie  $cookie
-     * @param  int  $expire
+     * @param  array   $config
      * @return void
      */
-    public function __construct(Cookie $cookie, $expire = 86400 * 7)
+    public function __construct(Cookie $cookie, $config = [])
     {
         $this->cookie = $cookie;
-        $this->expire = $expire;
+        $this->expire = array_get($config, 'expire', 86400 * 7);
     }
 
     /**
@@ -68,7 +61,7 @@ class CookieSessionHandler implements SessionHandlerInterface
      */
     public function read($id)
     {
-        return json_decode($this->cookie->get($this->prefix . $id), true);
+        return $this->cookie->get($id);
     }
 
     /**
@@ -76,7 +69,11 @@ class CookieSessionHandler implements SessionHandlerInterface
      */
     public function write($id, $data)
     {
-        return $this->cookie->make($this->prefix . $id, json_encode($data), $this->expire);
+        if (0 == $this->expire) {
+            return $this->cookie->forever($id, $data);
+        } else {
+            return $this->cookie->make($id, $data, $this->expire);
+        }
     }
 
     /**
@@ -84,7 +81,7 @@ class CookieSessionHandler implements SessionHandlerInterface
      */
     public function destroy($id)
     {
-        return $this->cookie->forget($this->prefix . $id);
+        return $this->cookie->forget($id);
     }
 
     /**

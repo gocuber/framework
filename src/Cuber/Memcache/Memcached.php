@@ -112,9 +112,9 @@ class Memcached
      * @param int $time
      * @return bool
      */
-    public function set($key = '', $value = '', $time = 3600)
+    public function set($key = '', $value = '', $time = 0)
     {
-        return $this->conn()->set($key, $value, time() + $time);
+        return $this->conn()->set($key, $value, $time);
     }
 
     /**
@@ -147,9 +147,9 @@ class Memcached
      * @param int $time
      * @return bool
      */
-    public function setMulti($items = [], $time = 3600)
+    public function setMulti($items = [], $time = 0)
     {
-        return $this->conn()->setMulti($items, time() + $time);
+        return $this->conn()->setMulti($items, $time);
     }
 
     /**
@@ -207,9 +207,9 @@ class Memcached
      * @param int $time
      * @return bool
      */
-    public function add($key = '', $value = '', $time = 3600)
+    public function add($key = '', $value = '', $time = 0)
     {
-        return $this->conn()->add($key, $value, time() + $time);
+        return $this->conn()->add($key, $value, $time);
     }
 
     /**
@@ -220,9 +220,9 @@ class Memcached
      * @param int $time
      * @return bool
      */
-    public function replace($key = '', $value = '', $time = 3600)
+    public function replace($key = '', $value = '', $time = 0)
     {
-        return $this->conn()->replace($key, $value, time() + $time);
+        return $this->conn()->replace($key, $value, $time);
     }
 
 }

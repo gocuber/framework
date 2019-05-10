@@ -14,11 +14,11 @@ class RedisSessionHandler implements SessionHandlerInterface
 {
 
     /**
-     * cache
+     * redis
      *
      * @var Cuber\Redis\RedisManager
      */
-    private $cache;
+    private $redis;
 
     /**
      * 过期秒数
@@ -28,23 +28,16 @@ class RedisSessionHandler implements SessionHandlerInterface
     private $expire;
 
     /**
-     * 前缀
-     *
-     * @var string
-     */
-    private $prefix = 'CUBERSESS_';
-
-    /**
      * 创建驱动
      *
-     * @param  RedisManager  $cache
-     * @param  int  $expire
+     * @param  RedisManager  $redis
+     * @param  array  $config
      * @return void
      */
-    public function __construct(RedisManager $cache, $expire = 86400 * 7)
+    public function __construct(RedisManager $redis, $config = [])
     {
-        $this->cache = $cache;
-        $this->expire = $expire;
+        $this->redis = $redis->connect(array_get($config, 'connect', 'session'));
+        $this->expire = array_get($config, 'expire', 86400 * 7);
     }
 
     /**
@@ -68,7 +61,7 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function read($id)
     {
-        return $this->cache->get($this->prefix . $id);
+        return $this->redis->get($id);
     }
 
     /**
@@ -76,7 +69,11 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function write($id, $data)
     {
-        return $this->cache->set($this->prefix . $id, $data, $this->expire);
+        if (0 == $this->expire) {
+            return $this->redis->set($id, $data);
+        } else {
+            return $this->redis->set($id, $data, $this->expire);
+        }
     }
 
     /**
@@ -84,7 +81,7 @@ class RedisSessionHandler implements SessionHandlerInterface
      */
     public function destroy($id)
     {
-        return $this->cache->delete($this->prefix . $id);
+        return $this->redis->delete($id);
     }
 
     /**

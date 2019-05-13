@@ -10,6 +10,6 @@ namespace Cuber\Support\Facades;
 class Redis extends Facade
 {
 
-    protected static $accessor = 'RedisManager';
+    protected static $accessor = 'redis';
 
 }

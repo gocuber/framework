@@ -20,18 +20,23 @@ class SessionServiceProvider
         app()->singleton('session.file', function ($config) {
             return new \Cuber\Session\FileSessionHandler(app('filecache'), $config);
         });
+
         app()->singleton('session.cookie', function ($config) {
             return new \Cuber\Session\CookieSessionHandler(app('cookie'), $config);
         });
+
         app()->singleton('session.mysql', function ($config) {
             return new \Cuber\Session\MysqlSessionHandler(app('db'), $config);
         });
+
         app()->singleton('session.memcache', function ($config) {
-            return new \Cuber\Session\MemcacheSessionHandler(app('MemcacheManager'), $config);
+            return new \Cuber\Session\MemcacheSessionHandler(app('memcache'), $config);
         });
+
         app()->singleton('session.redis', function ($config) {
-            return new \Cuber\Session\RedisSessionHandler(app('RedisManager'), $config);
+            return new \Cuber\Session\RedisSessionHandler(app('redis'), $config);
         });
+
         app()->singleton('session', function () {
             $config = config('session', []);
             $driver = app('session.' . config('session.driver', 'file'), [$config]);

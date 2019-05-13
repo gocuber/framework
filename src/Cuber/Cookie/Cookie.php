@@ -51,7 +51,7 @@ class Cookie
         return setcookie(
             $name,
             $value,
-            $_SERVER['REQUEST_TIME'] + $expire,
+            time() + $expire,
             $path ? $path : $this->path,
             $domain ? $domain : $this->domain,
             is_bool($secure) ? $secure : $this->secure,

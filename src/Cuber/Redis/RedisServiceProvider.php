@@ -17,12 +17,12 @@ class RedisServiceProvider
      */
     public function register()
     {
-        app()->singleton('redis', function () {
+        app()->singleton('redis.redis', function () {
             return new \Cuber\Redis\Redis(config('redis', []));
         });
 
-        app()->bind('RedisManager', function () {
-            return new \Cuber\Redis\RedisManager(app(config('redis.driver', 'redis')));
+        app()->bind('redis', function () {
+            return new \Cuber\Redis\RedisManager(app('redis.' . config('redis.driver', 'redis')));
         });
     }
 

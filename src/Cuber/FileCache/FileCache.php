@@ -151,17 +151,17 @@ class FileCache
      * getMulti
      *
      * @param array $keys
-     * @return array
+     * @return array|null
      */
-    public function getMulti($keys = [], $default = null)
+    public function getMulti($keys = [])
     {
         if (empty($keys) or !is_array($keys)) {
-            return false;
+            return null;
         }
 
         $data = [];
         foreach ($keys as $key) {
-            $data[$key] = $this->get($key, $default);
+            $data[$key] = $this->get($key);
         }
         return $data;
     }

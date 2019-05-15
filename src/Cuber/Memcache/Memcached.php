@@ -56,7 +56,7 @@ class Memcached
     private function conn()
     {
         if (!isset($this->conn[$this->connect])) {
-            $config = array_get($this->config, $this->connect);
+            $config = array_get($this->config, 'connects.' . $this->connect, []);
             $key = md5(serialize($config));
             $mem = new \Memcached($key);
             if (isset($config[0]) and is_array($config[0])) {

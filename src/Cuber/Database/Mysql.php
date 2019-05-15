@@ -426,12 +426,12 @@ class Mysql
      */
     private function conn($mode = 'master')
     {
-        $conf = $this->config;
-
         $conn_key = $this->connect . '.' . $mode;
         if (isset($this->conn[$conn_key])) {
             return $this->conn[$conn_key];
         }
+
+        $conf = $this->config;
 
         if ('slave' == $mode and !empty($conf['slave']) and is_array($conf['slave'])) {
             $skey = mt_rand(0, count($conf['slave']) - 1);

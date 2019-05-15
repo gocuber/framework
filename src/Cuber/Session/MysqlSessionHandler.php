@@ -47,7 +47,7 @@ class MysqlSessionHandler implements SessionHandlerInterface
     {
         $this->db = $db->connect(array_get($config, 'connect', 'session'));
         $this->expire = array_get($config, 'expire', 86400 * 7);
-        $this->table = array_get($config, 'table_name', 'app_session');
+        $this->table = array_get($config, 'table', 'app_session');
     }
 
     /**

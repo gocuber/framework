@@ -12,38 +12,39 @@ class RedisManager
 
     private $driver;
 
-    private $connect = 'default';
+    private $config;
+
+    private $connect;
 
     private $mode = 'master';
 
-    public function __construct($driver)
+    public function __construct($driver, $config)
     {
         $this->driver = $driver;
+        $this->config = $config;
+        $this->connect();
     }
 
-    public function connect($key = 'default', $mode = 'master')
+    public function connect($key = 'default')
     {
-        $this->connect = $key;
-        $this->mode = $mode;
+        if (null === $key) {
+            $this->connect = array_get($this->config, 'default', 'default');
+        } else {
+            $this->connect = $key;
+        }
 
         return $this;
     }
 
-    public function master($key = null)
+    public function master()
     {
-        if (null !== $key) {
-            $this->connect = $key;
-        }
         $this->mode = 'master';
 
         return $this;
     }
 
-    public function slave($key = null)
+    public function slave()
     {
-        if (null !== $key) {
-            $this->connect = $key;
-        }
         $this->mode = 'slave';
 
         return $this;

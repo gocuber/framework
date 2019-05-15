@@ -56,7 +56,7 @@ class Memcache
     private function conn()
     {
         if (!isset($this->conn[$this->connect])) {
-            $config = array_get($this->config, $this->connect);
+            $config = array_get($this->config, 'connects.' . $this->connect, []);
             $mem = new \Memcache();
             if (isset($config[0]) and is_array($config[0])) {
                 foreach ($config as $value) {

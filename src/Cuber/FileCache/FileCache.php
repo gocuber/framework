@@ -22,11 +22,12 @@ class FileCache
      *
      * @var string
      */
-    private $connect = 'default';
+    private $connect;
 
     public function __construct($config = [])
     {
         $this->config = $config;
+        $this->connect();
     }
 
     /**
@@ -34,9 +35,13 @@ class FileCache
      *
      * @return $this
      */
-    public function connect($key = 'default')
+    public function connect($key = null)
     {
-        $this->connect = $key;
+        if (null === $key) {
+            $this->connect = array_get($this->config, 'default', 'default');
+        } else {
+            $this->connect = $key;
+        }
 
         return $this;
     }
@@ -49,14 +54,14 @@ class FileCache
      */
     public function getFilePath($key = null)
     {
-        if (!isset($key) or !isset($this->config[$this->connect])) {
+        if (!isset($key) or !array_get($this->config, 'connects.' . $this->connect)) {
             return false;
         }
 
-        $config = $this->config[$this->connect];
+        $config = array_get($this->config, 'connects.' . $this->connect);
         $md5    = md5($key);
         $dir    = $config['dir'];
-        $subdir = $config['is_subdir'] ? substr($md5, 0, 2) . '/' . substr($md5, 2, 2) . '/' . substr($md5, 4, 2) . '/' : '';
+        $subdir = array_get($config, 'subdir', 1) ? substr($md5, 0, 2) . '/' . substr($md5, 2, 2) . '/' . substr($md5, 4, 2) . '/' : '';
         $file   = $dir . $subdir . $key;
         return $file;
     }
@@ -86,7 +91,7 @@ class FileCache
         $data = unserialize($data);
         $time = $data['time'];
         $data = $data['data'];
-        return (0 === $time or $time > time()) ? $data : $default;
+        return (0 === $time or $time >= time()) ? $data : $default;
     }
 
     /**
@@ -168,7 +173,7 @@ class FileCache
      * @param int $time
      * @return bool
      */
-    public function setMulti($items = [], $time = 3600)
+    public function setMulti($items = [], $time = 0)
     {
         if (empty($items) or !is_array($items)) {
             return false;

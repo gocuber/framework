@@ -23,12 +23,12 @@ abstract class Model
         $st = static::class;
         $m = new $st();
 
-        return DB::model($m)->connect($m->getConnect())->name($m->getName())->$method(...$args);
+        return DB::model($m)->$method(...$args);
     }
 
     public function __call($method, $args)
     {
-        return DB::model($this)->connect($this->connect)->name($this->name)->$method(...$args);
+        return DB::model($this)->$method(...$args);
     }
 
     public function getConnect()

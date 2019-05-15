@@ -185,6 +185,27 @@ function session($key = null, $default = null)
 }
 
 /**
+ * cache
+ *
+ * @param  mixed|null  $key
+ * @param  mixed|null  $default
+ *
+ * @return mixed|\Cuber\Cache\CacheManager
+ */
+function cache($key = null, $default = null)
+{
+    if (null === $key) {
+        return app('cache');
+    }
+
+    if (is_array($key)) {
+        app('cache')->set(key($key), reset($key), $default);
+    }
+
+    return app('cache')->get($key, $default);
+}
+
+/**
  * config
  *
  * @param string|array $key
@@ -194,6 +215,10 @@ function session($key = null, $default = null)
  */
 function config($key = null, $default = null)
 {
+    if (null === $key) {
+        return app('config');
+    }
+
     if (is_array($key)) {
         return app('config')->set($key);
     }

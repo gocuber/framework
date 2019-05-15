@@ -191,7 +191,7 @@ class Query
             $in .= $this->setParam($v) . ',';
         }
         $in = rtrim($in, ',');
-        return "$key $sign ($in)";
+        return "`$key` $sign ($in)";
     }
 
     /**
@@ -208,7 +208,7 @@ class Query
             return $this->buildCondIn($key, $value);
         }
 
-        return "$key=" . $this->setParam($value);
+        return "`$key`=" . $this->setParam($value);
     }
 
     /**
@@ -238,7 +238,7 @@ class Query
             return '';
         }
 
-        return "$key $sign " . $this->setParam($value[0]) . " and " . $this->setParam($value[1]);
+        return "`$key` $sign " . $this->setParam($value[0]) . " and " . $this->setParam($value[1]);
     }
 
     /**
@@ -259,11 +259,11 @@ class Query
         } elseif (count($value) == 3 and in_array($value[1], ['in', 'not in'], true)) {
             return $this->buildCondIn($value[0], $value[2], $value[1]);
         } elseif (count($value) == 3) {
-            return $value[0] . ' ' . $value[1] . ' ' . $this->setParam($value[2]); // > < <> like ['name','like','%key%'] ['name','like','key%']
+            return '`' . $value[0] . '` ' . $value[1] . ' ' . $this->setParam($value[2]); // > < <> like ['name','like','%key%'] ['name','like','key%']
         } elseif (count($value) == 2 and is_array($value[1])) {
             return $this->buildCondIn($value[0], $value[1]);
         } elseif (count($value) == 2) {
-            return $value[0] . '=' . $this->setParam($value[1]);
+            return '`' . $value[0] . '`=' . $this->setParam($value[1]);
         } else {
             return '';
         }

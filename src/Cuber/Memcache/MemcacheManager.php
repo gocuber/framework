@@ -12,16 +12,24 @@ class MemcacheManager
 
     private $driver;
 
-    private $connect = 'default';
+    private $config;
 
-    public function __construct($driver)
+    private $connect;
+
+    public function __construct($driver, $config)
     {
         $this->driver = $driver;
+        $this->config = $config;
+        $this->connect();
     }
 
-    public function connect($key = 'default')
+    public function connect($key = null)
     {
-        $this->connect = $key;
+        if (null === $key) {
+            $this->connect = array_get($this->config, 'default', 'default');
+        } else {
+            $this->connect = $key;
+        }
 
         return $this;
     }

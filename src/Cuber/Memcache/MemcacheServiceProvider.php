@@ -26,7 +26,7 @@ class MemcacheServiceProvider
         });
 
         app()->bind('memcache', function () {
-            return new \Cuber\Memcache\MemcacheManager(app('memcache.' . config('memcache.driver', 'memcached')));
+            return new \Cuber\Memcache\MemcacheManager(app('memcache.' . config('memcache.driver', 'memcached')), config('memcache', []));
         });
     }
 

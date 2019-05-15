@@ -12,32 +12,40 @@ class DatabaseManager
 
     private $app;
 
-    private $config = [];
+    private $config;
 
     private $query = null;
 
-    protected $connect = 'default';
+    protected $connect;
 
     private $use_master = false;
+
+    private $model;
 
     public function __construct($app, $config)
     {
         $this->app = $app;
         $this->config = $config;
+        $this->connect();
     }
 
     public function model(Model $model)
     {
-        $this->connect = $model->getConnect();
+        $this->model = $model;
+
         $this->name    = $model->getName();
         $this->fields  = $model->getFields();
 
-        return $this;
+        return $this->connect($model->getConnect())->name($model->getName());
     }
 
-    public function connect($key = 'default')
+    public function connect($key = null)
     {
-        $this->connect = $key;
+        if (null === $key) {
+            $this->connect = array_get($this->config, 'default', 'default');
+        } else {
+            $this->connect = $key;
+        }
 
         return $this;
     }
@@ -57,10 +65,11 @@ class DatabaseManager
 
     public function getDriver()
     {
-        $driver = array_get($this->config, $this->connect . '.driver', 'mysql');
+        $config = array_get($this->config, 'connects.' . $this->connect, []);
+        $driver = array_get($config, 'driver', 'mysql');
 
         return $this->app->make('db.' . $driver)
-            ->setConfig(array_get($this->config, $this->connect))
+            ->setConfig($config)
             ->connect($this->connect)
             ->useMaster($this->use_master);
     }
@@ -447,7 +456,7 @@ class DatabaseManager
 
             $data  = $this->prepareData($sql);
             $param = null;
-            $sql   = "insert into `" . $this->getName() . "`";
+            $sql   = "insert into `" . $this->name . "`";
 
             $cols = $values = '';
             if (!empty($data) and is_array($data)) {
@@ -509,7 +518,7 @@ class DatabaseManager
                 return false;
             }
 
-            $sql  = "update `" . $this->getName() . "` set $field";
+            $sql  = "update `" . $this->name . "` set $field";
             $_sql = $this->getQuery()->getSql();
 
             !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
@@ -537,7 +546,7 @@ class DatabaseManager
     public function delete($sql = null, $param = null)
     {
         if (empty($sql)) {
-            $sql  = "delete from `" . $this->getName() . "`";
+            $sql  = "delete from `" . $this->name . "`";
             $_sql = $this->getQuery()->getSql();
 
             !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
@@ -661,16 +670,6 @@ class DatabaseManager
     }
 
     /**
-     * 取表字段
-     *
-     * @return array
-     */
-    public function getFields()
-    {
-        return $this->fields;
-    }
-
-    /**
      * 准备数据
      *
      * @param array $array
@@ -684,7 +683,7 @@ class DatabaseManager
 
         $array = array_change_key_case($array, CASE_LOWER);
 
-        $fields = $this->getFields();
+        $fields = $this->fields;
         if (empty($fields) or !is_array($fields)) {
             return $array;
         }
@@ -720,17 +719,9 @@ class DatabaseManager
     {
         $this->getQuery()->from($name);
 
-        return $this;
-    }
+        $this->name = $name;
 
-    /**
-     * 取表名
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
+        return $this;
     }
 
     /**

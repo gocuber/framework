@@ -22,7 +22,7 @@ class RedisServiceProvider
         });
 
         app()->bind('redis', function () {
-            return new \Cuber\Redis\RedisManager(app('redis.' . config('redis.driver', 'redis')));
+            return new \Cuber\Redis\RedisManager(app('redis.' . config('redis.driver', 'redis')), config('redis', []));
         });
     }
 

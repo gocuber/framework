@@ -93,7 +93,7 @@ class Redis
      */
     private function conn()
     {
-        $conf = array_get($this->config, $this->connect);
+        $conf = array_get($this->config, 'connects.' . $this->connect, []);
 
         $conn_key = $this->connect . '.' . $this->mode;
         if (isset($this->conn[$conn_key]) and '+PONG' === $this->conn[$conn_key]->ping()) {

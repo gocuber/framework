@@ -92,7 +92,7 @@ class Mysql
 
         } catch (PDOException $e) {
 
-            if ($this->inTransaction()) {
+            if ($this->pdo('master')->inTransaction()) {
                 throw new Exception('exec() ' . $sql . $e->getMessage());
             }
 
@@ -156,7 +156,7 @@ class Mysql
                 return $this->query($sql, $param, $reconn);
             }
 
-            if ($this->inTransaction()) {
+            if (!((!$this->use_master and $this->isReadQuery($sql))) and $this->pdo('master')->inTransaction()) {
                 throw new Exception('query() ' . $sql . $e->getMessage());
             }
 

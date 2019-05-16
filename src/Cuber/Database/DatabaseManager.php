@@ -22,6 +22,18 @@ class DatabaseManager
 
     private $use_master = false;
 
+    private $call_transaction = [
+        'beginTransaction',
+        'commit',
+        'rollBack',
+        'inTransaction',
+    ];
+
+    private $call_driver = [
+        'pdo',
+        'debug',
+    ];
+
     public function __construct($app, $config)
     {
         $this->app = $app;
@@ -389,36 +401,6 @@ class DatabaseManager
     }
 
     /**
-     * 开始一个事务
-     *
-     * @return bool
-     */
-    public function beginTransaction()
-    {
-        return $this->pdo()->beginTransaction();
-    }
-
-    /**
-     * 提交事务
-     *
-     * @return bool
-     */
-    public function commit()
-    {
-        return $this->pdo()->commit();
-    }
-
-    /**
-     * 回滚事务
-     *
-     * @return bool
-     */
-    public function rollBack()
-    {
-        return $this->pdo()->rollBack();
-    }
-
-    /**
      * 执行一组事务
      *
      * @param func $closure
@@ -457,34 +439,15 @@ class DatabaseManager
         return $this->query;
     }
 
-    /**
-     * pdo
-     *
-     * @return PDO
-     */
-    public function pdo()
-    {
-        return $this->getDriver()->pdo();
-    }
-
-    /**
-     * debug
-     *
-     * @param bool $debug
-     * @return bool
-     */
-    public function debug($debug = true)
-    {
-        return $this->getDriver()->debug($debug);
-    }
-
     public function __call($name, $args)
     {
-        if (is_callable([$this->getQuery(), $name])) {
+        if (in_array($name, $this->call_transaction)) {
+            return $this->pdo()->$name(...$args);
+        } elseif (in_array($name, $this->call_driver)) {
+            return $this->getDriver()->$name(...$args);
+        } elseif (is_callable([$this->getQuery(), $name])) {
             $this->getQuery()->$name(...$args);
             return $this;
-        } elseif (is_callable([$this->getDriver(), $name])) {
-            return $this->getDriver()->$name(...$args);
         }
     }
 

@@ -12,7 +12,7 @@ class Query
 
     private $binds = null;
 
-    private $param = null;
+    private $result = ['sql'=>null, 'param'=>null];
 
     /**
      * autoCond
@@ -89,7 +89,7 @@ class Query
     public function where($cond = null)
     {
         if (empty($cond)) {
-            return false;
+            return $this;
         }
 
         $this->binds['cond'] = $this->autoCond($cond);
@@ -106,7 +106,7 @@ class Query
     public function andWhere($cond = null)
     {
         if (empty($cond)) {
-            return false;
+            return $this;
         }
 
         $this->mergeCond($this->autoCond($cond));
@@ -278,40 +278,255 @@ class Query
      */
     private function setParam($value = '')
     {
-        $i = isset($this->param) ? count($this->param) : 0;
+        $i = isset($this->result['param']) ? count($this->result['param']) : 0;
         $key = ':p' . ++$i;
-        $this->param[$key] = $value;
+        $this->result['param'][$key] = $value;
         return $key;
     }
 
-    /**
-     * 取完整的sql
-     *
-     * @return array
-     */
-    public function getSql()
+    private function onSelect()
     {
-        $where = isset($this->binds['cond']) ? $this->buildCond($this->binds['cond']) : '';
-        extract($this->binds);
+        $this->result['sql'] = 'select ' . (isset($this->binds['field']) ? $this->binds['field'] : '*') . ' from ' . $this->binds['from'];
 
-        $sql = 'select ' . (isset($field) ? $field : '*') . ' from ' . $from;
+        return $this;
+    }
 
-        isset($join)    and $sql .= " $join";
-        '' !== $where   and $sql .= " where $where";
-        isset($groupby) and $sql .= " group by $groupby";
-        isset($having)  and $sql .= " having $having";
-        isset($orderby) and $sql .= " order by $orderby";
-        isset($limit)   and $sql .= " limit " . (empty($offset) ? $limit : ($offset . ',' . $limit));
+    public function onInsert()
+    {
+        $this->result['sql'] = 'insert into `' . $this->binds['from'] . '` ' . $this->binds['insert_values'];
 
-        $ret = ['sql'=>$sql, 'param'=>$this->param];
-        '' !== $where   and $ret['where']   = $where;
-        isset($orderby) and $ret['orderby'] = $orderby;
-        isset($limit)   and $ret['limit']   = $limit;
+        return $this;
+    }
 
-        $this->binds = null;
-        $this->param = null;
+    public function onBatchInsert()
+    {
+        $this->result['sql'] = 'insert into `' . $this->binds['from'] . '` ' . $this->binds['batchinsert_values'];
 
-        return $ret;
+        return $this;
+    }
+
+    public function onUpdate()
+    {
+        $this->result['sql'] = "update `" . $this->binds['from'] . "` set " . $this->binds['update_fields'];
+
+        return $this;
+    }
+
+    public function onDelete()
+    {
+        $this->result['sql'] = "delete from `" . $this->binds['from'] . "`";
+
+        return $this;
+    }
+
+    private function onJoin()
+    {
+        if (isset($this->binds['join'])) {
+            $this->result['sql'] .= ' ' . $this->binds['join'];
+        }
+
+        return $this;
+    }
+
+    private function onWhere()
+    {
+        if (isset($this->binds['cond'])) {
+            $where = $this->buildCond($this->binds['cond']);
+            if ('' !== $where) {
+                $this->result['sql'] .= " where $where";
+            }
+        }
+
+        return $this;
+    }
+
+    private function onGroupBy()
+    {
+        if (isset($this->binds['groupby'])) {
+            $this->result['sql'] .= ' group by ' . $this->binds['groupby'];
+        }
+
+        return $this;
+    }
+
+    private function onHaving()
+    {
+        if (isset($this->binds['having'])) {
+            $this->result['sql'] .= ' having ' . $this->binds['having'];
+        }
+
+        return $this;
+    }
+
+    private function onOrderBy()
+    {
+        if (isset($this->binds['orderby'])) {
+            $this->result['sql'] .= ' order by ' . $this->binds['orderby'];
+        }
+
+        return $this;
+    }
+
+    private function onLimit()
+    {
+        if (isset($this->binds['limit'])) {
+            $this->result['sql'] .= ' limit ' . (empty($this->binds['offset']) ? $this->binds['limit'] : ($this->binds['offset'] . ',' . $this->binds['limit']));
+        }
+
+        return $this;
+    }
+
+    private function onDuplicate()
+    {
+        if (isset($this->binds['duplicate'])) {
+            $this->result['sql'] .= ' on duplicate key update ' . $this->binds['duplicate'];
+        }
+
+        return $this;
+    }
+
+    public function result()
+    {
+        return $this->result;
+    }
+
+    public function buildSelect()
+    {
+        $result = $this->onSelect()->onJoin()->onWhere()->onGroupBy()->onHaving()->onOrderBy()->onLimit()->result();
+
+        $this->flush();
+        return $result;
+    }
+
+    public function buildInsert()
+    {
+        $result = $this->onInsert()->onDuplicate()->result();
+
+        $this->flush();
+        return $result;
+    }
+
+    public function buildBatchInsert()
+    {
+        $result = $this->onBatchInsert()->onDuplicate()->result();
+
+        $this->flush();
+        return $result;
+    }
+
+    public function buildUpdate($data = [])
+    {
+        $result = $this->onUpdate()->onWhere()->onOrderBy()->onLimit()->result();
+
+        $this->flush();
+        return $result;
+    }
+
+    public function buildDelete()
+    {
+        $result = $this->onDelete()->onWhere()->onOrderBy()->onLimit()->result();
+
+        $this->flush();
+        return $result;
+    }
+
+    /**
+     * insert
+     *
+     * @return $this
+     */
+    public function insert($data = [])
+    {
+        if (!empty($data) and is_array($data)) {
+            $fields = $values = '';
+            foreach ($data as $key => $value) {
+                $fields .= "`" . trim($key) . "`,";
+                $values .= $this->setParam($value) . ',';
+            }
+            $fields = rtrim($fields, ',');
+            $values = rtrim($values, ',');
+            $sql = "({$fields}) values ({$values})";
+        } else {
+            $sql = "() values ()";
+        }
+
+        $this->binds['insert_values'] = $sql;
+        return $this;
+    }
+
+    /**
+     * batchInsert
+     *
+     * @return $this
+     */
+    public function batchInsert($data = [])
+    {
+        $field = '';
+        $fields = array_keys(current($data));
+        foreach ($fields as $f) {
+            $field .= "`" . trim($f) . "`,";
+        }
+        $field = rtrim($field, ',');
+        $sql = " ({$field}) values "; // sql 2
+
+        $values = '';
+        foreach ($data as $line) {
+            $values .= '(';
+            foreach ($fields as $field) {
+                $value = isset($line[$field]) ? $line[$field] : '';
+                $values .= $this->setParam($value) . ',';
+            }
+            $values = rtrim($values, ',');
+            $values .= '),';
+        }
+        $values = rtrim($values, ',');
+        $sql .= $values; // sql 3
+
+        $this->binds['batchinsert_values'] = $sql;
+        return $this;
+    }
+
+    /**
+     * update
+     *
+     * @return $this
+     */
+    public function update($data = [])
+    {
+        $fields = '';
+        foreach ($data as $key => $value) {
+            $fields .= "`" . trim($key) . "`=" . $this->setParam($value) . ",";
+        }
+        $fields = rtrim($fields, ',');
+
+        $this->binds['update_fields'] = $fields;
+        return $this;
+    }
+
+    /**
+     * 复写 重复再写数据
+     *
+     * @param str|array $data
+     *
+     * @return $this
+     */
+    public function duplicate($data = null)
+    {
+        if (empty($data)) {
+            return $this;
+        }
+
+        if (is_array($data)) {
+            $update = '';
+            foreach ($data as $key => $value) {
+                $update .= "`{$key}`=values(`{$value}`),";
+            }
+            $this->binds['duplicate'] = rtrim($update, ',');
+        } else {
+            $this->binds['duplicate'] = '';
+        }
+
+        return $this;
     }
 
     /**
@@ -319,12 +534,12 @@ class Query
      *
      * @param str|array $field
      *
-     * @return bool
+     * @return $this
      */
     public function field($field = null)
     {
         if (empty($field)) {
-            return false;
+            return $this;
         }
 
         $this->binds['field'] = is_array($field) ? implode(',', $field) : trim($field);
@@ -336,12 +551,12 @@ class Query
      *
      * @param str $name
      *
-     * @return bool
+     * @return $this
      */
-    public function from($name = null)
+    public function name($name = null)
     {
         if (empty($name)) {
-            return false;
+            return $this;
         }
 
         $this->binds['from'] = trim($name);
@@ -349,24 +564,48 @@ class Query
     }
 
     /**
+     * @see join()
+     */
+    public function innerJoin($table = null, $on = null)
+    {
+        return $this->join('inner join', $table, $on);
+    }
+
+    /**
+     * @see join()
+     */
+    public function leftJoin($table = null, $on = null)
+    {
+        return $this->join('left join', $table, $on);
+    }
+
+    /**
+     * @see join()
+     */
+    public function rightJoin($table = null, $on = null)
+    {
+        return $this->join('right join', $table, $on);
+    }
+
+    /**
      * 设置join
      *
-     * @param str $type   inner join|left join|right join
-     * @param str $table  user
-     * @param str $on     a.gid=b.gid
+     * @param  string  $type   inner join|left join|right join
+     * @param  string  $table  user
+     * @param  string  $on     a.gid=b.gid
      *
-     * @return bool
+     * @return $this
      */
     public function join($type = null, $table = null, $on = null)
     {
         if (empty($type) or empty($table) or empty($on)) {
-            return false;
+            return $this;
         }
 
         if (isset($this->binds['join'])) {
-            $this->binds['join'] .= ' ' . $type . $table . ' on ' . $on;
+            $this->binds['join'] .= " $type $table on $on";
         } else {
-            $this->binds['join'] = $type . $table . ' on ' . $on;
+            $this->binds['join'] = "$type $table on $on";
         }
 
         return $this;
@@ -377,12 +616,12 @@ class Query
      *
      * @param str|array $cond
      *
-     * @return bool
+     * @return $this
      */
     public function groupBy($cond = null)
     {
         if (empty($cond)) {
-            return false;
+            return $this;
         }
 
         $this->binds['groupby'] = is_array($cond) ? implode(',', $cond) : trim($cond);
@@ -394,12 +633,12 @@ class Query
      *
      * @param str $cond
      *
-     * @return bool
+     * @return $this
      */
     public function having($cond = null)
     {
         if (empty($cond)) {
-            return false;
+            return $this;
         }
 
         $this->binds['having'] = trim($cond);
@@ -411,12 +650,12 @@ class Query
      *
      * @param str|array $cond
      *
-     * @return bool
+     * @return $this
      */
     public function orderBy($cond = null)
     {
         if (empty($cond)) {
-            return false;
+            return $this;
         }
 
         if (is_array($cond)) {
@@ -441,7 +680,7 @@ class Query
      * offset
      *
      * @param int $offset
-     * @return bool
+     * @return $this
      */
     public function offset($offset = 0)
     {
@@ -454,7 +693,7 @@ class Query
      * limit
      *
      * @param int $limit
-     * @return bool
+     * @return $this
      */
     public function limit($limit = 0)
     {
@@ -469,7 +708,7 @@ class Query
      * @param int $currpage
      * @param int $pagesize
      *
-     * @return bool
+     * @return $this
      */
     public function page($currpage = 1, $pagesize = 1)
     {
@@ -480,6 +719,17 @@ class Query
         $this->binds['limit']  = $pagesize;
 
         return $this;
+    }
+
+    /**
+     * Flush
+     *
+     * @return void
+     */
+    public function flush()
+    {
+        $this->binds = null;
+        $this->result = ['sql'=>null, 'param'=>null];
     }
 
 }

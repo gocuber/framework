@@ -7,6 +7,8 @@
  */
 namespace Cuber\Database;
 
+use PDO;
+
 class DatabaseManager
 {
 
@@ -14,13 +16,11 @@ class DatabaseManager
 
     private $config;
 
-    private $query = null;
+    private $query;
 
     protected $connect;
 
     private $use_master = false;
-
-    private $model;
 
     public function __construct($app, $config)
     {
@@ -31,11 +31,6 @@ class DatabaseManager
 
     public function model(Model $model)
     {
-        $this->model = $model;
-
-        $this->name    = $model->getName();
-        $this->fields  = $model->getFields();
-
         return $this->connect($model->getConnect())->name($model->getName());
     }
 
@@ -154,19 +149,19 @@ class DatabaseManager
     public function hash($key = '', $value = '*')
     {
         $field = ('*' == $value or $key == $value) ? $value : "{$key},{$value}";
-        $this->getQuery()->field($field);
+        $res = $this->getQuery()->field($field)->buildSelect();
+        $statement = $this->getDriver()->query($res['sql'], $res['param']);
 
-        $sql  = $this->getQuery()->getSql();
-
-        $is   = ('*' == $value or count(explode(',', $value)) > 1) ? 1 : 0;
-        $hash = [];
-
-        $query = $this->getDriver()->query($sql['sql'], $sql['param']);
-        for(;$v = $this->getDriver()->fetch($query);){
-            $hash[$v[$key]] = $is ? $v : $v[$value];
+        if (false === $statement) {
+            return false;
+        } else {
+            $hash = [];
+            $is = ('*' == $value or count(explode(',', $value)) > 1) ? 1 : 0;
+            for (;$v = $statement->fetch(PDO::FETCH_ASSOC);) {
+                $hash[$v[$key]] = $is ? $v : $v[$value];
+            }
+            return $hash;
         }
-
-        return $hash;
     }
 
     /**
@@ -177,9 +172,14 @@ class DatabaseManager
      */
     public function get($field = null)
     {
-        $this->getQuery()->field($field);
-        $sql = $this->getQuery()->getSql();
-        return $this->getDriver()->get($sql['sql'], $sql['param']);
+        $res = $this->getQuery()->field($field)->buildSelect();
+        $statement = $this->getDriver()->query($res['sql'], $res['param']);
+
+        if (false === $statement) {
+            return false;
+        } else {
+            return $statement->fetchAll(PDO::FETCH_ASSOC);
+        }
     }
 
     /**
@@ -190,9 +190,14 @@ class DatabaseManager
      */
     public function line($field = null)
     {
-        $this->getQuery()->field($field);
-        $sql = $this->getQuery()->getSql();
-        return $this->getDriver()->line($sql['sql'], $sql['param']);
+        $res = $this->getQuery()->field($field)->buildSelect();
+        $statement = $this->getDriver()->query($res['sql'], $res['param']);
+
+        if (false === $statement) {
+            return false;
+        } else {
+            return $statement->fetch(PDO::FETCH_ASSOC);
+        }
     }
 
     /**
@@ -203,174 +208,14 @@ class DatabaseManager
      */
     public function val($field = null)
     {
-        $this->getQuery()->field($field);
-        $sql = $this->getQuery()->getSql();
-        return $this->getDriver()->val($sql['sql'], $sql['param']);
-    }
+        $res = $this->getQuery()->field($field)->buildSelect();
+        $statement = $this->getDriver()->query($res['sql'], $res['param']);
 
-    /**
-     * where条件
-     *
-     * @param array $where
-     *
-     * @return $this
-     */
-    public function where($where = null)
-    {
-        $this->getQuery()->where($where);
-
-        return $this;
-    }
-
-    /**
-     * 追加 andWhere 条件
-     *
-     * @see where()
-     * @return $this
-     */
-    public function andWhere($where = null)
-    {
-        $this->getQuery()->andWhere($where);
-
-        return $this;
-    }
-
-    /**
-     * 追加 orWhere 条件
-     *
-     * @see where()
-     * @return $this
-     */
-    public function orWhere($where = null)
-    {
-        $this->getQuery()->orWhere($where);
-
-        return $this;
-    }
-
-    /**
-     * orderBy
-     *
-     * @param string $orderby
-     * @return $this
-     */
-    public function orderBy($orderby = null)
-    {
-        $this->getQuery()->orderBy($orderby);
-
-        return $this;
-    }
-
-    /**
-     * groupBy
-     *
-     * @param string $groupby
-     * @return $this
-     */
-    public function groupBy($groupby = null)
-    {
-        $this->getQuery()->groupBy($groupby);
-
-        return $this;
-    }
-
-    /**
-     * having
-     *
-     * @param string $having
-     * @return $this
-     */
-    public function having($having = null)
-    {
-        $this->getQuery()->having($having);
-
-        return $this;
-    }
-
-    /**
-     * offset
-     *
-     * @param number $offset
-     * @return $this
-     */
-    public function offset($offset = 0)
-    {
-        $this->getQuery()->offset($offset);
-
-        return $this;
-    }
-
-    /**
-     * limit
-     *
-     * @param number $limit
-     * @return $this
-     */
-    public function limit($limit = 0)
-    {
-        $this->getQuery()->limit($limit);
-
-        return $this;
-    }
-
-    /**
-     * page
-     *
-     * @param number $currpage
-     * @param number $pagesize
-     *
-     * @return $this
-     */
-    public function page($currpage = 1, $pagesize = 1)
-    {
-        $this->getQuery()->page($currpage, $pagesize);
-
-        return $this;
-    }
-
-    /**
-     * innerJoin
-     *
-     * @param str $table
-     * @param str $on
-     *
-     * @return $this
-     */
-    public function innerJoin($table = null, $on = null)
-    {
-        $this->getQuery()->join('inner join', $table, $on);
-
-        return $this;
-    }
-
-    /**
-     * leftJoin
-     *
-     * @param str $table
-     * @param str $on
-     *
-     * @return $this
-     */
-    public function leftJoin($table = null, $on = null)
-    {
-        $this->getQuery()->join('left join', $table, $on);
-
-        return $this;
-    }
-
-    /**
-     * rightJoin
-     *
-     * @param str $table
-     * @param str $on
-     *
-     * @return $this
-     */
-    public function rightJoin($table = null, $on = null)
-    {
-        $this->getQuery()->join('right join', $table, $on);
-
-        return $this;
+        if (false === $statement) {
+            return false;
+        } else {
+            return $statement->fetchColumn();
+        }
     }
 
     /**
@@ -393,36 +238,27 @@ class DatabaseManager
     public function query($sql = null, $param = null)
     {
         if (empty($sql)) {
-            $_sql  = $this->getQuery()->getSql();
-            $sql   = $_sql['sql'];
-            $param = $_sql['param'];
+            $res = $this->getQuery()->buildSelect();
+            $sql = $res['sql'];
+            $param = $res['param'];
         }
 
         return $this->getDriver()->query($sql, $param);
     }
 
     /**
-     * rowCount
-     *
-     * @param res $statement
-     *
-     * @return array|false
-     */
-    public function rowCount($statement = null)
-    {
-        return $this->getDriver()->rowCount($statement);
-    }
-
-    /**
      * fetch
      *
      * @param res $statement
-     *
      * @return array|false
      */
     public function fetch($statement = null)
     {
-        return $this->getDriver()->fetch($statement);
+        if (empty($statement)) {
+            return false;
+        }
+
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -435,7 +271,13 @@ class DatabaseManager
      */
     public function select($sql = null, $param = null)
     {
-        return $this->getDriver()->get($sql, $param);
+        $statement = $this->getDriver()->query($sql, $param);
+
+        if (false === $statement) {
+            return false;
+        } else {
+            return $statement->fetchAll(PDO::FETCH_ASSOC);
+        }
     }
 
     /**
@@ -453,114 +295,16 @@ class DatabaseManager
         }
 
         if (is_array($sql)) {
-
-            $data  = $this->prepareData($sql);
-            $param = null;
-            $sql   = "insert into `" . $this->name . "`";
-
-            $cols = $values = '';
-            if (!empty($data) and is_array($data)) {
-                $index = 1;
-                foreach ($data as $key => $value) {
-                    $cols   .= "`" . trim($key) . "`,";
-                    $values .= ":pi$index,";
-                    $param[":pi$index"] = trim($value);
-                    $index++;
-                }
-                $cols   = rtrim($cols, ',');
-                $values = rtrim($values, ',');
-                $sql   .= " ({$cols}) values ({$values})";
-            } else {
-                $sql .= " () values ()";
-            }
-
+            $res = $this->getQuery()->insert($sql)->buildInsert();
+            $sql = $res['sql'];
+            $param = $res['param'];
         }
 
-        $query = $this->getDriver()->query($sql, $param);
-        if (false === $query) {
+        $statement = $this->getDriver()->query($sql, $param);
+        if (false === $statement) {
             return false;
         } else {
-            return $this->getDriver()->lastId();
-        }
-    }
-
-    /**
-     * 修改
-     *
-     * @param str|array $sql
-     * @param array $param
-     *
-     * @return int|false
-     */
-    public function update($sql = null, $param = null)
-    {
-        if (empty($sql)) {
-            return false;
-        }
-
-        if (is_array($sql)) {
-
-            $data  = $this->prepareData($sql);
-            $param = null;
-            if (empty($data) or !is_array($data)) {
-                return false;
-            }
-
-            $field = '';
-            $index = 1;
-            foreach ($data as $key => $value) {
-                $field .= "`" . trim($key) . "`=:pu$index,";
-                $param[":pu$index"] = trim($value);
-                $index++;
-            }
-            $field = rtrim($field, ',');
-            if (empty($field)) {
-                return false;
-            }
-
-            $sql  = "update `" . $this->name . "` set $field";
-            $_sql = $this->getQuery()->getSql();
-
-            !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
-            !empty($_sql['orderby']) and $sql .= " order by " . $_sql['orderby'];
-            !empty($_sql['limit'])   and $sql .= " limit " . $_sql['limit'];
-            !empty($_sql['param'])   and $param = array_merge($param, $_sql['param']);
-        }
-
-        $query = $this->getDriver()->query($sql, $param);
-        if (false === $query) {
-            return false;
-        } else {
-            return $this->getDriver()->rowCount($query);
-        }
-    }
-
-    /**
-     * 删除
-     *
-     * @param str $sql
-     * @param array $param
-     *
-     * @return int|false
-     */
-    public function delete($sql = null, $param = null)
-    {
-        if (empty($sql)) {
-            $sql  = "delete from `" . $this->name . "`";
-            $_sql = $this->getQuery()->getSql();
-
-            !empty($_sql['where'])   and $sql .= " where " . $_sql['where'];
-            !empty($_sql['orderby']) and $sql .= " order by " . $_sql['orderby'];
-            !empty($_sql['limit'])   and $sql .= " limit " . $_sql['limit'];
-
-            $param = $_sql['param'];
-        }
-
-        $query = $this->getDriver()->query($sql, $param);
-        if (false === $query) {
-            return false;
-        } else {
-            return $this->getDriver()->rowCount($query);
+            return $this->pdo()->lastInsertId();
         }
     }
 
@@ -579,51 +323,68 @@ class DatabaseManager
         }
 
         if (is_array($data)) {
-
-            $param = null;
-            $sql = "insert into `" . $this->name . "`"; // sql 1
-
-            $field = '';
-            foreach($data as $fieldline){
-                $fieldline = $this->prepareData($fieldline);
-                break 1;
-            }
-            if(empty($fieldline) or !is_array($fieldline)){
-                return false;
-            }
-            foreach($fieldline as $key => $value){
-                $field .= "`" . trim($key) . "`,";
-            }
-            $field = rtrim($field, ',');
-            $sql .= " ($field) values "; // sql 2
-
-            $index = 1;
-            $values = '';
-            foreach($data as $line){
-                $line = $this->prepareData($line);
-                if(empty($line) or !is_array($line)){
-                    continue 1;
-                }
-
-                $values .= '(';
-                foreach($fieldline as $key => $value){
-                    $values .= isset($line[$key]) ? ":bi{$index}," : "'',";
-                    $param[":bi$index"] = trim($line[$key]);
-                    $index++;
-                }
-                $values = rtrim($values, ',');
-                $values .= '),';
-            }
-            $values = rtrim($values, ',');
-            $sql .= $values; // sql 3
-
+            $res = $this->getQuery()->batchInsert($data)->buildBatchInsert();
+            $sql = $res['sql'];
+            $param = $res['param'];
         }
 
-        $query = $this->getDriver()->query($sql, $param);
-        if (false === $query) {
+        $statement = $this->getDriver()->query($sql, $param);
+        if (false === $statement) {
             return false;
         } else {
-            return $this->getDriver()->rowCount($query);
+            return $statement->rowCount();
+        }
+    }
+
+    /**
+     * 修改
+     *
+     * @param str|array $sql
+     * @param array $param
+     *
+     * @return int|false
+     */
+    public function update($sql = null, $param = null)
+    {
+        if (empty($sql)) {
+            return false;
+        }
+
+        if (is_array($sql)) {
+            $res = $this->getQuery()->update($sql)->buildUpdate();
+            $sql = $res['sql'];
+            $param = $res['param'];
+        }
+
+        $statement = $this->getDriver()->query($sql, $param);
+        if (false === $statement) {
+            return false;
+        } else {
+            return $statement->rowCount();
+        }
+    }
+
+    /**
+     * 删除
+     *
+     * @param str $sql
+     * @param array $param
+     *
+     * @return int|false
+     */
+    public function delete($sql = null, $param = null)
+    {
+        if (empty($sql)) {
+            $res = $this->getQuery()->buildDelete();
+            $sql = $res['sql'];
+            $param = $res['param'];
+        }
+
+        $statement = $this->getDriver()->query($sql, $param);
+        if (false === $statement) {
+            return false;
+        } else {
+            return $statement->rowCount();
         }
     }
 
@@ -634,7 +395,7 @@ class DatabaseManager
      */
     public function beginTransaction()
     {
-        return $this->getDriver()->beginTransaction();
+        return $this->pdo()->beginTransaction();
     }
 
     /**
@@ -644,7 +405,7 @@ class DatabaseManager
      */
     public function commit()
     {
-        return $this->getDriver()->commit();
+        return $this->pdo()->commit();
     }
 
     /**
@@ -654,7 +415,7 @@ class DatabaseManager
      */
     public function rollBack()
     {
-        return $this->getDriver()->rollBack();
+        return $this->pdo()->rollBack();
     }
 
     /**
@@ -666,72 +427,20 @@ class DatabaseManager
      */
     public function transaction($closure = null)
     {
-        return $this->getDriver()->transaction($closure);
-    }
-
-    /**
-     * 准备数据
-     *
-     * @param array $array
-     * @return array
-     */
-    protected function prepareData($array = null)
-    {
-        if (empty($array) or !is_array($array)) {
-            return [];
+        if (!isset($closure) or is_string($closure) or !is_callable($closure)) {
+            return false;
         }
 
-        $array = array_change_key_case($array, CASE_LOWER);
-
-        $fields = $this->fields;
-        if (empty($fields) or !is_array($fields)) {
-            return $array;
+        try {
+            $this->beginTransaction();
+            $closure();
+            $this->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->rollBack();
+            $e->log(Exception::ERROR_TYPE_MYSQL);
+            return false;
         }
-
-        $data = [];
-        foreach ($fields as $field) {
-            if (isset($array[$field]) and is_scalar($array[$field])) {
-                $data[$field] = trim($array[$field]);
-            }
-        }
-        return $data;
-    }
-
-    /**
-     * 设置查询字段
-     *
-     * @param str|array $field
-     * @return this
-     */
-    public function field($field = null)
-    {
-        $this->getQuery()->field($field);
-
-        return $this;
-    }
-
-    /**
-     * 设置表名
-     *
-     * @return this
-     */
-    public function name($name = '')
-    {
-        $this->getQuery()->from($name);
-
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * getLastId
-     *
-     * @return int
-     */
-    public function getLastId()
-    {
-        return $this->getDriver()->lastId();
     }
 
     /**
@@ -749,46 +458,34 @@ class DatabaseManager
     }
 
     /**
-     * getMaster
-     *
-     * @return resource
-     */
-    public function getMaster()
-    {
-        return $this->getDriver()->getMaster();
-    }
-
-    /**
-     * getSlave
-     *
-     * @return resource
-     */
-    public function getSlave()
-    {
-        return $this->getDriver()->getSlave();
-    }
-
-    /**
-     * getPdo
+     * pdo
      *
      * @return PDO
      */
-    public function getPdo()
+    public function pdo()
     {
-        return $this->getDriver()->getPdo();
+        return $this->getDriver()->pdo();
     }
 
     /**
      * debug
      *
      * @param bool $debug
-     * @return void
+     * @return bool
      */
     public function debug($debug = true)
     {
-        $this->getDriver()->debug($debug);
+        return $this->getDriver()->debug($debug);
+    }
 
-        return $this;
+    public function __call($name, $args)
+    {
+        if (is_callable([$this->getQuery(), $name])) {
+            $this->getQuery()->$name(...$args);
+            return $this;
+        } elseif (is_callable([$this->getDriver(), $name])) {
+            return $this->getDriver()->$name(...$args);
+        }
     }
 
 }

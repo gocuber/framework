@@ -78,7 +78,7 @@ class Mysql
         try {
 
             $_s  = microtime(true);
-            $ret = $this->getMaster()->exec($sql);
+            $ret = $this->pdo('master')->exec($sql);
             $_e  = microtime(true);
 
             if ($this->debug) {
@@ -103,65 +103,6 @@ class Mysql
     }
 
     /**
-     * 预处理sql
-     *
-     * @param string $sql
-     * @return $statement
-     */
-    private function prepare($sql = null)
-    {
-        $pdo = (!$this->use_master and $this->isReadQuery($sql)) ? $this->getSlave() : $this->getMaster();
-        $statement = $pdo->prepare($sql);
-        return $statement;
-    }
-
-    /**
-     * bindParams
-     *
-     * @param res $statement
-     * @param array $param
-     * @return bool
-     */
-    private function bindParams($statement = null, $param = null)
-    {
-        if (empty($statement)) {
-            return false;
-        }
-
-        if (!empty($param) and is_array($param)) {
-            foreach ($param as $key=>$value) {
-                is_int($key) and $key++;
-                $statement->bindValue($key, $value, $this->getType($value));
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * 执行预处理sql
-     *
-     * @param res $statement
-     * @param array $param
-     *
-     * @return bool
-     */
-    private function execute($statement = null, $param = null)
-    {
-        if (empty($statement)) {
-            return false;
-        }
-
-        if (isset($param)) {
-            $ret = $statement->execute($param);
-        } else {
-            $ret = $statement->execute();
-        }
-
-        return $ret;
-    }
-
-    /**
      * 执行sql语句
      *
      * @param string $sql
@@ -174,13 +115,20 @@ class Mysql
 
             $_s = microtime(true);
 
-            $statement = $this->prepare($sql);
+            $pdo = (!$this->use_master and $this->isReadQuery($sql)) ? $this->pdo('slave') : $this->pdo('master');
+            $statement = $pdo->prepare($sql);
             if(false === $statement){
                 return false;
             }
 
-            $this->bindParams($statement, $param);
-            $ret = $this->execute($statement);
+            if (!empty($param) and is_array($param)) {
+                foreach ($param as $key=>$value) {
+                    is_int($key) and $key++;
+                    $statement->bindValue($key, $value, $this->getType($value));
+                }
+            }
+
+            $ret = $statement->execute();
 
             $_e = microtime(true);
 
@@ -217,185 +165,12 @@ class Mysql
     }
 
     /**
-     * rowCount
-     *
-     * @param res $statement
-     * @return int|false
-     */
-    public function rowCount($statement = null)
-    {
-        if (empty($statement)) {
-            return false;
-        }
-
-        return $statement->rowCount();
-    }
-
-    /**
-     * fetch
-     *
-     * @param res $statement
-     * @return array|false
-     */
-    public function fetch($statement = null)
-    {
-        if (empty($statement)) {
-            return false;
-        }
-
-        return $statement->fetch(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * 查询一行记录
-     *
-     * @return array
-     */
-    public function line($sql = null, $param = null)
-    {
-        $statement = $this->query($sql, $param);
-
-        if (false === $statement) {
-            return false;
-        } else {
-            return $statement->fetch(PDO::FETCH_ASSOC);
-        }
-    }
-
-    /**
-     * 查询一个字段
-     *
-     * @return str
-     */
-    public function val($sql = null, $param = null)
-    {
-        $statement = $this->query($sql, $param);
-
-        if (false === $statement) {
-            return false;
-        } else {
-            return $statement->fetchColumn();
-        }
-    }
-
-    /**
-     * 查询多行记录
-     *
-     * @return array
-     */
-    public function get($sql = null, $param = null)
-    {
-        $statement = $this->query($sql, $param);
-
-        if (false === $statement) {
-            return false;
-        } else {
-            return $statement->fetchAll(PDO::FETCH_ASSOC);
-        }
-    }
-
-    /**
-     * 取得上一步insert操作产生的id
-     *
-     * @return bigint
-     */
-    public function lastId()
-    {
-        return $this->getMaster()->lastInsertId();
-    }
-
-    /**
-     * 开始一个事务
-     *
-     * @return bool
-     */
-    public function beginTransaction()
-    {
-        return $this->getMaster()->beginTransaction();
-    }
-
-    /**
-     * 提交事务
-     *
-     * @return bool
-     */
-    public function commit()
-    {
-        return $this->getMaster()->commit();
-    }
-
-    /**
-     * 回滚事务
-     *
-     * @return bool
-     */
-    public function rollBack()
-    {
-        return $this->getMaster()->rollBack();
-    }
-
-    /**
-     * 判断是否在一个事务中
-     *
-     * @return bool
-     */
-    public function inTransaction()
-    {
-        return $this->getMaster()->inTransaction();
-    }
-
-    /**
-     * 执行一组事务
-     *
-     * @param func $closure
-     *
-     * @return bool
-     */
-    public function transaction($closure = null)
-    {
-        if (!isset($closure) or is_string($closure) or !is_callable($closure)) {
-            return false;
-        }
-
-        try {
-            $this->beginTransaction();
-            $closure();
-            $this->commit();
-            return true;
-        } catch (Exception $e) {
-            $this->rollBack();
-            $e->log(Exception::ERROR_TYPE_MYSQL);
-            return false;
-        }
-    }
-
-    /**
      * 关闭当前实例的主从连接
      */
     public function close()
     {
         $this->master = null;
         $this->slave  = null;
-    }
-
-    /**
-     * 获取当前实例的从库连接
-     *
-     * @return resource
-     */
-    public function getSlave()
-    {
-        return $this->conn('slave');
-    }
-
-    /**
-     * 获取当前实例的主库连接
-     *
-     * @return resource
-     */
-    public function getMaster()
-    {
-        return $this->conn('master');
     }
 
     /**
@@ -419,12 +194,12 @@ class Mysql
     }
 
     /**
-     * conn
+     * pdo
      *
      * @param string $mode
      * @return PDO
      */
-    private function conn($mode = 'master')
+    public function pdo($mode = 'master')
     {
         $conn_key = $this->connect . '.' . $mode;
         if (isset($this->conn[$conn_key])) {

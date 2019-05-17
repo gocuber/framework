@@ -7,7 +7,9 @@
  */
 namespace Cuber\Database;
 
+use Closure;
 use PDO;
+use PDOStatement;
 
 class DatabaseManager
 {
@@ -97,12 +99,8 @@ class DatabaseManager
      * @param string $field
      * @return int
      */
-    public function max($field = null)
+    public function max($field)
     {
-        if (!isset($field)) {
-            return false;
-        }
-
         return $this->val("max($field)");
     }
 
@@ -112,12 +110,8 @@ class DatabaseManager
      * @param string $field
      * @return int
      */
-    public function min($field = null)
+    public function min($field)
     {
-        if (!isset($field)) {
-            return false;
-        }
-
         return $this->val("min($field)");
     }
 
@@ -127,12 +121,8 @@ class DatabaseManager
      * @param string $field
      * @return float
      */
-    public function avg($field = null)
+    public function avg($field)
     {
-        if (!isset($field)) {
-            return false;
-        }
-
         return $this->val("avg($field)");
     }
 
@@ -142,12 +132,8 @@ class DatabaseManager
      * @param string $field
      * @return int
      */
-    public function sum($field = null)
+    public function sum($field)
     {
-        if (!isset($field)) {
-            return false;
-        }
-
         return $this->val("sum($field)");
     }
 
@@ -158,7 +144,7 @@ class DatabaseManager
      * @param string $value
      * @return array $array
      */
-    public function hash($key = '', $value = '*')
+    public function hash($key = 'id', $value = '*')
     {
         $field = ('*' == $value or $key == $value) ? $value : "{$key},{$value}";
         $res = $this->getQuery()->field($field)->buildSelect();
@@ -231,21 +217,11 @@ class DatabaseManager
     }
 
     /**
-     * 执行一条SQL返回影响行数
-     *
-     * @return int
-     */
-    public function exec($sql = null)
-    {
-        return $this->getDriver()->exec($sql);
-    }
-
-    /**
      * 执行sql语句
      *
      * @param string $sql
      *
-     * @return res|false
+     * @return \PDOStatement|false
      */
     public function query($sql = null, $param = null)
     {
@@ -261,10 +237,10 @@ class DatabaseManager
     /**
      * fetch
      *
-     * @param res $statement
+     * @param \PDOStatement $statement
      * @return array|false
      */
-    public function fetch($statement = null)
+    public function fetch(PDOStatement $statement = null)
     {
         if (empty($statement)) {
             return false;
@@ -323,22 +299,19 @@ class DatabaseManager
     /**
      * 批量插入数据
      *
-     * @param array $data sql或二维数组
-     * @param array $param sql使用
+     * @param array $data
      *
-     * @return int|false 成功返回行数 失败返回false
+     * @return int|false
      */
-    public function batchInsert($data = null, $param = null)
+    public function batchInsert(array $data = [])
     {
         if (empty($data)) {
             return false;
         }
 
-        if (is_array($data)) {
-            $res = $this->getQuery()->batchInsert($data)->buildBatchInsert();
-            $sql = $res['sql'];
-            $param = $res['param'];
-        }
+        $res = $this->getQuery()->batchInsert($data)->buildBatchInsert();
+        $sql = $res['sql'];
+        $param = $res['param'];
 
         $statement = $this->getDriver()->query($sql, $param);
         if (false === $statement) {
@@ -403,16 +376,12 @@ class DatabaseManager
     /**
      * 执行一组事务
      *
-     * @param func $closure
+     * @param Closure $closure
      *
      * @return bool
      */
-    public function transaction($closure = null)
+    public function transaction(Closure $closure)
     {
-        if (!isset($closure) or is_string($closure) or !is_callable($closure)) {
-            return false;
-        }
-
         try {
             $this->beginTransaction();
             $closure();

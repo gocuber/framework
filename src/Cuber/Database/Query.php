@@ -12,7 +12,7 @@ class Query
 
     private $binds = null;
 
-    private $result = ['sql'=>null, 'param'=>null];
+    private $result = ['sql'=>'', 'param'=>[]];
 
     /**
      * autoCond
@@ -523,7 +523,7 @@ class Query
             }
             $this->binds['duplicate'] = rtrim($update, ',');
         } else {
-            $this->binds['duplicate'] = '';
+            $this->binds['duplicate'] = $data;
         }
 
         return $this;
@@ -729,7 +729,7 @@ class Query
     public function flush()
     {
         $this->binds = null;
-        $this->result = ['sql'=>null, 'param'=>null];
+        $this->result = ['sql'=>'', 'param'=>[]];
     }
 
 }

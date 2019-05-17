@@ -26,13 +26,20 @@ class Mysql
 
     private $conn;
 
+    private $type_map = [
+        'boolean' => PDO::PARAM_BOOL,
+        'integer' => PDO::PARAM_INT,
+        'string'  => PDO::PARAM_STR,
+        'NULL'    => PDO::PARAM_NULL,
+    ];
+
     /**
      * setConfig
      *
      * @param array $config
      * @return $this
      */
-    public function setConfig($config = [])
+    public function setConfig(array $config)
     {
         $this->config = $config;
 
@@ -65,82 +72,30 @@ class Mysql
     }
 
     /**
-     * 执行一条SQL返回影响行数
-     *
-     * @return int
-     */
-    public function exec($sql = null)
-    {
-        if ($this->isReadQuery($sql)) {
-            return $this->query($sql);
-        }
-
-        try {
-
-            $_s  = microtime(true);
-            $ret = $this->pdo('master')->exec($sql);
-            $_e  = microtime(true);
-
-            if ($this->debug) {
-                $_log  = 'exec()' . "\n";
-                $_log .= 'time: ' . ($_e - $_s) . "\n";
-                $_log .= 'sql: ' . print_r($sql, true) . "\n";
-                s($_log);
-            }
-
-            return $ret;
-
-        } catch (PDOException $e) {
-
-            if ($this->pdo('master')->inTransaction()) {
-                throw new Exception('exec() ' . $sql . $e->getMessage());
-            }
-
-            (new Exception())->log(Exception::ERROR_TYPE_MYSQL, $e);
-
-            return false;
-        }
-    }
-
-    /**
      * 执行sql语句
      *
      * @param string $sql
      *
-     * @return res|false
+     * @return \PDOStatement|false
      */
-    public function query($sql = null, $param = null, $reconn = self::RECONN)
+    public function query($sql, array $param = [], $reconn = self::RECONN)
     {
         try {
 
             $_s = microtime(true);
-
             $pdo = (!$this->use_master and $this->isReadQuery($sql)) ? $this->pdo('slave') : $this->pdo('master');
             $statement = $pdo->prepare($sql);
-            if(false === $statement){
-                return false;
+            foreach ($param as $key => $value) {
+                $statement->bindValue(is_int($key) ? $key + 1 : $key, $value, $this->getType($value));
             }
-
-            if (!empty($param) and is_array($param)) {
-                foreach ($param as $key=>$value) {
-                    is_int($key) and $key++;
-                    $statement->bindValue($key, $value, $this->getType($value));
-                }
-            }
-
             $ret = $statement->execute();
-
             $_e = microtime(true);
 
             if ($this->debug) {
-                $_log  = 'query()' . "\n";
-                $_log .= 'time: ' . ($_e - $_s) . "\n";
+                $_log  = 'time: ' . ($_e - $_s) . "\n";
                 $_log .= 'sql: ' . print_r($sql, true) . "\n";
                 $_log .= 'param: ' . print_r($param, true) . "\n";
                 s($_log);
-                echo '<pre>debugDumpParams: ';
-                $statement->debugDumpParams();
-                echo '</pre>';
             }
 
             return (false === $ret) ? false : $statement;
@@ -169,28 +124,8 @@ class Mysql
      */
     public function close()
     {
-        $this->master = null;
-        $this->slave  = null;
-    }
-
-    /**
-     * getDsn
-     *
-     * @param array $conf
-     * @return string
-     */
-    private function getDsn($conf = [])
-    {
-        extract($conf);
-        if (empty($host) or empty($database)) {
-            return false;
-        }
-
-        $dsn  = isset($driver) ? $driver : 'mysql';
-        $dsn .= ":host={$host};dbname={$database}";
-        isset($port)    and ''!==$port    and $dsn .= ";port={$port}";
-        isset($charset) and ''!==$charset and $dsn .= ";charset={$charset}";
-        return $dsn;
+        $this->conn[$this->connect . 'master'] = null;
+        $this->conn[$this->connect . 'slave'] = null;
     }
 
     /**
@@ -214,24 +149,43 @@ class Mysql
         }
 
         if ($this->debug) {
-            $_log  = 'conn()' . "\n";
-            $_log .= 'config: ' . print_r($conf, true) . "\n";
-            s($_log);
+            s('config: ' . print_r($conf, true));
         }
-
-        $dsn = $this->getDsn($conf);
-        extract($conf);
 
         try {
 
-            // PDO::ATTR_PERSISTENT => true,
-            $this->conn[$conn_key] = new PDO($dsn, $username, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_INIT_COMMAND => "set names utf8"]);
+            $this->conn[$conn_key] = new PDO(
+                $this->getDsn($conf),
+                array_get($conf, 'username'),
+                array_get($conf, 'password'),
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::MYSQL_ATTR_INIT_COMMAND => "set names '" . array_get($conf, 'charset', 'utf8') . "'"
+                ]
+            );
             return $this->conn[$conn_key];
 
         } catch (PDOException $e) {
 
             (new Exception())->log(Exception::ERROR_TYPE_MYSQL, $e, true);
 
+        }
+    }
+
+    /**
+     * getDsn
+     *
+     * @param  array  $config
+     * @return string
+     */
+    private function getDsn(array $config)
+    {
+        extract($config);
+
+        if (!empty($unix_socket)) {
+            return "mysql:unix_socket={$unix_socket};dbname={$database}";
+        } else {
+            return isset($port) ? "mysql:host={$host};port={$port};dbname={$database}" : "mysql:host={$host};dbname={$database}";
         }
     }
 
@@ -249,21 +203,13 @@ class Mysql
     /**
      * getType
      *
-     * @param string $data
+     * @param mixed $value
      * @return int
      */
-    private function getType($data = null)
+    private function getType($value)
     {
-        static $type_map = [
-            'boolean'  => PDO::PARAM_BOOL,
-            'integer'  => PDO::PARAM_INT,
-            'string'   => PDO::PARAM_STR,
-            'resource' => PDO::PARAM_LOB,
-            'NULL'     => PDO::PARAM_NULL,
-        ];
-
-        $type = gettype($data);
-        return isset($type_map[$type]) ? $type_map[$type] : PDO::PARAM_STR;
+        $type = gettype($value);
+        return isset($this->type_map[$type]) ? $this->type_map[$type] : PDO::PARAM_STR;
     }
 
     /**

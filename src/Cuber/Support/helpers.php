@@ -255,18 +255,6 @@ function url($url = '', $domain = '', $http = '//')
 }
 
 /**
- * res_url
- *
- * @param string $url
- *
- * @return string
- */
-function res_url($url = '')
-{
-    return url($url, config('res_domain'));
-}
-
-/**
  * array_get
  *
  * @param array $array

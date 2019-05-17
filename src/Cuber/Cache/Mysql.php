@@ -3,8 +3,6 @@
 /**
  * Mysql
  *
- * 表字段 key value expire ctime utime
- *
  * @author Cuber <dafei.net@gmail.com>
  */
 namespace Cuber\Cache;
@@ -41,10 +39,10 @@ class Mysql implements Store
     {
         $time = time();
         $expire = (0 == $expire) ? 0 : $time + $expire;
-        $sql = "insert into " . $this->table . " (`key`,`value`,expire,ctime) values (:key,:value,:expire,:ctime)"
-            . " on duplicate key update `value`=values(`value`),expire=values(expire),utime=values(ctime)";
 
-        $this->db->query($sql, ['key'=>$key, 'value'=>$value, 'expire'=>$expire, 'ctime'=>$time]);
+        $this->db->name($this->table)
+            ->duplicate(['value'=>'value', 'expire'=>'expire', 'utime'=>'ctime'])
+            ->insert(['key'=>$key, 'value'=>$value, 'expire'=>$expire, 'ctime'=>$time]);
 
         return true;
     }
@@ -69,20 +67,20 @@ class Mysql implements Store
     {
         $time = time();
         $expire = (0 == $expire) ? 0 : $time + $expire;
-        $params = ['expire'=>$expire, 'ctime'=>$time];
-        $values = '';
-        $index = 1;
-        foreach ($keys as $key => $value) {
-            $values .= "(:key{$index},:value{$index},:expire,:ctime),";
-            $params["key$index"] = $key;
-            $params["value$index"] = $value;
-            $index++;
-        }
-        $values = rtrim($values, ',');
-        $sql = "insert into " . $this->table . " (`key`,`value`,expire,ctime) values $values"
-            . " on duplicate key update `value`=values(`value`),expire=values(expire),utime=values(ctime)";
 
-        $this->db->query($sql, $params);
+        $data = [];
+        foreach ($keys as $key => $value) {
+            $data[] = [
+                'key' => $key,
+                'value' => $value,
+                'expire' => $expire,
+                'ctime' => $time,
+            ];
+        }
+
+        $this->db->name($this->table)
+            ->duplicate(['value'=>'value', 'expire'=>'expire', 'utime'=>'ctime'])
+            ->batchInsert($data);
 
         return true;
     }
@@ -112,13 +110,9 @@ class Mysql implements Store
 
     public function increment($key = null, $value = 1)
     {
-        $time = time();
-        $value = (int)$value;
-        $expire = 0;
-        $sql = "insert into " . $this->table . " (`key`,`value`,expire,ctime) values (:key,:value,:expire,:ctime)"
-            . " on duplicate key update `value`=`value`+values(`value`),utime=values(ctime)";
-
-        $this->db->query($sql, ['key'=>$key, 'value'=>$value, 'expire'=>$expire, 'ctime'=>$time]);
+        $this->db->name($this->table)
+            ->duplicate('`value`=`value`+values(`value`),`utime`=values(`ctime`)')
+            ->insert(['key'=>$key, 'value'=>(int)$value, 'expire'=>0, 'ctime'=>time()]);
 
         return true;
     }

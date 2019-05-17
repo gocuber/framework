@@ -114,7 +114,7 @@ class Memcached
      */
     public function set($key = '', $value = '', $time = 0)
     {
-        return $this->conn()->set($key, $value, $time);
+        return $this->conn()->set($key, $value, (0 == $time) ? 0 : time() + $time);
     }
 
     /**
@@ -209,7 +209,7 @@ class Memcached
      */
     public function add($key = '', $value = '', $time = 0)
     {
-        return $this->conn()->add($key, $value, $time);
+        return $this->conn()->add($key, $value, (0 == $time) ? 0 : time() + $time);
     }
 
     /**
@@ -222,7 +222,7 @@ class Memcached
      */
     public function replace($key = '', $value = '', $time = 0)
     {
-        return $this->conn()->replace($key, $value, $time);
+        return $this->conn()->replace($key, $value, (0 == $time) ? 0 : time() + $time);
     }
 
 }

@@ -17,17 +17,13 @@ class Query
     /**
      * autoCond
      *
-     * @param array|str $cond
-     * @param str $sign
+     * @param  array|string  $cond
+     * @param  string        $sign
      *
      * @return array
      */
-    private function autoCond($cond = null, $sign = 'and')
+    private function autoCond($cond, $sign = 'and')
     {
-        if (empty($cond)) {
-            return null;
-        }
-
         if (is_array($cond)) {
             if (!(isset($cond[0]) and in_array($cond[0], ['and', 'or'], true))) {
                 $cond = array_merge([$sign], $cond);
@@ -42,22 +38,19 @@ class Query
     /**
      * mergeCond
      *
-     * @param array|str $cond
-     * @param str $sign
+     * @param  array   $cond
+     * @param  string  $sign
      *
      * @return bool
      */
-    private function mergeCond($cond = null, $sign = 'and')
+    private function mergeCond(array $cond, $sign = 'and')
     {
-        if (empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and', 'or'], true)) {
-            return false;
-        }
-
         if (empty($this->binds['cond'])) {
             $this->binds['cond'] = $cond;
+            return true;
         }
 
-        $_sign    = $this->binds['cond'][0];
+        $_sign = $this->binds['cond'][0];
         $sub_sign = $cond[0];
 
         if ($sign == $_sign) {
@@ -82,11 +75,11 @@ class Query
     /**
      * where
      *
-     * @param array|str $cond
+     * @param array|string $cond
      *
-     * @return bool
+     * @return $this
      */
-    public function where($cond = null)
+    public function where($cond)
     {
         if (empty($cond)) {
             return $this;
@@ -99,11 +92,11 @@ class Query
     /**
      * andWhere
      *
-     * @param array|str $cond
+     * @param array|string $cond
      *
-     * @return bool
+     * @return $this
      */
-    public function andWhere($cond = null)
+    public function andWhere($cond)
     {
         if (empty($cond)) {
             return $this;
@@ -116,11 +109,11 @@ class Query
     /**
      * orWhere
      *
-     * @param array|str $cond
+     * @param array|string $cond
      *
-     * @return bool
+     * @return $this
      */
-    public function orWhere($cond = null)
+    public function orWhere($cond)
     {
         if (empty($cond)) {
             return $this;
@@ -139,7 +132,7 @@ class Query
      */
     private function buildCond($cond = null)
     {
-        if (empty($cond) or !is_array($cond) or !isset($cond[0]) or !in_array($cond[0], ['and', 'or'], true)) {
+        if (!isset($cond[0]) or !in_array($cond[0], ['and', 'or'], true)) {
             return '';
         }
 
@@ -220,6 +213,7 @@ class Query
      */
     private function buildCondStr($value = null)
     {
+        // return "($value)";
         return $value;
     }
 

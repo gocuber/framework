@@ -47,8 +47,10 @@ class Query
     {
         if (empty($this->binds['cond'])) {
             $this->binds['cond'] = $cond;
-            return true;
+        } else {
+            $this->binds['cond'] = [$sign, $this->binds['cond'], $cond];
         }
+        return true;
 
         $_sign = $this->binds['cond'][0];
         $sub_sign = $cond[0];
@@ -103,6 +105,8 @@ class Query
         }
 
         $this->mergeCond($this->autoCond($cond));
+
+        // $this->binds['cond'] = ['and', $this->binds['cond'], $this->autoCond($cond)];
         return $this;
     }
 
@@ -120,6 +124,8 @@ class Query
         }
 
         $this->mergeCond($this->autoCond($cond), 'or');
+
+        // $this->binds['cond'] = ['or', $this->binds['cond'], $this->autoCond($cond)];
         return $this;
     }
 
@@ -142,7 +148,11 @@ class Query
         $sql = '';
         foreach ($cond as $key => $value) {
             if (isset($value[0]) and in_array($value[0], ['and', 'or'], true)) {
-                $sql .= ' ' . $sign . ' (' . $this->buildCond($value) . ')';
+                if ($sign == $value[0]) {
+                    $sql .= ' ' . $sign . ' ' . $this->buildCond($value);
+                } else {
+                    $sql .= ' ' . $sign . ' (' . $this->buildCond($value) . ')';
+                }
             } else {
                 if (is_int($key)) {
                     if (is_array($value)) {
@@ -334,7 +344,7 @@ class Query
 
     private function onWhere()
     {
-        if (isset($this->binds['cond'])) {
+        if (isset($this->binds['cond'])) {s($this->binds['cond']);
             $where = $this->buildCond($this->binds['cond']);
             if ('' !== $where) {
                 $this->result['sql'] .= " where $where";

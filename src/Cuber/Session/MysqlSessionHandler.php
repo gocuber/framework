@@ -76,7 +76,7 @@ class MysqlSessionHandler implements SessionHandlerInterface
 
         $this->db->name($this->table)
             ->duplicate(['data'=>'data', 'expire'=>'expire', 'utime'=>'ctime'])
-            ->batchInsert(['id'=>$id, 'data'=>$data, 'expire'=>$expire, 'ctime'=>$time]);
+            ->insert(['id'=>$id, 'data'=>$data, 'expire'=>$expire, 'ctime'=>$time]);
 
         return true;
     }

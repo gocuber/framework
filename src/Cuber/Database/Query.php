@@ -135,7 +135,7 @@ class Query
      *
      * @param array $cond
      *
-     * @return str
+     * @return string
      */
     private function buildCond($cond = null)
     {
@@ -270,6 +270,16 @@ class Query
     }
 
     /**
+     * buildField
+     *
+     * @return string
+     */
+    private function buildField()
+    {
+        return isset($this->binds['field']) ? $this->binds['field'] : '*';
+    }
+
+    /**
      * setParam
      *
      * @param string $value
@@ -286,7 +296,7 @@ class Query
 
     private function onSelect()
     {
-        $this->result['sql'] = 'select ' . (isset($this->binds['field']) ? $this->binds['field'] : '*') . ' from ' . $this->binds['from'];
+        $this->result['sql'] = 'select ' . $this->buildField() . ' from ' . $this->binds['from'];
 
         return $this;
     }
@@ -532,11 +542,11 @@ class Query
     /**
      * 设置查询字段
      *
-     * @param str|array $field
+     * @param string|array $field
      *
      * @return $this
      */
-    public function field($field = null)
+    public function field($field)
     {
         if (empty($field)) {
             return $this;

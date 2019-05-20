@@ -140,23 +140,28 @@ class DatabaseManager
     /**
      * 查询 返回 hash数组
      *
-     * @param string $key
-     * @param string $value
-     * @return array $array
+     * @param   string       $key
+     * @param   string|null  $value
+     * @return  array        $array
      */
-    public function hash($key = 'id', $value = '*')
+    public function hash($key = 'id', $value = null)
     {
-        $field = ('*' == $value or $key == $value) ? $value : "{$key},{$value}";
+        if (isset($value)) {
+            $field = ($key == $value) ? $value : "{$key},{$value}";
+        } else {
+            $field = null;
+        }
+
         $res = $this->getQuery()->field($field)->buildSelect();
-        $statement = $this->getDriver()->query($res['sql'], $res['param']);
+        extract($res);
+        $statement = $this->getDriver()->query($sql, $param);
 
         if (false === $statement) {
             return false;
         } else {
             $hash = [];
-            $is = ('*' == $value or count(explode(',', $value)) > 1) ? 1 : 0;
             for (;$v = $statement->fetch(PDO::FETCH_ASSOC);) {
-                $hash[$v[$key]] = $is ? $v : $v[$value];
+                $hash[$v[$key]] = isset($value) ? $v[$value] : $v;
             }
             return $hash;
         }
@@ -171,7 +176,8 @@ class DatabaseManager
     public function get($field = null)
     {
         $res = $this->getQuery()->field($field)->buildSelect();
-        $statement = $this->getDriver()->query($res['sql'], $res['param']);
+        extract($res);
+        $statement = $this->getDriver()->query($sql, $param);
 
         if (false === $statement) {
             return false;
@@ -189,7 +195,8 @@ class DatabaseManager
     public function line($field = null)
     {
         $res = $this->getQuery()->field($field)->buildSelect();
-        $statement = $this->getDriver()->query($res['sql'], $res['param']);
+        extract($res);
+        $statement = $this->getDriver()->query($sql, $param);
 
         if (false === $statement) {
             return false;
@@ -202,12 +209,13 @@ class DatabaseManager
      * 查询 返回一个字段
      *
      * @param string $field
-     * @return str $val
+     * @return string $val
      */
     public function val($field = null)
     {
         $res = $this->getQuery()->field($field)->buildSelect();
-        $statement = $this->getDriver()->query($res['sql'], $res['param']);
+        extract($res);
+        $statement = $this->getDriver()->query($sql, $param);
 
         if (false === $statement) {
             return false;
@@ -227,8 +235,7 @@ class DatabaseManager
     {
         if (empty($sql)) {
             $res = $this->getQuery()->buildSelect();
-            $sql = $res['sql'];
-            $param = $res['param'];
+            extract($res);
         }
 
         return $this->getDriver()->query($sql, $param);
@@ -252,13 +259,18 @@ class DatabaseManager
     /**
      * 查询
      *
-     * @param str $sql
+     * @param string $sql
      * @param array $param
      *
      * @return array|false
      */
     public function select($sql = null, $param = null)
     {
+        if (empty($sql)) {
+            $res = $this->getQuery()->buildSelect();
+            extract($res);
+        }
+
         $statement = $this->getDriver()->query($sql, $param);
 
         if (false === $statement) {
@@ -271,7 +283,7 @@ class DatabaseManager
     /**
      * 插入
      *
-     * @param str|array $sql
+     * @param string|array $sql
      * @param array $param
      *
      * @return int|false
@@ -284,8 +296,7 @@ class DatabaseManager
 
         if (is_array($sql)) {
             $res = $this->getQuery()->insert($sql)->buildInsert();
-            $sql = $res['sql'];
-            $param = $res['param'];
+            extract($res);
         }
 
         $statement = $this->getDriver()->query($sql, $param);
@@ -310,8 +321,7 @@ class DatabaseManager
         }
 
         $res = $this->getQuery()->batchInsert($data)->buildBatchInsert();
-        $sql = $res['sql'];
-        $param = $res['param'];
+        extract($res);
 
         $statement = $this->getDriver()->query($sql, $param);
         if (false === $statement) {
@@ -324,7 +334,7 @@ class DatabaseManager
     /**
      * 修改
      *
-     * @param str|array $sql
+     * @param string|array $sql
      * @param array $param
      *
      * @return int|false
@@ -337,8 +347,7 @@ class DatabaseManager
 
         if (is_array($sql)) {
             $res = $this->getQuery()->update($sql)->buildUpdate();
-            $sql = $res['sql'];
-            $param = $res['param'];
+            extract($res);
         }
 
         $statement = $this->getDriver()->query($sql, $param);
@@ -352,7 +361,7 @@ class DatabaseManager
     /**
      * 删除
      *
-     * @param str $sql
+     * @param string $sql
      * @param array $param
      *
      * @return int|false
@@ -361,8 +370,7 @@ class DatabaseManager
     {
         if (empty($sql)) {
             $res = $this->getQuery()->buildDelete();
-            $sql = $res['sql'];
-            $param = $res['param'];
+            extract($res);
         }
 
         $statement = $this->getDriver()->query($sql, $param);
@@ -417,7 +425,7 @@ class DatabaseManager
         } elseif (is_callable([$this->getQuery(), $name])) {
             $this->getQuery()->$name(...$args);
             return $this;
-        }
+        } else {}
     }
 
 }

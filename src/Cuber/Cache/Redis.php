@@ -50,7 +50,7 @@ class Redis implements Store
         return $this->redis->delete($key);
     }
 
-    public function setMulti(array $keys = [], $expire = 0)
+    public function mSet(array $keys = [], $expire = 0)
     {
         if (0 == $expire) {
             return $this->redis->mSet($keys);
@@ -59,12 +59,12 @@ class Redis implements Store
         }
     }
 
-    public function getMulti(array $keys = [])
+    public function mGet(array $keys = [])
     {
         return $this->redis->mGet($keys);
     }
 
-    public function deleteMulti(array $keys = [])
+    public function mDelete(array $keys = [])
     {
         return $this->redis->delete($keys);
     }

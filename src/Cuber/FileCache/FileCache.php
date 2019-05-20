@@ -148,12 +148,12 @@ class FileCache
     }
 
     /**
-     * getMulti
+     * mGet
      *
      * @param array $keys
      * @return array|null
      */
-    public function getMulti($keys = [])
+    public function mGet($keys = [])
     {
         if (empty($keys) or !is_array($keys)) {
             return null;
@@ -167,13 +167,13 @@ class FileCache
     }
 
     /**
-     * setMulti
+     * mSet
      *
      * @param array $items
      * @param int $time
      * @return bool
      */
-    public function setMulti($items = [], $time = 0)
+    public function mSet($items = [], $time = 0)
     {
         if (empty($items) or !is_array($items)) {
             return false;
@@ -186,12 +186,12 @@ class FileCache
     }
 
     /**
-     * deleteMulti
+     * mDelete
      *
      * @param array $keys
      * @return array
      */
-    public function deleteMulti($keys = [])
+    public function mDelete($keys = [])
     {
         if (empty($keys) or !is_array($keys)) {
             return false;

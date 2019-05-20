@@ -141,36 +141,36 @@ class Memcached
     }
 
     /**
-     * setMulti
+     * mSet
      *
      * @param array $items
      * @param int $time
      * @return bool
      */
-    public function setMulti($items = [], $time = 0)
+    public function mSet($items = [], $time = 0)
     {
         return $this->conn()->setMulti($items, $time);
     }
 
     /**
-     * getMulti
+     * mGet
      *
      * @param array $keys
      * @return array
      */
-    public function getMulti($keys = [])
+    public function mGet($keys = [])
     {
         return $this->conn()->getMulti($keys);
     }
 
     /**
-     * deleteMulti
+     * mDelete
      *
      * @param array $keys
      * @param int $time
      * @return bool
      */
-    public function deleteMulti($keys = [], $time = 0)
+    public function mDelete($keys = [], $time = 0)
     {
         return $this->conn()->deleteMulti($keys, $time);
     }

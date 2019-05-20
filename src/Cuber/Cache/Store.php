@@ -40,32 +40,32 @@ interface Store
     public function delete($key);
 
     /**
-     * setMulti
+     * mSet
      *
      * @param  array  $keys
      * @param  int    $expire
      *
      * @return bool
      */
-    public function setMulti(array $keys, $expire);
+    public function mSet(array $keys, $expire);
 
     /**
-     * getMulti
+     * mGet
      *
      * @param  array  $keys
      *
      * @return array|null
      */
-    public function getMulti(array $keys);
+    public function mGet(array $keys);
 
     /**
-     * deleteMulti
+     * mDelete
      *
      * @param  array  $keys
      *
      * @return bool
      */
-    public function deleteMulti(array $keys);
+    public function mDelete(array $keys);
 
     /**
      * increment

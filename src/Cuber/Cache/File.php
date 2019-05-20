@@ -46,19 +46,19 @@ class File implements Store
         return $this->file->delete($key);
     }
 
-    public function setMulti(array $keys = [], $expire = 0)
+    public function mSet(array $keys = [], $expire = 0)
     {
-        return $this->file->setMulti($keys, $expire);
+        return $this->file->mSet($keys, $expire);
     }
 
-    public function getMulti(array $keys = [])
+    public function mGet(array $keys = [])
     {
-        return $this->file->getMulti($keys);
+        return $this->file->mGet($keys);
     }
 
-    public function deleteMulti(array $keys = [])
+    public function mDelete(array $keys = [])
     {
-        return $this->file->deleteMulti($keys);
+        return $this->file->mDelete($keys);
     }
 
     public function increment($key = null, $value = 1)

@@ -46,19 +46,19 @@ class Memcache implements Store
         return $this->cache->delete($key);
     }
 
-    public function setMulti(array $keys = [], $expire = 0)
+    public function mSet(array $keys = [], $expire = 0)
     {
-        return $this->cache->setMulti($keys, $expire);
+        return $this->cache->mSet($keys, $expire);
     }
 
-    public function getMulti(array $keys = [])
+    public function mGet(array $keys = [])
     {
-        return $this->cache->getMulti($keys);
+        return $this->cache->mGet($keys);
     }
 
-    public function deleteMulti(array $keys = [])
+    public function mDelete(array $keys = [])
     {
-        return $this->cache->deleteMulti($keys);
+        return $this->cache->mDelete($keys);
     }
 
     public function increment($key = null, $value = 1)

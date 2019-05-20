@@ -123,14 +123,14 @@ class CacheManager
     }
 
     /**
-     * setMulti
+     * mSet
      *
      * @param  array  $keys
      * @param  int    $expire
      *
      * @return bool
      */
-    public function setMulti($keys = [], $expire = 0)
+    public function mSet($keys = [], $expire = 0)
     {
         if (!is_array($keys)) {
             return false;
@@ -141,17 +141,17 @@ class CacheManager
             $data[$this->key($key)] = serialize($value);
         }
 
-        return $this->driver->setMulti($data, $expire);
+        return $this->driver->mSet($data, $expire);
     }
 
     /**
-     * getMulti
+     * mGet
      *
      * @param  array  $keys
      *
      * @return array|null
      */
-    public function getMulti($keys = [])
+    public function mGet($keys = [])
     {
         if (!is_array($keys)) {
             return null;
@@ -161,7 +161,7 @@ class CacheManager
         foreach ($keys as $key) {
             $hash_keys[$this->key($key)] = $key;
         }
-        $data = $this->driver->getMulti(array_keys($hash_keys));
+        $data = $this->driver->mGet(array_keys($hash_keys));
 
         if (null === $data) {
             return null;
@@ -175,13 +175,13 @@ class CacheManager
     }
 
     /**
-     * deleteMulti
+     * mDelete
      *
      * @param  array  $keys
      *
      * @return bool
      */
-    public function deleteMulti($keys = [])
+    public function mDelete($keys = [])
     {
         if (!is_array($keys)) {
             return false;
@@ -191,7 +191,7 @@ class CacheManager
         foreach ($keys as $key) {
             $cache_keys[] = $this->key($key);
         }
-        return $this->driver->deleteMulti($cache_keys);
+        return $this->driver->mDelete($cache_keys);
     }
 
     /**

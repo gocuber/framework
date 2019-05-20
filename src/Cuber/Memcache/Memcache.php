@@ -142,13 +142,13 @@ class Memcache
     }
 
     /**
-     * setMulti
+     * mSet
      *
      * @param array $items
      * @param int $time
      * @return bool
      */
-    public function setMulti($items = [], $time = 0)
+    public function mSet($items = [], $time = 0)
     {
         if (empty($items) or !is_array($items)) {
             return false;
@@ -161,24 +161,24 @@ class Memcache
     }
 
     /**
-     * getMulti
+     * mGet
      *
      * @param array $keys
      * @return array
      */
-    public function getMulti($keys = [])
+    public function mGet($keys = [])
     {
         return $this->conn()->get($keys);
     }
 
     /**
-     * deleteMulti
+     * mDelete
      *
      * @param array $keys
      * @param int $time
      * @return bool
      */
-    public function deleteMulti($keys = [], $time = 0)
+    public function mDelete($keys = [], $time = 0)
     {
         if (empty($keys) or !is_array($keys)) {
             return false;

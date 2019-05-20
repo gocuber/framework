@@ -63,7 +63,7 @@ class Mysql implements Store
         return $this->db->name($this->table)->where(['key'=>$key])->delete();
     }
 
-    public function setMulti(array $keys = [], $expire = 0)
+    public function mSet(array $keys = [], $expire = 0)
     {
         $time = time();
         $expire = (0 == $expire) ? 0 : $time + $expire;
@@ -85,7 +85,7 @@ class Mysql implements Store
         return true;
     }
 
-    public function getMulti(array $keys = [])
+    public function mGet(array $keys = [])
     {
         $data = $this->db->name($this->table)->where(['key'=>$keys])->hash('key');
 
@@ -103,7 +103,7 @@ class Mysql implements Store
         return empty($cache) ? null : $cache;
     }
 
-    public function deleteMulti(array $keys = [])
+    public function mDelete(array $keys = [])
     {
         return $this->db->name($this->table)->where(['id'=>$keys])->delete();
     }

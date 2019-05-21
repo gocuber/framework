@@ -126,11 +126,10 @@ class Query
             } else {
                 if (is_int($key)) {
                     if (is_array($value)) {
-                        if (!isset($value[0])) {
-                            foreach ($value as $_k => $_v) { break 1; }
-                            $sql .= ' ' . $sign . ' ' . $this->buildCondHash($_k, $_v);
-                        } else {
+                        if (isset($value[0])) {
                             $sql .= ' ' . $sign . ' ' . $this->buildCondArray($value);
+                        } else {
+                            $sql .= ' ' . $sign . ' ' . $this->buildCondHash(key($value), reset($value));
                         }
                     } else {
                         $sql .= ' ' . $sign . ' ' . $this->buildCondStr($value);

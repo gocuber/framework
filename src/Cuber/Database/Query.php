@@ -45,30 +45,10 @@ class Query
      */
     private function mergeCond(array $cond, $sign = 'and')
     {
-        if (empty($this->binds['cond'])) {
-            $this->binds['cond'] = $cond;
-        } else {
+        if (isset($this->binds['cond'])) {
             $this->binds['cond'] = [$sign, $this->binds['cond'], $cond];
-        }
-        return true;
-
-        $_sign = $this->binds['cond'][0];
-        $sub_sign = $cond[0];
-
-        if ($sign == $_sign) {
-            if ($sign == $sub_sign) {
-                unset($cond[0]);
-                $this->binds['cond'] = array_merge($this->binds['cond'], $cond);
-            } else {
-                $this->binds['cond'][] = $cond;
-            }
         } else {
-            if ($sign == $sub_sign) {
-                unset($cond[0]);
-                $this->binds['cond'] = array_merge([$sign, $this->binds['cond']], $cond);
-            } else {
-                $this->binds['cond'] = [$sign, $this->binds['cond'], $cond];
-            }
+            $this->binds['cond'] = $cond;
         }
 
         return true;
@@ -105,8 +85,6 @@ class Query
         }
 
         $this->mergeCond($this->autoCond($cond));
-
-        // $this->binds['cond'] = ['and', $this->binds['cond'], $this->autoCond($cond)];
         return $this;
     }
 
@@ -124,8 +102,6 @@ class Query
         }
 
         $this->mergeCond($this->autoCond($cond), 'or');
-
-        // $this->binds['cond'] = ['or', $this->binds['cond'], $this->autoCond($cond)];
         return $this;
     }
 
@@ -136,15 +112,9 @@ class Query
      *
      * @return string
      */
-    private function buildCond($cond = null)
+    private function buildCond(array $cond)
     {
-        if (!isset($cond[0]) or !in_array($cond[0], ['and', 'or'], true)) {
-            return '';
-        }
-
-        $sign = $cond[0];
-        unset($cond[0]);
-
+        $sign = array_shift($cond);
         $sql = '';
         foreach ($cond as $key => $value) {
             if (isset($value[0]) and in_array($value[0], ['and', 'or'], true)) {
@@ -223,7 +193,6 @@ class Query
      */
     private function buildCondStr($value = null)
     {
-        // return "($value)";
         return $value;
     }
 
@@ -300,7 +269,7 @@ class Query
 
     private function onSelect()
     {
-        $this->result['sql'] = 'select ' . $this->buildField() . ' from ' . $this->binds['from'];
+        $this->result['sql'] = 'select ' . $this->buildField() . ' from `' . $this->binds['from'] . '`';
 
         return $this;
     }
@@ -344,7 +313,7 @@ class Query
 
     private function onWhere()
     {
-        if (isset($this->binds['cond'])) {s($this->binds['cond']);
+        if (isset($this->binds['cond'])) {
             $where = $this->buildCond($this->binds['cond']);
             if ('' !== $where) {
                 $this->result['sql'] .= " where $where";
@@ -736,7 +705,7 @@ class Query
     }
 
     /**
-     * Flush
+     * flush
      *
      * @return void
      */

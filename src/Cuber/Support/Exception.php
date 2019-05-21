@@ -61,7 +61,7 @@ class Exception extends \Exception
             $error_log = config('error_log');
             $cli       = is_cli() ? '_cli' : '';
             $file      = date('Ymd') . '_' . $type . $cli . '_error.log';
-            Log::add($error_log . $file, date('Y-m-d H:i:s') . " ------------------------------------------\n{$msg}\n{$str}\n");
+            file_log($error_log . $file, date('Y-m-d H:i:s') . " ------------------------------------------\n{$msg}\n{$str}\n");
         }
 
         $exit and exit();

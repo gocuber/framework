@@ -7,36 +7,6 @@
  */
 
 /**
- * print_r
- *
- * @param string|array $data
- * @param bool $exit
- *
- * @return void
- */
-function s($data = null, $exit = false)
-{
-    echo '<pre>';
-    print_r($data);
-    echo '</pre>';
-    $exit and exit();
-}
-
-/**
- * var_dump
- *
- * @param string|array $data
- * @param bool $exit
- *
- * @return void
- */
-function d($data = null, $exit = false)
-{
-    var_dump($data);
-    $exit and exit();
-}
-
-/**
  * htmlspecialchars
  *
  * @return string
@@ -51,7 +21,7 @@ function e()
  *
  * @return void
  */
-function ret404()
+function header404()
 {
     header('HTTP/1.1 404 Not Found');
 }
@@ -131,10 +101,10 @@ function view()
 /**
  * request
  *
- * @param null|string $key
- * @param mixed $default
+ * @param  mixed|null  $key
+ * @param  mixed|null  $default
  *
- * @return mixed
+ * @return mixed|\Cuber\Support\Request
  */
 function request($key = null, $default = null)
 {
@@ -156,7 +126,7 @@ function request($key = null, $default = null)
  * @param  bool     $secure
  * @param  bool     $httponly
  *
- * @return mixed
+ * @return mixed|\Cuber\Cookie\Cookie
  */
 function cookie($name = null, $value = null, $expire = 0, $path = null, $domain = null, $secure = null, $httponly = null)
 {
@@ -170,10 +140,10 @@ function cookie($name = null, $value = null, $expire = 0, $path = null, $domain 
 /**
  * session
  *
- * @param null|string $key
- * @param mixed $default
+ * @param  mixed|null  $key
+ * @param  mixed|null  $default
  *
- * @return mixed
+ * @return mixed|\Cuber\Session\SessionManager
  */
 function session($key = null, $default = null)
 {
@@ -199,7 +169,7 @@ function cache($key = null, $default = null)
     }
 
     if (is_array($key)) {
-        app('cache')->set(key($key), reset($key), $default);
+        return app('cache')->set(key($key), reset($key), $default);
     }
 
     return app('cache')->get($key, $default);
@@ -208,10 +178,10 @@ function cache($key = null, $default = null)
 /**
  * config
  *
- * @param string|array $key
- * @param string|array $default
+ * @param  mixed|null  $key
+ * @param  mixed|null  $default
  *
- * @return string|array
+ * @return mixed|\Cuber\Config\Config
  */
 function config($key = null, $default = null)
 {
@@ -257,9 +227,9 @@ function url($url = '', $domain = '', $http = '//')
 /**
  * array_get
  *
- * @param array $array
- * @param string $key
- * @param mixed $default
+ * @param  array   $array
+ * @param  string  $key
+ * @param  mixed   $default
  *
  * @return value
  */
@@ -286,60 +256,6 @@ function array_get($array = [], $key = null, $default = null)
 }
 
 /**
- * array_hash
- *
- * @param array $array
- * @param string $key_field
- * @param string|array $value_field
- *
- * @return array
- */
-function array_hash($array = [], $key_field = 'id', $value_field = null)
-{
-    if (empty($array) or !is_array($array)) {
-        return [];
-    }
-
-    $hash = [];
-    foreach ($array as $value) {
-        $hash[$value[$key_field]] = is_scalar($value_field) ? $value[$value_field] : $value;
-    }
-
-    if (is_array($value_field)) {
-        return array_field($hash, $value_field);
-    }
-
-    return $hash;
-}
-
-/**
- * array_field
- *
- * @param array $array
- * @param string|array $fields
- *
- * @return array
- */
-function array_field($array = [], $fields = null)
-{
-    if (empty($array) or !is_array($array) or empty($fields)) {
-        return [];
-    }
-
-    $fields = is_array($fields) ? $fields : explode(',', $fields);
-    $new = [];
-    foreach ($array as $key=>$value) {
-        $line = [];
-        foreach ($fields as $field) {
-            $line[$field] = isset($value[$field]) ? $value[$field] : '';
-        }
-        $new[$key] = $line;
-    }
-
-    return $new;
-}
-
-/**
  * put_env
  *
  * @return void
@@ -360,8 +276,8 @@ function put_env()
 /**
  * getenv
  *
- * @param string $key
- * @param mixed $default
+ * @param  string  $key
+ * @param  mixed   $default
  *
  * @return mixed
  */
@@ -375,9 +291,9 @@ function env($key, $default = null)
 /**
  * model
  *
- * @return new Model()
+ * @return new Model
  */
-function model($model = null)
+function model($model)
 {
     $model = config('model_namespace', 'App\\Models\\') . $model;
 
@@ -391,7 +307,7 @@ function model($model = null)
  *
  * @return bool
  */
-function mk_dir($dir = null)
+function mk_dir($dir)
 {
     if (empty($dir)) {
         return false;
@@ -411,15 +327,15 @@ function mk_dir($dir = null)
 }
 
 /**
- * log
+ * 文件日志
  *
- * @param string $file
- * @param string $data
- * @param string $mode
+ * @param  string  $file
+ * @param  string  $data
+ * @param  string  $mode
  *
  * @return bool
  */
-function ll($file = '', $data = '', $mode = 'ab')
+function file_log($file, $data, $mode = 'ab')
 {
     if (empty($file)) {
         return false;
@@ -433,71 +349,4 @@ function ll($file = '', $data = '', $mode = 'ab')
     fwrite($handle, $data);
     fclose($handle);
     return true;
-}
-
-/**
- * 获取客户端IP
- *
- * @return string
- */
-function get_client_ip()
-{
-    foreach (['HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'REMOTE_ADDR'] as $key) {
-        if (isset($_SERVER[$key])) {
-            return $_SERVER[$key];
-        } elseif (getenv($key)) {
-            return getenv($key);
-        }
-    }
-
-    return '127.0.0.1';
-}
-
-/**
- * 编码转换
- *
- * @param string $in_charset
- * @param string $out_charset
- * @param array|string $array
- *
- * @return array|string
- */
-function iconv_array($in_charset, $out_charset, $array)
-{
-    if ('//IGNORE' != substr($out_charset, -8) and '//TRANSLIT' != substr($out_charset, -10)) {
-        $out_charset .= '//IGNORE';
-    }
-
-    if (is_array($array)) {
-        foreach ($array as $key=>$value) {
-            unset($array[$key]);
-            $key = iconv($in_charset, $out_charset, $key);
-            $array[$key] = iconv_array($in_charset, $out_charset, $value);
-        }
-    } elseif (is_string($array)) {
-        $array = iconv($in_charset, $out_charset, $array);
-    }
-
-    return $array;
-}
-
-/**
- * 将数组数字值转为字符串值
- *
- * @param array|string $data
- *
- * @return array|string
- */
-function to_string($data)
-{
-    if (is_array($data)) {
-        foreach ($data as $key => $value) {
-            $data[$key] = to_string($value);
-        }
-    } elseif (is_object($data)) {
-    } else {
-        $data = strval($data);
-    }
-
-    return $data;
 }

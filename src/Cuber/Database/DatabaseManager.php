@@ -146,12 +146,7 @@ class DatabaseManager
      */
     public function hash($key = 'id', $value = null)
     {
-        if (isset($value)) {
-            $field = ($key == $value) ? $value : "{$key},{$value}";
-        } else {
-            $field = null;
-        }
-
+        $field = isset($value) ? [$key, $value] : null;
         $res = $this->getQuery()->field($field)->buildSelect();
         extract($res);
         $statement = $this->getDriver()->query($sql, $param);

@@ -241,6 +241,15 @@ class Query
         }
     }
 
+    private function makeField($value)
+    {
+        if (preg_match('/(\(|\s\S|\.|\*|`)/', $value)) {
+            return $value;
+        } else {
+            return '`' . $value . '`';
+        }
+    }
+
     /**
      * buildField
      *
@@ -248,7 +257,11 @@ class Query
      */
     private function buildField()
     {
-        return isset($this->binds['field']) ? $this->binds['field'] : '*';
+        if (empty($this->binds['field'])) {
+            return '*';
+        } else {
+            return implode(',', array_map([$this, 'makeField'], array_unique($this->binds['field'])));
+        }
     }
 
     /**
@@ -524,7 +537,33 @@ class Query
             return $this;
         }
 
-        $this->binds['field'] = is_array($field) ? implode(',', $field) : trim($field);
+        $this->binds['field'] = is_array($field) ? $field : [$field];
+        return $this;
+    }
+
+    /**
+     * 追加查询字段
+     *
+     * @param string|array $field
+     *
+     * @return $this
+     */
+    public function addField($field)
+    {
+        if (empty($field)) {
+            return $this;
+        }
+
+        if (!is_array($field)) {
+            $field = [$field];
+        }
+
+        if (isset($this->binds['field'])) {
+            $this->binds['field'] = array_merge($this->binds['field'], $field);
+        } else {
+            $this->binds['field'] = $field;
+        }
+
         return $this;
     }
 

@@ -187,11 +187,7 @@ class CacheManager
             return false;
         }
 
-        $cache_keys = [];
-        foreach ($keys as $key) {
-            $cache_keys[] = $this->key($key);
-        }
-        return $this->driver->mDelete($cache_keys);
+        return $this->driver->mDelete(array_map([$this, 'key'], $keys));
     }
 
     /**
